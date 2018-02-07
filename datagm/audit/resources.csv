@@ -1,0 +1,864 @@
+name,id,type,organisation,author,author_email,maintainer,maintainer_email,notes,updated
+Trafford Public Toilets,ba5f40ce-4ace-4b48-89bd-be9913cdcc52,dataset,Trafford Council,Paul Westland,paul.westland@trafford.gov.uk,Paul Westland,paul.westland@trafford.gov.uk,Information regarding the location and attributes of Trafford's publically accessible toilet facilities.,2018-02-05
+Variable Message Signs,28f2166c-4dfe-4608-aecb-33c72f889d74,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Michelle Peel,,"By downloading this dataset, you are indicating your acceptance of the terms of the Licence.
+
+Location of all message signs within the Greater Manchester boundary.",2018-01-03
+Traffic Camera Locations,213c947f-11c6-4c97-887b-9b12f22a670c,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Michelle Peel,,"By downloading this dataset, you are indicating your acceptance of the terms of the Licence.
+
+Data showing available locations of traffic monitoring cameras in Greater Manchester.
+
+NOTE: This data only includes locations of cameras where TfGM receives data feeds and doesn't include all traffic cameras.",2018-01-03
+Traffic Signal Locations,982d27ab-4dea-425e-bfb4-66acd1170c9a,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Peter Wightman,,"Locations of traffic signals in Greater Manchester, including Signals, Puffins, Pelicans, Pegasus, Wig Wags, Toucans, and LRT.
+
+This dataset is available from our pages on data.gov.uk - the link below will take you to the page where you can download the dataset.",2017-12-15
+Grants to voluntary and community organisations - Trafford,58f50da4-90d4-4fd1-b22b-79160c6337b7,dataset,Trafford Council,Trafford Data Lab,info.trafford@trafford.gov.uk,,,"Dataset of grants allocated by [Trafford Council](http://www.trafford.gov.uk) via [Trafford Partnership](http://www.traffordpartnership.org/) to voluntary and community organisations. It conforms to the [360 Giving standard](http://www.threesixtygiving.org/support/standard/) and is available to view on [GrantNav](http://grantnav.threesixtygiving.org/funder/GB-LAE-TRF).
+
+You can also download all grant data for Trafford Council in [CSV](http://grantnav.threesixtygiving.org/funder/GB-LAE-TRF.csv) and [JSON](http://grantnav.threesixtygiving.org/funder/GB-LAE-TRF.json) formats directly from GrantNav.",2017-11-28
+GM Accessibility Levels (GMAL),33e57df8-f8ee-425b-91ee-fe2c6e9da700,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Peter Wightman,,"Greater Manchester Accessibility Levels (GMAL) are a detailed and accurate measure of the accessibility of a point to both the conventional public transport network (i.e. bus, Metrolink and rail) and Greater Manchester’s Local Link (flexible transport service), taking into account walk access time and service availability. The method is essentially a way of measuring the density of the public transport provision at any location within the Greater Manchester region. 
+
+This dataset is available from our pages on data.gov.uk - the link below will take you to the page where you can download the dataset.",2017-11-28
+"Bus Routes (1:25,000 scale map data)",2662e04f-644d-4c11-8d0b-ff7fc3ba52fd,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Peter Wightman,,"This dataset consists of map files which show bus routes covering the Greater Manchester area in a selection of GIS file formats.
+
+This dataset is available from our pages on data.gov.uk - the link below will take you to the page where you can download the dataset.",2017-11-14
+Cycle Parking,ed2259d6-c561-44a2-9278-ceb7d9a5310a,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Peter Wightman,,"This data includes the location of cycle stands (e.g. Sheffield Stands) which are generally on-street.  Locations where there are only one or two stands have not been recorded.  All data comes from the Local Authorities.
+
+This dataset is available from our pages on data.gov.uk - the link will take you to the page from which you can download the dataset.",2017-07-28
+Cycle Lockers,94e0b7ac-f3a7-465d-9519-02e096d47b4e,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Peter Wightman,,"Most lockers are part of the Bike Locker Users' Club (BLUC), but one or two locations are not BLUCs.
+
+This dataset is available from our pages on data.gov.uk - the link will take you to the page from which you can download the dataset.",2017-07-28
+Cycle Routes,55cdefef-fe4a-44c3-9bf9-80a81e82b1e0,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Peter Wightman,,"Cycle routes in Greater Manchester, including on-road, off-road, and canal towpaths and National Cycle Network routes.  Data provided by the GM local authorities.
+
+This dataset is available from our pages on data.gov.uk - the link will take you to the page from which you can download the dataset.",2017-07-04
+Cycle Hubs,e911ced3-7c57-4358-84ab-4eed521f6543,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Peter Wightman,,"Cycle Hub locations in Greater Manchester.
+
+This dataset is available from our pages on data.gov.uk - the link will take you to the page from which you can download the dataset.",2017-07-04
+Cycle Shops,7a6e0f0b-4c63-4cf0-b527-9f41513490c3,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Peter Wightman,,"This data came from a desktop study in 2011.  Updates have been provided by Local Authorities when the paper cycle map has been updated.  This data may not be completely up-to-date as bike shops frequently open and close.
+
+This dataset is available from our pages on data.gov.uk - the link will take you to the page from which you can download the dataset.",2017-07-04
+Greater Manchester Road Casualty Statistics,d19c8bfa-d1b9-4fd7-8c0e-83d6ff9a5755,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Michelle Peel,,"This dataset is available from our pages on data.gov.uk - the link below will take you to the page where you can download the dataset.
+
+Statistics about reported road traffic casualties in the Greater Manchester area updated annually. For most tabulations data is provided for each year from either 1989 to 2015 or from 1994 to 2015. If data is required for other years, please contact HFAS. 
+
+By providing the data in this single year format, the user is able to undertake their own analysis on trends more easily. 
+
+The tables are based on data collected by the Greater Manchester Police about road traffic accidents that involved personal injury and took place on the public highway. Deaths or injuries occurring on the public highway without a vehicle being involved are not classed as road traffic accidents. Accidents that do not become known to the police, or only become known 30 days or longer after their occurrence are also excluded. Accidents are recorded by the police using the STATS19 form, a copy of which can be found in HFAS Report 1800, available at www.gmtu.gov.uk. 
+
+The number of injury accidents not known to the Greater Manchester Police is not easily identified. It would seem reasonable to assume that all `fatal’ accidents are reported, but these represent only a small proportion of the total. However, the limited evidence available indicates that serious’ andslight’ accidents are under reported. Without a detailed study in Greater Manchester, it has been assumed historically that 20% and 35% respectively have not been reported. It has also been assumed that the level of under-reporting has been consistent from year to year when analysing the statistics presented in this report. For further information on the levels of reporting in road accidents, the DfT have produced a number of papers which are available via their website www.dft.gov.uk. 
+ 
+",2017-01-03
+Rail Station and Metrolink Stop Locations,af5867f5-3371-4815-b30a-7506222f70b4,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Michelle Peel,,"Location data for Metrolink and Rail stations in Greater Manchester. 
+
+This dataset is available from our pages on data.gov.uk - the link below will take you to the page where you can download the dataset.",2017-01-03
+Public Transport Schedules - GTFS,2a4bde27-57de-48eb-b441-befd6fdee38b,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Michelle Peel,,"Public transport schedule data for all services within the Greater Manchester boundary. Updated by TfGM weekly.
+
+This dataset is available from our pages on data.gov.uk - the link will take you to the page from which you can download the dataset.",2016-07-13
+Bus Stopping Points,2a821366-227c-4990-b1a3-c581d9746a64,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Michelle Peel,,This dataset is available from our pages on data.gov.uk - the link below will take you to the page where you can download the dataset.,2016-07-13
+Bus stops and schedules,d1711424-b0cc-4ae3-91cb-633e56732df2,dataset,Transport for Greater Manchester,,,,,"Bus stop and bus time data for all services within the Greater Manchester boundary. Known technically as ""ATCO-CIF"".
+
+This dataset is available from the data.gov.uk website. ",2016-07-13
+Salford City Council Organisation Chart,f123f544-5517-44ef-91e1-a9ccfc812446,dataset,Salford City Council,Kathryn Kennedy,Kathryn.Kennedy@salford.gov.uk,Kathryn Kennedy,Kathryn.Kennedy@salford.gov.uk,"This dataset provides information on Salford City Council's organisation chart covering staff in the top three levels of the organisation. Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+",2016-06-13
+Salford City Council Senior Salaries,4d956034-14d6-4946-8a11-761fb558815c,dataset,Salford City Council,Kathryn Kennedy,kathryn.kennedy@salford.gov.uk,Kathryn Kennedy,kathryn.kennedy@salford.gov.uk,"This dataset provides information on the salaries and roles of senior staff employed by Salford City Council. This includes:
+- the number of employees whose remuneration in that year was at least £50,000 in brackets of £5,000
+- details of remuneration and job title of certain senior employees whose salary is at least £50,000, 
+- employees whose salaries are £150,000 or more must also be identified by name.
+-  a list of responsibilities (for example, the services and functions they are responsible for, budget held and number of staff) 
+- details of bonuses and ‘benefits-in-kind’, for all employees whose salary exceeds £50,000.
+
+Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+",2016-06-13
+Nitrogen Dioxide Diffusion Tube Sites,acaaaba8-e930-4b42-9227-ea26ad1115d6,dataset,Salford City Council,NA,NA,NA,NA,Salford operates a nitrogen dioxide diffusion tube network to obtain information on the temporal and spatial variation. The network has over 10 years of data at various locations in the area. The tubes are exposed for set period and an annual average calculated Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.,2016-06-13
+Air Quality Monitoring Stations,3d1bb00b-34c5-4022-9627-7d21f0313a8e,dataset,Salford City Council,NA,NA,NA,NA,"Salford operates a number of automatic air quality stations for measurement of pollutants using continuous analyses. Some sites are part of the Department of Environment and Rural Affairs (DEFRA) Automatic Urban and Rural Network (AURN) and other are maintained by Salford City Council as part of the Greater Manchester Air Quality Network (GMAQN). The network has over 10 years of data at various locations in the area. Data is available on Defra’s air quality pages, GreatAirManchester and Air Quality England. The sites in Salford are Eccles (AURN), M60 (AURN) and Glazebury (AURN) Note Defra operate the Glazebury site and are responsible for it. Defra also collect and manage the information for Eccles and the M60 data is managed by Salford. Current pollutants monitored Nitrogen dioxide, PM10, PM2.5, O3 Data available as excel compatible files Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2016-06-13
+Salford Polling Stations,caebd85e-1fd9-4905-ba8f-c392dd69f90b,dataset,Salford City Council,,,,,Locations of polling stations within Salford used in elections.,2016-06-13
+Salford City Council Parking Account and Parking Spaces,50da928c-d3dd-437a-bc88-0179e3e652cc,dataset,Salford City Council,Parking Services,parking.services@salford.gov.uk,Parking Services,parking.services@salford.gov.uk,"This report provides a breakdown of income and expenditure on Salford City Council's parking account, including revenue collected from on-street parking, off-street parking and Penalty Charge Notices. Where a surplus exists it will also show a breakdown of how the authority has spent this surplus on its parking account.
+
+The report also includes the number of marked out controlled on and off-street parking spaces within their area, or an estimate of the number of spaces where controlled parking space is not marked out in individual parking bays or spaces.
+
+Details are provided to meet the required standards of the Local Government Transparency Code 2014. ",2016-06-13
+Salford City Council Pay multiple,2343697a-2154-46d0-9e0c-a1543e412bc5,dataset,Salford City Council,,,,,"This dataset provides information on Salford City Council's pay multiple.
+
+The pay multiple is defined as the ratio between the highest paid taxable earnings for the given year (including base salary, variable pay, bonuses, allowances and the cash value of any benefits-in-kind) and the median earnings figure of the whole of the authority’s workforce, (e.g. that of all employees of the local authority on a fixed date each year, coinciding with reporting at the end of the financial year but  excluding changes in pension benefits, which due to their variety and complexity cannot be accurately included in a pay multiple disclosure).
+
+ Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+",2016-06-13
+DfT RoadSafety Accidents 2007 GM Subset,85e2e22d-ca94-4f06-8d86-ba996d1b27f4,dataset,Open Data Manchester,Julian Tait,julian@opendatamanchester.org.uk,NA,NA,"This file provides detailed data about the circumstances of personal injury road accidents in Greater Manchester in 2007, the types of vehicles involved and the consequential casualties. The statistics relate only to personal injury accidents on public roads that are reported to the police, and subsequently recorded, using the STATS19 accident reporting form.",2016-04-15
+DfT RoadSafety Accidents 2008 GM Subset,4633fbf0-6377-47ed-a0e4-06fe328125b7,dataset,Open Data Manchester,Julian Tait,julian@opendatamanchester.org.uk,NA,NA,"This file provides detailed data about the circumstances of personal injury road accidents in Greater Manchester in 2008, the types of vehicles involved and the consequential casualties. The statistics relate only to personal injury accidents on public roads that are reported to the police, and subsequently recorded, using the STATS19 accident reporting form.",2016-04-14
+Births and Mortality in Trafford Wards 2006,a7fc067c-6054-474e-aa19-284d6e5beca6,dataset,Trafford Council,Office for National Statistics,NA,NA,NA,NA,2016-04-13
+Births and Mortality in Trafford Wards 2007,81f6dda7-c7c0-4a9d-80e0-9a375a368d4f,dataset,Trafford Council,Office for National Statistics,NA,NA,NA,NA,2016-04-13
+Salford City Council - Public toilets,0015ce8a-71d0-46f8-8701-730b3622b334,dataset,Salford City Council,,,,,"Public toilets (public conveniences) managed by Salford City Council.  
+
+Dataset is formatted to comply with the Local Government Open Data Incentive Scheme Schema compliance - Public toilets: http://schemas.opendata.esd.org.uk/PublicToilets",2016-04-13
+Salford City Council Land and property assets (Transparency Code),3c523f99-03a2-43f9-a36c-eca4114595db,dataset,Salford City Council,,,,,"This dataset provides information on Salford City Council's land and building assets. Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+
+The Code states for vacant properties that only the first part of the postcode should be published so this information has been redacted accordingly. 
+
+A full dataset version including the UPRN and geo-co-ordinates derived from Ordnance Survey data can only be released for “using the data to respond to, or interact with the Licensor to deliver or support the delivery of the Licensor’s Core Business” due to OS licensing restrictions under a PSMA end user licence: http://www.ordnancesurvey.co.uk/business-and-government/public-sector/mapping-agreements/end-user-licence.html 
+
+If you wish to use this data for any other purpose other than supporting the delivery of the Licensor’s Core Business, then you should contact Ordnance Survey via https://www.ordnancesurvey.co.uk/contact/ or telephone 03456 05 05 05 to discuss how they can help you with your requirements. 
+",2016-04-13
+Salford City Council - Planning applications,61f7eda9-b456-47ab-bba8-b27217dd15a7,dataset,Salford City Council,,,,,"Planning applications received by Salford City Council since 1 April 2014.
+
+Dataset is formatted to comply with the Local Government Open Data Incentive Scheme Schema compliance - planning applications: http://schemas.opendata.esd.org.uk/PlanningApplications
+
+A full dataset version including the UPRN derived from Ordnance Survey data can only be released for “using the data to respond to, or interact with the Licensor to deliver or support the delivery of the Licensor’s Core Business” due to OS licensing restrictions under a PSMA end user licence: http://www.ordnancesurvey.co.uk/business-and-government/public-sector/mapping-agreements/end-user-licence.html
+
+If you wish to use this data for any other purpose other than supporting the delivery of the Licensor’s Core Business, then you should contact Ordnance Survey via https://www.ordnancesurvey.co.uk/contact/ or telephone 03456 05 05 05 to discuss how they can help you with your requirements.",2016-04-13
+Salford City Council Counter Fraud Work,9f3a66c6-1b39-4807-ab67-524f95909c46,dataset,Salford City Council,,,,,"This dataset provides information on Salford City Council's counter fraud work. Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+",2016-04-13
+Salford City Council - Premises licences,6814d97e-17f7-40b7-915a-5777ac95d506,dataset,Salford City Council,,,,opendata@salford.gov.uk,"Premises licences issued by Salford City Council.  These are licences issued to premises which sell alcohol, provide regulated entertainment or serve hot food after 11pm.
+
+Dataset is formatted to comply with the Local Government Open Data Incentive Scheme Schema compliance - premises licences: http://schemas.opendata.esd.org.uk/PremisesLicences
+
+A full dataset version including the UPRN derived from Ordnance Survey data can only be released for “using the data to respond to, or interact with the Licensor to deliver or support the delivery of the Licensor’s Core Business” due to OS licensing restrictions under a PSMA end user licence: http://www.ordnancesurvey.co.uk/business-and-government/public-sector/mapping-agreements/end-user-licence.html
+
+If you wish to use this data for any other purpose other than supporting the delivery of the Licensor’s Core Business, then you should contact Ordnance Survey via https://www.ordnancesurvey.co.uk/contact/ or telephone 03456 05 05 05 to discuss how they can help you with your requirements.",2016-04-13
+Parks,c4c9e394-33cc-49f3-8da9-b193cd015665,dataset,Salford City Council,NA,NA,NA,NA,Dataset of park locations managed and maintained by Salford City Council. Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.,2016-04-13
+"Salford City Council Grants to voluntary, community and social enterprise (VCSE) organisations",2d04efa1-5d33-4604-93dc-8b2701eed942,dataset,Salford City Council,Sandra Derbyshire,sandra.derbyshire@salford.gov.uk,Sandra Derbyshire,sandra.derbyshire@salford.gov.uk,"This dataset provides information on grants made to voluntary, community and social enterprise organisations by Salford City Council. Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+",2016-04-13
+Social Housing Asset Data,9a85a15f-42c6-4a7e-a358-840522a1488b,dataset,Salford City Council,Joanne Hardman,Joanne.Hardman@salford.gov.uk,Joanne Hardman,Joanne.Hardman@salford.gov.uk,"This dataset provides information on Social Housing Asset Data at Salford City Council. Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+",2016-04-13
+Business Rates,dc37c693-d910-457a-bbee-70a4037715bb,dataset,Salford City Council,Corporate Business,,Corporate Business,,"Information on businesses who pay business rates in Salford. Information includes business address, rateable value and other details. ",2016-04-13
+Metrolink park and ride spaces,6a541241-77ec-4324-9d71-2ddf8b9c0862,dataset,Transport for Greater Manchester,,,Michelle Peel,opendata@tfgm.com ,"Park & ride spaces by Metrolink station / stop. Source: TfGM Metrolink. RESTRICTIONS : None
+
+",2016-04-08
+Salford City Council contracts let,f11ff3db-81ad-4c81-add0-826dab0960cf,dataset,Salford City Council,,,,webmaster@salford.gov.uk,Contracts let by Salford City Council's corporate procurement unit,2016-04-04
+Salford City Council expenditure over £500,4b5beac1-5ead-471b-8edf-68c7c04ebe14,dataset,Salford City Council,,,,,This page lists reports of individual payments to suppliers with a value over £500 made within the month. Publication of these lists forms part of the council's commitment to be open and transparent with its residents.,2016-04-04
+Leisure Centres,3f74e933-6272-410e-b341-07674b93aefb,dataset,Greater Manchester,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,Lists and locations / map files of all Leisure Centres across Greater Manchester,2016-04-04
+Libraries,ca7bb233-1c69-4bd7-a6c3-59c06aaf24a4,dataset,Greater Manchester,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,List and locations or map files of libraries across Greater Manchester,2016-04-04
+Parks and Greenspaces,d8bbdb67-c5f5-48f5-b69c-9e4b73d9f8f5,dataset,Greater Manchester,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,List and locations/maps of parks and greenspaces across Greater Manchester,2016-04-04
+Speed Camera locations in Greater Manchester,938f0d30-35d5-4f0a-bcd4-cd3687760e77,dataset,Transport for Greater Manchester,Transport for Greater Manchester,,Transport for Greater Manchester,michelle.peel@tfgm.com,"Location of fixed and mobile speed cameras in Greater Manchester.
+
+Speed limit information provided by Local Authorities.
+
+NOTE: The Police have discretion to undertake speed enforcement anywhere within the Greater Manchester area, activity which is separate to and not funded by or through the Greater Manchester Casualty Reduction Partnership, and not subject to the Partnership's protocols nor scrutiny of the Partnership Board.
+
+This dataset is available from the data.gov.uk website.
+
+",2016-02-09
+Tameside Council Senior Salary Information,dd0b40ab-428a-401f-93f6-4e725d62d9f9,dataset,Tameside Metropolitan Borough Council,NA,NA,NA,NA,Senior Salary Information for Tameside Council,2016-01-28
+Tameside Supplier Spend - December 2010,c24a15ab-e548-443b-96e1-5b7813d74686,dataset,Tameside Metropolitan Borough Council,Tameside Council,NA,NA,NA,Supplier Spend £500+,2016-01-28
+Trafford Supplier Spend - July 2010,dce52bcd-7191-460e-adfa-73ab16858e9b,dataset,NA,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - June 2010,7c62ea50-f6f5-4de3-8e2a-b6260b72c99e,dataset,NA,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - May 2010,d5ea82d9-b309-478f-90cd-139a7698380b,dataset,NA,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - October 2010,ce7272f4-2f3e-4034-ab03-bcc93a4c8d72,dataset,NA,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - November 2010,93b57c8e-c695-4c7f-a2ff-cad99d27084d,dataset,NA,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - December 2010,6441ea5d-17d4-49e9-a111-af5e19f77c38,dataset,NA,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - April 2012,85ff93ae-2e8c-41be-a043-d62c08174eca,dataset,NA,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,Supplier Spend 0+,2016-01-13
+Business Rates Arrears 2005-2010,52d21f16-6c96-4dc2-8c93-1666ea75b039,dataset,Trafford Council,NA,NA,NA,NA,Business Rates (NNDR) Arrears as at 31 March 2011 for Years 2005/06 to 2009/10 per ward area,2016-01-13
+Business Rates Arrears 2010-11,703e9946-601a-400a-8271-fcbce8273d7f,dataset,Trafford Council,NA,NA,NA,NA,Business Rates (NNDR) Arrears for 2010/11 as at 31 March 2011 per ward area.,2016-01-13
+Council Tax Arrears 2005-2010,ed6eb210-5c4a-4b2f-a1e9-c2bba626dcbb,dataset,Trafford Council,NA,NA,NA,NA,Council Tax Arrears as at 31 March 2011 for Years 2005/06 to 2009/10 per ward area,2016-01-13
+Council Tax Arrears 2010-11,dbefce47-dca6-4373-8248-7be944282e75,dataset,Trafford Council,NA,NA,NA,NA,Council Tax Arrears for 2010/11 as at 31 March 2011 per ward area.,2016-01-13
+Trafford Council Spatial Assets,2a0b3991-83bf-4214-9627-5dd63119c34b,dataset,Trafford Council,NA,NA,NA,NA,Land and Buildings owned by Trafford Council,2016-01-13
+Trafford Senior Salaries,bd3fb955-5a83-41ca-b322-e66e1c68ffff,dataset,Trafford Council,NA,NA,NA,NA,Salaries of the council's senior staff,2016-01-13
+Trafford Supplier Spend - April 2010,51502ea3-8895-446e-ab26-baec89589f2a,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - April 2011,16f9a9b3-935a-4dc8-8f3b-a8b58b160d7f,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - August 2010,afcb7745-71b8-4039-9c00-f4af1600cbb5,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - August 2011,537e5ad0-6d9c-4f2b-b916-20c061957f80,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,NA,Supplier Spend £0+,2016-01-13
+Trafford Supplier Spend - December 2011,90aea256-7cc4-4917-b356-6db22bfde2e5,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,NA,Supplier Spend 0+,2016-01-13
+Trafford Supplier Spend - February 2011,1916b4f3-dddd-4653-804d-ef5efbd1c8e4,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - January 2011,58c526ef-2bd4-469b-8a1d-94ba7dec0d9d,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend 500+,2016-01-13
+Trafford Supplier Spend - January 2012,493ee540-2278-4a30-9d43-349d1be2ebdb,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,NA,Supplier Spend £0+,2016-01-13
+Trafford Supplier Spend - July 2011,00980fda-6319-4344-8e67-8b20af4d575d,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend - All Payments £0+,2016-01-13
+Trafford Supplier Spend - June 2011,2b85d6f9-9baa-49d1-9819-73987b58b9a3,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend - All Payments £0+,2016-01-13
+Trafford Supplier Spend - March 2011,28355c76-788a-400c-aa3d-404e015c56ce,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - May 2011,377108c9-86de-4a8d-99b1-5f6da05150aa,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - November 2011,31646a55-6faf-4f99-88e5-36479a1380de,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,NA,Supplier Spend £0+,2016-01-13
+Trafford Supplier Spend - October 2011,39ad6da2-3458-4f64-986b-1092f6c04f9c,dataset,Trafford Council,Accounts Payable,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £0+,2016-01-13
+Trafford Supplier Spend - September 2010,e2854b95-99b0-400a-9740-b494a44c7f8a,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,accounts.payable@trafford.gov.uk,Supplier Spend £500+,2016-01-13
+Trafford Supplier Spend - September 2011,91603e99-a817-4c85-9a5a-16abc8dcd64d,dataset,Trafford Council,Trafford Council,accounts.payable@trafford.gov.uk,NA,NA,Supplier Spend £0+,2016-01-13
+Defibrillators,08306cd3-6e1f-43ef-ab1d-0c8008f41f62,dataset,Trafford Innovation and Intelligence Lab,Jamie Whyte,jamie.whyte@trafford.gov.uk,,,Locations of automated external defibrillators (AEDs),2015-10-23
+Schools in Salford,af9d74bd-8997-4f99-a613-e89a7896b545,dataset,Salford City Council,,,,,"List of schools in Salford, (including academies). Includes type of school, address, contact details, head teacher, number of pupils and hyperlink to OFSTED reports.",2015-09-30
+Libraries in Salford,fa7fccac-2d90-4e26-99cd-0b2b3886c961,dataset,Salford City Council,,,,,"Libraries in Salford that are managed by [Salford Community Leisure](http://www.salfordcommunityleisure.co.uk/ ""Salford Community Leisure website"") including name, location, website and Unique Property Reference Number (UPRN)",2015-09-24
+Cultural Venues,da887873-17da-484d-ac8f-f574e5208cbd,dataset,Salford City Council,,,,,"Cultural venues within Salford that are managed by [Salford Community Leisure](http://www.salfordcommunityleisure.co.uk/ ""Salford Community Leisure website"").",2015-09-24
+Locally Listed Heritage Sites in Salford,d79d3bd1-ab84-415d-9b4d-14a088a77a96,dataset,Salford City Council,,,,opendata@salford.gov.uk,"List of locally adopted heritage assets. For more information on its compilation please see: http://www.salford.gov.uk/locallist.htm
+",2015-09-24
+Gritting Routes,d507b5c5-acd7-442c-975b-2a6cf7b63285,dataset,Salford City Council,,,,,Details of winter road gritting routes within Salford.  For further information see http://www.salford.gov.uk/gritting.htm,2015-09-24
+School closure information,c67303ee-35ea-4da9-b809-2850c72c5a61,dataset,Salford City Council,,,,,"All closure information for schools, pupil referral units and children's centres.",2015-09-24
+Ward information,bfe2ae53-5a95-4f34-a503-ebc739aba254,dataset,Salford City Council,,,,,Information about the 20 wards that make up the city of Salford.,2015-09-24
+Gateway Centres in Salford,bacf7573-366c-4ba3-9414-47bec2372330,dataset,Salford City Council,,,,,Gateway Centres bring together council and health services under one roof.,2015-09-24
+Greenspaces in Salford,b9e6fea8-ceea-4e77-a7b6-e462786ac7fb,dataset,Salford City Council,,,,,"Results from Greenspaces Audit. For definition of Greenspaces please refer to: http://www.salford.gov.uk/greenspaceaudit.htm
+",2015-09-24
+Councillors,afe0556c-1cde-4919-9941-847355840fe6,dataset,Salford City Council,,,,,"Salford CIty Council Councillor details provided in XML data format.  Including a list of councillors, contact details and committee membership.",2015-09-24
+Salford Polling Districts,9a35c62d-8416-488b-91ed-b7a2abaaf7e4,dataset,Salford City Council,,,,,Polling districts of Salford used in elections.,2015-09-24
+Council Constitution,85ceecb7-77ba-451d-877e-88063e6dad08,dataset,Salford City Council,,decisionmakingandscrutiny@salford.gov.uk,,decisionmakingandscrutiny@salford.gov.uk,"This dataset provides information on the Constitution at Salford City Council. Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+",2015-09-24
+Leisure Centres in Salford,7451dc68-6b45-4b1d-9541-0afb93816e39,dataset,Salford City Council,,,,,"Leisure centres in Salford that are managed by [Salford Community Leisure](http://www.salfordcommunityleisure.co.uk/ ""Salford Community Leisure website""). Details include name. location, contact details and website address.",2015-09-24
+Council tax bands,68795710-8073-40d4-84b7-c85c364f60a3,dataset,Salford City Council,,,,,Council tax bands for the current year.,2015-09-24
+Conservation Areas,628b09d5-94ab-405b-8a3c-29289712b99e,dataset,Salford City Council,,,,,"Areas of special architectural or historic interest within Salford, (the character or appearance of which it is desirable to preserve or enhance) as per the powers of Section 69 of the Planning (Listed Buildings and Conservation Areas) Act 1990.",2015-09-24
+(Definitive) Public Rights of Way,4d52f0fa-e792-48a9-bc12-b5f0692543c0,dataset,Salford City Council,,,,,Definitive Right of Way network for Salford,2015-09-24
+Street Lights,3b1b594f-e1a3-495b-a6c0-221fff9d1ffd,dataset,Salford City Council,,,,,Location and relevant details on Salford City Council's street lighting columns.,2015-09-24
+Community Centres in Salford,37658402-a779-4cb5-b4c6-9b59c0ebe1b1,dataset,Salford City Council,,,,,"Community centres in Salford that are managed by [Salford Community Leisure](http://www.salfordcommunityleisure.co.uk/ ""Salford Community Leisure website"") including name, location, website and Unique Property Reference Number (UPRN)",2015-09-24
+INSPIRE spatial datasets,20b7139d-bfd6-4a8e-91ac-8307e35842b7,dataset,Salford City Council,,,,,"These are environmental spatial datasets that must be published by the council in order to comply with the EU INSPIRE directive.
+
+For compliance with the metadata requirements they are catalogued via the UK Metadata Editor and harvested from here to this site and data.gov ; where they can be searched and accessed as individual datasets.",2015-09-24
+Recycling Centres,07c1e816-22b4-49b9-911c-06838d2eeba1,dataset,Salford City Council,,,,,Recycling centres (bring sites) within Salford with locations and details of what can be recycled there.,2015-09-24
+Salford City Council Trade Union Facility Time,b72dc420-bd6d-4bf5-b1d1-1abc773f268f,dataset,Salford City Council,Kathryn Kennedy,kathryn.kennedy@salford.gov.uk,Kathryn Kennedy,kathryn.kennedy@salford.gov.uk,"This dataset provides information on Trade Union's facility time at Salford City Council. Details are provided to meet the required standards of the Local Government Transparency Code 2014. 
+",2015-09-22
+Blue Plaques,7f265814-74d0-4c33-af3f-f514404171c5,dataset,Trafford Innovation and Intelligence Lab,Jamie Whyte,jamie.whyte@trafford.gov.uk,,,"Locations of Blue, or heritage, Plaques, with details.",2015-09-16
+Council Tax Bands,10af0094-3803-4980-9592-620b456dc273,dataset,Salford City Council,,,,,These are our most recent council tax bands and charges.,2015-09-15
+Trafford Supplier Spend 2013,4b00225b-3a4f-4e48-8de7-7b096a1acd35,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Collection of CSV files showing supplier spend in Trafford in 2013, arranged by month",2015-09-02
+Transparency Code - Trafford,d8083c55-feb4-41e9-bb14-2ceb48b58b9f,dataset,Trafford Council,,,,,Container for all data to be released as part of the mandatory Transparency Code ,2015-09-02
+Jobseekers Allowance Claimants,ee5bc4e7-0cf7-4aa2-b4b4-5cc7756dea8b,dataset,Trafford Innovation and Intelligence Lab,,,,,Number and percentage of jobseekers allowance claimants,2015-07-26
+What's on in Salford,63c6e3ef-4e17-4c6a-83be-e13f2fa9f970,dataset,Salford City Council,,,,,Forthcoming events taking place in Salford.,2015-07-01
+Current job vacancies,b7eb6cf8-6db0-44a0-ba13-9ee609ffa324,dataset,Salford City Council,,,,,"All current Salford City Council job vacancies, provided by [yourcounciljobs](https://www.yourcounciljobs.co.uk/)",2015-07-01
+Recent press releases,ba1cbb9d-452b-4103-8771-85be503d3790,dataset,Salford City Council,,,,,The latest press releases published by Salford City Council.,2015-07-01
+Decisions of the council,da48fd9c-1df0-406b-b66b-80f55e776b82,dataset,Salford City Council,,,,,"The most recent 15 decisions made by the Cabinet, an individual Member of the Cabinet, a Committee of the Cabinet, or under joint arrangements.",2015-07-01
+Allotment Sites,7485a542-b781-40cc-99dd-28a38388de12,dataset,Salford City Council,NA,NA,NA,NA,Salford City Council managed allotment sites.,2015-06-25
+Rochdale Supplier Spend - September 2010,caa8bbd0-5492-4b0b-96fc-66f42ea4aec6,dataset,Rochdale Metropolitan Borough Council,Rochdale Council,NA,NA,NA,Supplier Spend £500+,2015-06-11
+Number of Red1 responses by North West Ambulance Service in Trafford,374e33f7-66be-4e07-88c2-1f0d4bb1c94e,dataset,Trafford Innovation and Intelligence Lab,,,,,This dataset was obtained from NWAS to support the rollout of defibrillators in Trafford.,2015-06-11
+Rail park and ride spaces,db16ac67-c2d9-4242-82f2-fa876e497b9e,dataset,Transport for Greater Manchester,,,Michelle Peel,opendata@tfgm.com,"Park & Ride spaces at Rail stations in GM. Source: TfGM. RESTRICTIONS: None
+
+",2015-06-05
+Salford City Council INSPIRE OGC WFS service,0c37021a-3815-4791-b21a-b592e01383db,dataset,Salford City Council,NA,NA,NA,NA,Salford City Council INSPIRE OGC WFS (download) service. Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.,2015-05-22
+Food Production Facilities,0ed362a8-cf38-4de0-9163-7428f372a975,dataset,Salford City Council,NA,NA,NA,NA,"Dataset of food production businesses operating within Salford City and either registered or approved as food businesses under Regulation (EC) No. 852/2004 or 853/2004.
+
+Food businesses must register with local authorities in order for them to keep an up-to-date list of food premises in their area, inspect them on a risk based frequency and all food premises are required to complete a food premises registration form. Businesses that do not sell food to the public, for example food manufacturers, may instead need to have their premises approved under Regulation EC Number 853/2004.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Salford City Council INSPIRE OGC WMS service,14e126eb-3b93-44ca-9262-fb5d7b0d9536,dataset,Salford City Council,NA,NA,NA,NA,Salford City Council INSPIRE OGC WMS (view) service. Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.,2015-05-22
+Wildlife Corridors Areas of Search,16e29ddd-41b3-4dc4-bb65-29aa018a74f0,dataset,Salford City Council,NA,NA,NA,NA,"Wildlife corridors areas of search as defined in Salford UDP 2006.
+These areas are the areas within which UDP Policy EN9 operates.
+They are areas of search for wildlife corridors - land which enhances the ability of species to move through the city.
+
+The unitary development plan (UDP) is a statutory document that sets out the council's planning policies that are used to guide development, conservation, regeneration and environmental improvement activity in Salford.
+
+The UDP and other adopted development plan documents comprise the development plan for the city. 
+Decisions on planning applications must be made in line with the development plan, unless there are clear material considerations which dictate why this should not be the case.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Parking Zones,179dc9ac-4e89-4248-9c97-3870b818bd50,dataset,Salford City Council,NA,NA,NA,NA,"A controlled parking zone has been introduced which restricts waiting throughout the zone and which is subject to pay and display charging.
+Highway signage displays the restriction applicable at all entry points into the zone. Generally speaking the zone restricts waiting between the hours of 8am and 6pm, Monday to Friday, and 8am and 12.30pm on Saturdays.
+Attention should be given to additional signposting within the zone which gives details of other pertinent restrictions in force at that point, particularly in relation to loading or unloading operations.
+Some roads within the controlled zone permit waiting within marked bays subject to the purchase of a pay and display ticket, available at roadside machines. Care must be taken to display these tickets so that their details may be read from outside the vehicle by a Civil Enforcement Officer, otherwise a penalty charge notice may be issued.
+Normal parking restrictions apply on public holidays, unless signs on site indicate otherwise.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Area covered by Local Flood Risk Management Strategy,1ce20b9f-616b-4dc9-b1a0-c054e1820d98,dataset,Salford City Council,NA,NA,NA,NA,"This is the area covered by the Local Flood Risk Management Strategy, which is the entirety of the city boundary.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+City Airport Manchester Safeguarding Zone - developments attracting birds,231e95ce-beb4-4fa9-a9f2-62da7cf5e55b,dataset,Salford City Council,NA,NA,NA,NA,"Dataset showing an area of the city (known as a safeguarding zone) where the city council should consult with City Airport Manchester where development is likely to attract birds, such as proposals involving significant tree planting, minerals extraction or quarrying, waste disposal or management, reservoirs or other significant areas of water, land restoration schemes, sewage works, nature reserves of bird sanctuaries. 
+The purpose of the safeguarding zone is to ensure that the operational integrity or safety of the airport may be assured.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Article 4 Direction,308e4e9b-1acd-4815-b20d-471d1beae0c8,dataset,Salford City Council,NA,NA,NA,NA,"An Article 4 Direction withdraws automatic planning permission granted by the General Permitted Development Order. 
+Salford has one Article 4 Direction which applies to certain properties in the Mines Rescue Conservation Area in Boothstown. 
+It was made in October 1994 by Salford City Council in an attempt to safeguard the unaltered frontages of the original 1930s houses. 
+The direction applies to land comprised of the front elevations of numbers 1 to 15 Orchard Avenue and the front and side elevations of numbers 308, 310 and 320 Ellenbrook Road. 
+The effect of such a direction further removes permitted development rights for these properties and as such planning permission is required for the following works; alterations comprising replacement window frames and rainwater goods;  any alteration to the roof;  the erection or construction of a porch outside the external door; the provision within the garden of a hard-standing; the erection, construction, maintenance, improvement or alteration of a gate, fence, wall or other means of enclosure; the formation, laying out and construction of a means of vehicular access to Orchard Avenue or Ellenbrook Road.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Barton Strategic Regional Site,467ca24e-d326-409b-bf72-aee7c991132e,dataset,Salford City Council,NA,NA,NA,NA,"Dataset showing the extent of the Barton Strategic Regional Site, identified in the City of Salford Unitary Development Plan 2006 - 2016 as a key location potentially providing for employment development, a multi-modal freight interchange and/or a sports stadium (policy E1 - Strategic Regional Site, Barton). 
+As at November 2013 the site had been partially developed to provide the Salford City Stadium with much of the remaining area with planning permission to provide a multi-modal freight interchange (Port Salford) along with associated transport infrastructure.
+
+The unitary development plan (UDP) is a statutory document that sets out the council's planning policies that are used to guide development, conservation, regeneration and environmental improvement activity in Salford. 
+The UDP and other adopted development plan documents comprise the development plan for the city.
+Decisions on planning applications must be made in line with the development plan, unless there are clear material considerations which dictate why this should not be the case.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Local Landscape Character Assessment Areas,5334f91c-1f8e-487c-861c-01d27465f958,dataset,Salford City Council,NA,NA,NA,NA,"Different landscape character areas and sub areas as assessed under the 2007 Landscape Character Assessment consultation draft.
+These areas are not designated as such but the character assessment provides context for planning decisions and planning policy.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Tree Preservation Orders,6d59736b-846c-478c-862d-b335749dbb34,dataset,Salford City Council,NA,NA,NA,NA,"Where a Tree Preservation Order (TPO) is made under Section 198 of the Town and County Planning Act 1990, the tree or group of trees are identified on a location plan. Copies of the order are served on the owners of land upon which the trees are growing, and on the owner occupiers of affected and joining properties.
+
+Once an order has been made, the consent of the council is required before a tree may be pruned or felled. In certain circumstances, it may be agreed that pruning or removal may be permitted in order to accommodate development, but the TPO enables the council to control these actions and to obtain new planting to replace trees which are removed. You can download a form to get approval to carry out pruning or felling work to trees protected by a TPO. There is no fee involved.
+
+If a tree is cut down, uprooted or wilfully destroyed or is deliberately damaged, or pruned in a manner likely to destroy it, in contravention of a TPO, the responsible person may be prosecuted and liable to pay a substantial fine.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Manchester Airport Safeguarding Zone - buildings exceeding 90m in height,6e01f594-a022-4126-9c1d-7874f233470a,dataset,Salford City Council,NA,NA,NA,NA,"Dataset showing an area of the city (known as a safeguarding zone) where the city council should consult with Manchester Airport when development for buildings, structures, erections and works exceeding 90m in height are proposed. 
+The purpose of the safeguarding zone is to ensure that the operational integrity or safety of the airport may be assured.
+The safeguarding zone is shown on the City of Salford Unitary Development Plan 2014-16 Policies saved beyond 21 June 2009 proposals map as Policy DEV7 (i).
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Nitrogen Dioxide Diffusion Tube Sites,7667c871-d295-4cfd-98eb-a5b3f3339aae,dataset,Salford City Council,NA,NA,NA,NA,"Salford operates a nitrogen dioxide diffusion tube network to obtain information on the temporal and spatial variation. The network has over 10 years of data at various locations in the area. The tubes are exposed for set period and an annual average calculated
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Proposals Map Data,7726ead8-cd51-4814-80ad-adaff830995f,dataset,Salford City Council,NA,NA,NA,NA,"The proposals map for Salford reflects the spatial policies of the adopted development plan. It contains policies from the UDP, the Minerals DPD and the Waste DPD. The datasets included are listed below.
+
+UDP Datasets:
+
+Archaeology / Ancient Monument, UDP Policy: CH5 (layer name: UDP_ANCIENT_MONUMENT)
+
+Barton Aerodrome, UDP Policy: A14 (layer name: UDP_BARTON_AERODROME)
+
+Chapel Street Frontage, UDP Policy: MX2 (layer name: UDP_CHAPEL_STREET_FRONTAGE)
+
+Conservation Areas (Updated 2010), UDP Policy CH3 (layer name: UDP_CONSERVATION_AREAS_NEW)
+
+Conservation Areas (at time of adoption, June 2006), UDP Policy: CH3 (layer name: UDP_CONSERVATION_AREAS_OLD)
+
+Education, Health or Community Development Site, UDP Policy: EHC9 and EHC10 (layer name: UDP_EDUC_HEALTH_AND_COMM_DEV)
+
+Employment Development Site, UDP Policy: E4 (layer name: UDP_EMPLOYMENT_DEVELOPMENT)
+
+Existing Strategic Recreation Route, UDP Policy: R5 (layer name: UDP_EXISTING_STRAT_REC_ROUTES)
+
+Green Belt, UDP Policy: EN1 (layer name: UDP_GREEN_BELT)
+
+Housing Development Site, UDP Policy: H9 (layer name: UDP_HOUSING_DEVELOP_SITE)
+
+Innovation Park, UDP Policy: E2 (layer name: UDP_INNOVATION_PARK)
+
+Irwell Valley, UDP Policy: EN5 (layer name: UDP_IRWELL_VALLEY)
+
+Key Recreation Area, UDP Policy: R4 (layer name: UDP_KEY_RECREATION_AREA)
+
+Knowledge Capital, UDP Policy: E3 (layer name: UDP_KNOWLEDGE_CAPITAL)
+
+Major Highway Proposal, UDP Policy: A9 (layer name: UDP_MAJOR_HIGHWAY_PROPOSALS)
+
+Manchester Airport Safeguarding Zone – Buildings, structures, erections and works exceeding 90m in height, UDP Policy: DEV7(i) (layer name: UDP_MAN_AIRPORT_90M_CONSULT)
+
+Manchester Airport Safeguarding Zone – Developments likely to attract birds, and/or applications connected with aviation use, UDP Policy: DEV7(ii) (layer name: UDP_MAN_AIRPORT_ATTRACT_BIRDS)
+
+City Boundary and Manchester Airport Safeguarding Zone - Wind turbine development, UDP Policy: DEV7(iii) (layer name: UDP_MAN_AIRPORT_SAFEGUARD_ZONE)
+
+Manchester, Bolton and Bury Canal, UDP Policy: CH7 (layer name: UDP_MBBC)
+
+Metrolink Extension (Lowry Spur), UDP Policy: A3 (layer name: UDP_METROLINK_EXT_LOWRY_SPUR)
+
+Mixed-Use Area, UDP Policy: MX1 (layer name: UDP_MIXED_USE_AREAS)
+
+Mixed-Use Development Site, UDP Policy: MX3 (layer name: UDP_MIXED_USE_DEVELOP_SITE)
+
+Mosslands, UDP Policy: EN11 (layer name: UDP_MOSSLANDS)
+
+Mossland Heartland, UDP Policy: EN11 (layer name: UDP_MOSSLANDS_HEARTLAND)
+
+New and Improved Recreation Land and Facilities, UDP Policy: R6 (layer name: UDP_NEW_AND_IMPROVED_REC_LAND)
+
+New Sports Stadium, UDP Policy: E1C (layer name: UDP_NEW_SPORTS_STADIUM)
+
+Parks and Gardens of Historic Interest, UDP Policy: CH6 (layer name: UDP_PARKS_AND_GARDENS)
+
+Proposed Strategic Recreation Route, UDP Policy R5 (layer name: UDP_PROPOSED_STRAT_REC_ROUTES)
+
+Retail Development Site, UDP Policy: S5 (layer name: UDP_RETAIL_DEVELOPMENT_SITE)
+
+River Irwell Flood Control, UDP Policy: EN20 (layer name: UDP_RIVER_IRWELL_FLOOD_CONTROL)
+
+Safeguarded Potential Transport Route, UDP Policy: A15 (layer name: UDP_SAFEGUARDED_POT_TRANSPORT)
+
+Sites of Biological Importance (Updated Aug 2012 (2010 Survey)), UDP Policy: EN8 (layer name: UDP_SBI_NEW)
+
+Sites of Biological Importance (at time of adoption, June 2006), UDP Policy: EN8 (layer name: UDP_SBI_OLD)
+
+Strategic Regional Site, Barton, UDP Policy: E1 (layer name: UDP_STRATEGIC_REGIONAL_SITE)
+
+Town / Neighbourhood Centre, UDP Policy: S1 (layer name: UDP_TOWN_AND_NEIGH_CENTRES)
+
+Wildlife Corridor Key Area of Search, UDP Policy: EN9 (layer name: UDP_WILDLIFE_CORRIDOR)
+
+Worsley Greenway, UDP Policy: EN2 (layer name: UDP_WORSLEY_GREENWAY)
+
+Minerals DPD Datasets
+
+Area of Search for Gravel (Minerals DPD Policy: 3 (layer name: MDPD_GRAVEL_AREA_OF_SEARCH)
+
+Minerals Safeguarding Areas, Minerals DPD Policy: 8 (layer name: MDPD_MINERALS_SAFEGUARDING)
+
+Minerals Site including those under restoration, Minerals DPD Policy: 11 (layer name: MDPD_MINERAL_SITES)
+
+Rail-Linked Mineral Depots, Minerals DPD Policy: 11 (layer name: MDPD_SALFORD_RAIL_DEPOTS)
+
+Waste DPD Datasets
+
+Area Allocation for Waste Management Development, Waste DPD Policy 5 (layer name: WDPD_WASTE_MANAGEMENT_DEVELOP)
+
+Allocation for Non-Hazardous Residual Waste Disposal, Waste DPD Policy: 7 (layer name: WDPD_NON_HAZARDOUS_WASTE)
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Green Belt,98629a4f-5ae8-4c77-a928-39e9ca075959,dataset,Salford City Council,NA,NA,NA,NA,"Dataset showing the extent of Green Belt land in Salford as defined in the City of Salford Unitary Development Plan 2004 - 2016 (policy EN1). 
+
+The unitary development plan (UDP) is a statutory document that sets out the council's planning policies that are used to guide development, conservation, regeneration and environmental improvement activity in Salford.
+
+The UDP and other adopted development plan documents comprise the development plan for the city.
+Decisions on planning applications must be made in line with the development plan, unless there are clear material considerations which dictate why this should not be the case. 
+
+Green Belt is a protective planning policy designation set out in national planning policy (currently the National Planning Policy Framework).
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+City Airport Manchester Safeguarding Zone - wind turbines,9f23f52e-bac6-443c-823f-91aa100e3681,dataset,Salford City Council,NA,NA,NA,NA,"Dataset showing that the city council should consult with City Airport Manchester for any wind turbine development within 5km of the airports centroid.
+
+The purpose of the safeguarding zone is to ensure that the operational integrity or safety of the airport may be assured
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Administrative and Government Services,a03759c5-62b8-4924-93f0-cafc1daa50cd,dataset,Salford City Council,NA,NA,NA,NA,"Administrative and social governmental services such as public administrations, civil protection, sites, schools, hospitals. This is point-based location of a variety of categories of municipal and governmental services and social infrastructure, such as police stations, fire fighter stations, hospitals, health care centres, care centres for the elderly, schools and kindergartens, renovation/ waste delivery sites and government and municipal offices.
+
+This is address data reflecting where Administrative and Government Services exist. This data is subject to change at any time should the services re-locate.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Manchester Airport Safeguarding Zone - wind turbines,a225f1a8-cfaf-4e60-9f89-282ddb8cc09c,dataset,Salford City Council,NA,NA,NA,NA,"Dataset showing that the city council should consult with Manchester Airport for any wind turbine development within the city boundary.
+
+The purpose of the safeguarding zone is to ensure that the operational integrity or safety of the airport may be assured.
+
+The safeguarding zone is shown on the City of Salford Unitary Development Plan 2014-16 Policies saved beyond 21 June 2009 proposals map as Policy DEV7 (iii).
+
+The unitary development plan (UDP) is a statutory document that sets out the council's planning policies that are used to guide development, conservation, regeneration and environmental improvement activity in Salford. 
+
+The UDP and other adopted development plan documents comprise the development plan for the city.
+ 
+Decisions on planning applications must be made in line with the development plan, unless there are clear material considerations which dictate why this should not be the case.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Land and property assets,a3721ae1-c6b4-4f91-9d8f-63f4741f4c0a,dataset,Salford City Council,NA,NA,NA,NA,"Dataset of land and property assets, where the Council has either has an ownership or occupational interest. 
+Council housing stock properties are not part of the land and property dataset.
+
+Roads/highways/highway infrastructure are not part of the land and property dataset.
+
+The boundaries represent occupational boundaries which may differ from the Council’s legal title boundary.
+
+Assets may be subject, in whole or part, to third party interests, for example, tenancies, leases, rights etc. Assets may be subject to long-term leases and therefore the record reflects the Council’s reversionary interest only.
+
+Asset numbers: Salford City Council Asset Register number
+Asset classification: Assets are classified in accordance with the International Financial Reporting Standards (IFRS) classifications.
+
+Data is subject to constant change.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Manchester Airport Safeguarding Zone - development likely to attract birds,a9900d18-c9ec-4142-bbe2-8577222e1e69,dataset,Salford City Council,NA,NA,NA,NA,"Dataset showing an area of the city (known as a safeguarding zone) where the city council should consult with Manchester Airport where development is likely to attract birds, such as proposals involving significant tree planting, minerals extraction or quarrying, waste disposal or management, reservoirs or other significant areas of water, land restoration schemes, sewage works, nature reserves or bird sanctuaries. 
+The purpose of the safeguarding zone is to ensure that the operational integrity or safety of the airport may be assured.
+The safeguarding zone is shown on the City of Salford Unitary Development Plan 2014-16 Policies saved beyond 21 June 2009 proposals map as Policy DEV7 (ii).
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Electric Vehicle Charging Points,c0add7f3-181e-4a63-9c94-f4894e7e2483,dataset,Salford City Council,NA,NA,NA,NA,"Transport for Greater Manchester (TfGM) secured funding from the Office for Low Emission Vehicles (OLEV) to provide Electric Vehicle (EV) charging infrastructure across Greater Manchester, and the necessary back office management systems to operate the system.  
+The Greater Manchester Electric Vehicle (GMEV) scheme was launched in June 2013 with approximately 200 charging bays available across Greater Manchester, in Salford there are 26 public charging bays. 
+
+Further information on GMEV is available via http://ev.tfgm.com/
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+City Airport Manchester Safeguarding Zone - buildings exceeding specified height,dab25d2c-2697-4b03-8933-ca0afa8d6c23,dataset,Salford City Council,NA,NA,NA,NA,"Dataset showing areas of the city (known as safeguarding zones) where the city council should consult with City Airport Manchester for the following: buildings, structures, erections and works. In some areas of the city, the city council should consult the Airport on all developments, whereas elsewhere the need for consultation is dependant on the height of a proposed development (greater than 15m, 45m or 90m).
+The purpose of the safeguarding zone is to ensure that the operational integrity or safety of the airport may be assured.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Air Quality Monitoring Stations,e47b049f-233c-4bfb-b0d5-c0c972da3632,dataset,Salford City Council,NA,NA,NA,NA,"Salford operates a number of automatic air quality stations for measurement of pollutants using continuous analyses. Some sites are part of the Department of Environment and Rural Affairs (DEFRA) Automatic Urban and Rural Network (AURN) and other are maintained by Salford City Council as part of the Greater Manchester Air Quality Network (GMAQN).  The network has over 10 years of data at various locations in the area. Data is available on Defraâs air quality pages, GreatAirManchester and Air Quality England.
+The sites in Salford are Eccles (AURN), M60 (AURN) and Glazebury (AURN) 
+Note Defra operate the Glazebury site and are responsible for it. Defra also collect and manage the information for Eccles and the M60 data is managed by Salford. 
+Current pollutants monitored Nitrogen dioxide, PM10, PM2.5, O3
+Data available as excel compatible files
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Common Land and Village Greens,f47ef3e3-3e14-46fa-b0c4-e70396d830e1,dataset,Salford City Council,NA,NA,NA,NA,"Extents of common land and village greens in Salford as polygons. Common land is land, usually in private ownership, that has rights of common over it. The main features of common land are that it is generally open, unfenced and remote. Currently, the general public have no rights to go onto common land unless the land is an urban common, or is crossed by public rights of way. Village greens share a similar history to common land. However, they are defined separately for the purposes of the Commons Registration Act 1965. Village greens are usually areas of land within defined settlements or geographical areas which local inhabitants can go onto for the exercise of lawful sports and pastimes. Typically, these might include organised or ad-hoc games, picnics, fetes and other similar activities. Whilst land forming town or village greens may be privately owned, many greens are owned and maintained by local parish or community councils.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Minerals Safeguarding Areas,f9ae17f3-9281-4a17-a2a1-29d74c6d2338,dataset,Salford City Council,NA,NA,NA,NA,"Minerals Safeguarding Areas as defined under the Greater Manchester Joint Minerals Plan 2013.
+These mineral safeguarding areas are necessary for the operation of policy 8 of the Minerals Plan.
+They are designed to prevent minerals resources being needlessly sterilised by non-minerals development such as housing.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Town and Neighbourhood Centres,b4f470a2-d385-4c34-b830-3637bb05d184,dataset,Salford City Council,NA,NA,NA,NA,"Dataset of existing town and neighbourhood centres in Salford as defined in policy S1 of the City of Salford Unitary Development Plan 2004-16 Policies saved beyond 21 June 2009.
+
+The unitary development plan (UDP) is a statutory document that sets out the council's planning policies that are used to guide development, conservation, regeneration and environmental improvement activity in Salford.
+
+The UDP and other adopted development plan documents comprise the development plan for the city. 
+Decisions on planning applications must be made in line with the development plan, unless there are clear material considerations which dictate why this should not be the case.
+
+Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.",2015-05-22
+Section 106 Agreement Sites,f8f8cb1c-3feb-4c92-bf15-2a8d93a8154e,dataset,Salford City Council,NA,NA,NA,NA,Section 106 of the Town and Country Planning Act 1990 allows a local planning authority to enter into a legally binding agreement or planning obligation with a developer in association with the granting of planning permission. Section 106 agreements are used by the City Council when it is considered that a development will have negative impacts that cannot be dealt with through conditions in the planning permission. Upon accessing this licensed data you will be deemed to have accepted the terms of the Public Sector End User Licence - INSPIRE.,2015-05-22
+2015 Local Election Candidates Trafford,4fb9447d-9924-48a3-8bc4-1b3ec14a7968,dataset,Trafford Innovation and Intelligence Lab,Jamie Whyte,jamie.whyte@trafford.gov.uk,,,List of candidates in Trafford's 2015 Local Election,2015-05-09
+Geographical Lookups - LSOA to Localities in Trafford,42eccbea-f0a7-461a-906e-9874f116926c,dataset,Trafford Innovation and Intelligence Lab,Jamie Whyte,jamie.whyte@trafford.gov.uk,,,CSV file which allows lookup from LSOAs in Trafford to Localities. Useful for aggregating data.,2015-04-30
+Trafford Energy Consumption,0068507a-57bb-4f94-9d49-39d81617b01a,dataset,Trafford Innovation and Intelligence Lab,Paul Westland,infotrafford@trafford.gov.uk,Paul Westland,infotrafford@trafford.gov.uk,Datasets with energy consumption at postcode level for Trafford.  Postcodes with fewer than 6 meters have been excluded from this set.,2015-04-25
+"2013 Mid year population estimates for Trafford LSOAs by single year of age, all people",49ffcf5f-4840-4138-8f0f-808f9c1580e0,dataset,Trafford Innovation and Intelligence Lab,,,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Lower Layer Super Output Areas
+Super Output Areas (SOAs) form a geographic hierarchy designed to improve the reporting of small area statistics in England and Wales. Lower Layer Super Output Areas (LSOAs) are built from 
+groups of 2011 Census Output Areas (OAs), typically 4 to 6, and designed to have a population of between 1,000 and 3,000 persons. These LSOAs nest within Middle Layer Super 
+Output Areas (MSOAs), there are typically 4 to 5 LSOAs within a MSOA.
+
+There are 34,753 LSOAs in England and Wales (32,844 in England, 1,909 in Wales) and they were generated by a computer programme which merged OAs taking into account measures of 
+population size, mutual proximity and social homogeneity. These boundaries have been revised following the results of the 2011 Census and were released to the public in October 2012.
+
+Notes and Definitions
+1. These figures are consistent with the published mid-2013 local authority population estimates (MYE7PE2). Please note that MYE7PE2 includes an error in the distribution of the foreign 
+    armed forces (FAF) special population that impacts on the estimates for a number of local authorities, most notably Forest Heath. Small areas within the affected local authorities, included 
+    in this release, will also reflect this error. Further details are available in the 
+2. The Small Area Population Estimates (including estimates for LSOAs, MSOAs, Wards, Parliamentary Constituencies, PCOs, CCGs and National Parks) were initially intended for publication 
+    by five year age group and sex.  The more detailed estimates provided here are intended to enable and encourage further analysis and use of the estimates. Particular caution should be 
+    exercised in using estimates at a greater level of disaggregation - for example, for Output Areas, or for single year of age groups, as these would not be expected to have the same level of 
+    accuracy as the aggregated estimates.
+3. The estimated resident population of an area includes all those people who usually live there, regardless of nationality.  Arriving international migrants are included in the usually resident 
+    population if they remain in the UK for at least a year.   Emigrants are excluded if they remain outside the UK for at least a year.   This is consistent with the United Nations definition of a 
+    long-term migrant.  Armed forces stationed outside of the UK are excluded.  Students are taken to be usually resident at their term time address.
+4. These estimates are subject to statistical disclosure control. The general application of statistical disclosure control ensures that information attributable to an individual or organisation is not 
+    disclosed in any publication.
+5. Note that age 90 comprises data for ages 90 and above.
+6. Further advice on the appropriate use of these data can be obtained by emailing pop.info@ons.gsi.gov.uk or phoning +44 (0) 1329 444661 and asking to speak to a statistician.
+
+Terms and Conditions
+1. All material on the Office for National Statistics (ONS) website is subject to Crown Copyright protection unless otherwise indicated.
+2. Under the terms of the Open Government Licence (OGL) and UK Government Licensing Framework, anyone wishing to use or re-use ONS material, whether commercially or privately, 
+    may do so freely without a specific application for a licence, subject to the conditions of the OGL and the Framework.  
+    Further information on the OGL and UK Government Licensing Framework are available from 
+    by emailing psi@nationalarchives.gsi.gov.uk 
+    Users reproducing ONS content without adaptation should include a source accreditation to ONS: Source: Office for National Statistics licensed under the Open Government Licence v.1.0.
+    Users reproducing ONS content which is adapted should include a source accreditation to ONS: Adapted from data from the Office for National Statistics licensed under 
+    the Open Government Licence v.1.0.
+    Please note that the ONS logo must not be reproduced unless permission is sought. If you would like permission to reproduce the logo, please contact us. 
+3. The Information is licensed 'as is' and the information provider excludes all representations, warranties, obligations and liabilities in relation to the Information to the maximum extent permitted
+     by law. The Information Provider does not guarantee the continued supply of the information.
+4. This licence is covered by the laws of England and Wales.              
+
+Source: Small Area Population Estimates, Office for National Statistics  © Crown Copyright 2014
+
+Data supplier:
+Population Estimates Unit
+Population Statistics Division
+Office for National Statistics
+Segensworth Road
+FAREHAM
+PO15 5RR
+",2015-04-23
+"2013 Mid year population estimates for Trafford LSOAs by single year of age, males",9a051552-72b5-4251-9603-699d76ad731c,dataset,Trafford Innovation and Intelligence Lab,,,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Lower Layer Super Output Areas Super Output Areas (SOAs) form a geographic hierarchy designed to improve the reporting of small area statistics in England and Wales. Lower Layer Super Output Areas (LSOAs) are built from groups of 2011 Census Output Areas (OAs), typically 4 to 6, and designed to have a population of between 1,000 and 3,000 persons. These LSOAs nest within Middle Layer Super Output Areas (MSOAs), there are typically 4 to 5 LSOAs within a MSOA. 
+
+There are 34,753 LSOAs in England and Wales (32,844 in England, 1,909 in Wales) and they were generated by a computer programme which merged OAs taking into account measures of population size, mutual proximity and social homogeneity. These boundaries have been revised following the results of the 2011 Census and were released to the public in October 2012. 
+
+Notes and Definitions 1. These figures are consistent with the published mid-2013 local authority population estimates (MYE7PE2). Please note that MYE7PE2 includes an error in the distribution of the foreign armed forces (FAF) special population that impacts on the estimates for a number of local authorities, most notably Forest Heath. Small areas within the affected local authorities, included in this release, will also reflect this error. Further details are available in the 2. The Small Area Population Estimates (including estimates for LSOAs, MSOAs, Wards, Parliamentary Constituencies, PCOs, CCGs and National Parks) were initially intended for publication by five year age group and sex. The more detailed estimates provided here are intended to enable and encourage further analysis and use of the estimates. Particular caution should be exercised in using estimates at a greater level of disaggregation - for example, for Output Areas, or for single year of age groups, as these would not be expected to have the same level of accuracy as the aggregated estimates. 3. The estimated resident population of an area includes all those people who usually live there, regardless of nationality. Arriving international migrants are included in the usually resident population if they remain in the UK for at least a year. Emigrants are excluded if they remain outside the UK for at least a year. This is consistent with the United Nations definition of a long-term migrant. Armed forces stationed outside of the UK are excluded. Students are taken to be usually resident at their term time address. 4. These estimates are subject to statistical disclosure control. The general application of statistical disclosure control ensures that information attributable to an individual or organisation is not disclosed in any publication. 5. Note that age 90 comprises data for ages 90 and above. 6. Further advice on the appropriate use of these data can be obtained by emailing pop.info@ons.gsi.gov.uk or phoning +44 (0) 1329 444661 and asking to speak to a statistician. 
+
+Terms and Conditions 1. All material on the Office for National Statistics (ONS) website is subject to Crown Copyright protection unless otherwise indicated. 2. Under the terms of the Open Government Licence (OGL) and UK Government Licensing Framework, anyone wishing to use or re-use ONS material, whether commercially or privately, may do so freely without a specific application for a licence, subject to the conditions of the OGL and the Framework.
+ Further information on the OGL and UK Government Licensing Framework are available from by emailing psi@nationalarchives.gsi.gov.uk Users reproducing ONS content without adaptation should include a source accreditation to ONS: Source: Office for National Statistics licensed under the Open Government Licence v.1.0. Users reproducing ONS content which is adapted should include a source accreditation to ONS: Adapted from data from the Office for National Statistics licensed under the Open Government Licence v.1.0. Please note that the ONS logo must not be reproduced unless permission is sought. If you would like permission to reproduce the logo, please contact us. 3. The Information is licensed 'as is' and the information provider excludes all representations, warranties, obligations and liabilities in relation to the Information to the maximum extent permitted by law. The Information Provider does not guarantee the continued supply of the information. 4. This licence is covered by the laws of England and Wales.
+
+
+
+
+
+
+
+
+Source: Small Area Population Estimates, Office for National Statistics © Crown Copyright 2014 
+
+Data supplier: Population Estimates Unit Population Statistics Division Office for National Statistics Segensworth Road FAREHAM PO15 5RR 
+",2015-04-23
+"2013 Mid year population estimates for Trafford LSOAs by single year of age, females",22207c44-866b-4d7c-9c3d-293288cc7a0c,dataset,Trafford Innovation and Intelligence Lab,,,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Lower Layer Super Output Areas Super Output Areas (SOAs) form a geographic hierarchy designed to improve the reporting of small area statistics in England and Wales. Lower Layer Super Output Areas (LSOAs) are built from groups of 2011 Census Output Areas (OAs), typically 4 to 6, and designed to have a population of between 1,000 and 3,000 persons. These LSOAs nest within Middle Layer Super Output Areas (MSOAs), there are typically 4 to 5 LSOAs within a MSOA. 
+
+There are 34,753 LSOAs in England and Wales (32,844 in England, 1,909 in Wales) and they were generated by a computer programme which merged OAs taking into account measures of population size, mutual proximity and social homogeneity. These boundaries have been revised following the results of the 2011 Census and were released to the public in October 2012. 
+
+Notes and Definitions 1. These figures are consistent with the published mid-2013 local authority population estimates (MYE7PE2). Please note that MYE7PE2 includes an error in the distribution of the foreign armed forces (FAF) special population that impacts on the estimates for a number of local authorities, most notably Forest Heath. Small areas within the affected local authorities, included in this release, will also reflect this error. Further details are available in the 2. The Small Area Population Estimates (including estimates for LSOAs, MSOAs, Wards, Parliamentary Constituencies, PCOs, CCGs and National Parks) were initially intended for publication by five year age group and sex. The more detailed estimates provided here are intended to enable and encourage further analysis and use of the estimates. Particular caution should be exercised in using estimates at a greater level of disaggregation - for example, for Output Areas, or for single year of age groups, as these would not be expected to have the same level of accuracy as the aggregated estimates. 3. The estimated resident population of an area includes all those people who usually live there, regardless of nationality. Arriving international migrants are included in the usually resident population if they remain in the UK for at least a year. Emigrants are excluded if they remain outside the UK for at least a year. This is consistent with the United Nations definition of a long-term migrant. Armed forces stationed outside of the UK are excluded. Students are taken to be usually resident at their term time address. 4. These estimates are subject to statistical disclosure control. The general application of statistical disclosure control ensures that information attributable to an individual or organisation is not disclosed in any publication. 5. Note that age 90 comprises data for ages 90 and above. 6. Further advice on the appropriate use of these data can be obtained by emailing pop.info@ons.gsi.gov.uk or phoning +44 (0) 1329 444661 and asking to speak to a statistician. 
+
+Terms and Conditions 1. All material on the Office for National Statistics (ONS) website is subject to Crown Copyright protection unless otherwise indicated. 2. Under the terms of the Open Government Licence (OGL) and UK Government Licensing Framework, anyone wishing to use or re-use ONS material, whether commercially or privately, may do so freely without a specific application for a licence, subject to the conditions of the OGL and the Framework. Further information on the OGL and UK Government Licensing Framework are available from by emailing psi@nationalarchives.gsi.gov.uk Users reproducing ONS content without adaptation should include a source accreditation to ONS: Source: Office for National Statistics licensed under the Open Government Licence v.1.0. Users reproducing ONS content which is adapted should include a source accreditation to ONS: Adapted from data from the Office for National Statistics licensed under the Open Government Licence v.1.0. Please note that the ONS logo must not be reproduced unless permission is sought. If you would like permission to reproduce the logo, please contact us. 3. The Information is licensed 'as is' and the information provider excludes all representations, warranties, obligations and liabilities in relation to the Information to the maximum extent permitted by law. The Information Provider does not guarantee the continued supply of the information. 4. This licence is covered by the laws of England and Wales. 
+
+Source: Small Area Population Estimates, Office for National Statistics © Crown Copyright 2014 
+
+Data supplier: Population Estimates Unit Population Statistics Division Office for National Statistics Segensworth Road FAREHAM PO15 5RR 
+",2015-04-23
+Metrolink Station Facilities,ba926378-6842-4423-8274-e546aadd58a5,dataset,Transport for Greater Manchester,,,Michelle Peel,opendata@tfgm.com ,,2015-03-20
+Bury Supplier Spend December 2010,c61381eb-1d58-40a0-a7ec-93154a6583b7,dataset,Bury Metropolitan Borough Council ,mailto:corporateprocurement@bury.gov.uk,mailto:corporateprocurement@bury.gov.uk,NA,NA,Supplier Spend 500+,2015-03-18
+Bury Supplier Spend January 2011,96d1a36a-06dc-4906-8e1e-7d0139d87977,dataset,Bury Metropolitan Borough Council ,mailto:corporateprocurement@bury.gov.uk,mailto:corporateprocurement@bury.gov.uk,mailto:corporateprocurement@bury.gov.uk,NA,Supplier Spend 500+,2015-03-18
+Bury Supplier Spend November 2010,26eb15f1-d7cd-42e3-a3f9-343cd06b3e56,dataset,Bury Metropolitan Borough Council ,mailto:corporateprocurement@bury.gov.uk,mailto:corporateprocurement@bury.gov.uk,mailto:corporateprocurement@bury.gov.uk,NA,Supplier Spend 500+,2015-03-18
+Polling Stations in Greater Manchester,a73d4a38-0fa3-4568-8390-b4503b1a73ad,dataset,Trafford Innovation and Intelligence Lab,Jamie Whyte,jamie.whyte@trafford.gov.uk,,,"Polling stations in Greater Manchester for 2015 elections, with address, postcode, and lat long of postcode centroid.",2015-03-18
+Trafford Premises Licence Data,ef2dba57-3f44-4451-94c7-a84842e729b5,dataset,Trafford Council,Paul Westland,paul.westland@trafford.gov.uk,,,A dataset containing licences held by Trafford businesses,2015-03-17
+Polling Stations Trafford,0b8d5b81-9b6d-41b2-a4e7-81d5d13741aa,dataset,Trafford Council,NA,NA,NA,NA,Location of Polling Stations in Trafford,2015-03-05
+Trafford Council Ward Boundaries,3ee4c737-db72-4930-90e2-8da2d4d1ad3e,dataset,Trafford Council,Trafford Council,NA,NA,NA,Electroral wards within the Borough of Trafford. Information on the definition and coding of these wards together with mapping data to define the area covered.,2015-03-03
+Ward Boundaries,faa747bc-9761-4d68-b1a5-8cf4b166d244,dataset,Greater Manchester,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,NA,2015-03-02
+DfT RoadSafety Accidents 2006 GM Subset,9962b182-b500-4616-93b2-4880a14b6a23,dataset,Open Data Manchester,Julian Tait,julian@opendatamanchester.org.uk,NA,NA,"This file provides detailed data about the circumstances of personal injury road accidents in Greater Manchester in 2006, the types of vehicles involved and the consequential casualties. The statistics relate only to personal injury accidents on public roads that are reported to the police, and subsequently recorded, using the STATS19 accident reporting form.",2015-02-26
+Park Lights,aa812cca-35fc-4def-b78a-d3dd91198284,dataset,Trafford Innovation and Intelligence Lab,Jamie Whyte,jamie.whyte@trafford.gov.uk,,,Locations of Trafford Council-maintained lights in parks,2015-02-13
+Stockport Supplier Spend January 2011,2a110928-4cdb-4db1-856d-e98bf0a82496,dataset,Stockport Metropolitan Borough Council,http://www.stockport.gov.uk/services/councildemocracy/yourcouncil/documentsandfacts/budgetsfinancialmonitoringreports/procurementteam,http://www.stockport.gov.uk/services/councildemocracy/yourcouncil/documentsandfacts/budgetsfinancialmonitoringreports/procurementteam,NA,NA,Supplier Spend 500+,2015-02-05
+Transparency Code - Trafford (link),07587509-9395-415b-8dc2-d94f2448db51,dataset,Trafford Innovation and Intelligence Lab,,,,,Link to Trafford Council's Transparency code data,2015-01-31
+Businesses Registered in Trafford,f5865a84-4fc8-42b2-95fc-2835e9f97a83,dataset,Trafford Innovation and Intelligence Lab,Jamie Whyte,jamie.whyte@trafford.gov.uk,,,Extract of Companies House open data containing only Trafford businesses.,2015-01-16
+Metroshuttle vehicles,5ba823f1-a19b-424b-a81f-f720c9fe558b,dataset,Transport for Greater Manchester,,,Michelle Peel,opendata@tfgm.com ,"This file provides information to uniquely identify vehicles operating the Manchester and Stockport Metroshuttle bus services and the route they operate on (i.e. Service number).
+
+Does NOT include Bolton Metroshuttle vehicles, yellow school buses or other Actia equipped vehicles.
+
+This dataset is available from the data.gov.uk website. ",2014-12-24
+TfGM Supplier Spend over £500,162a57a9-5646-4ed9-9185-e677f9b4bfb2,dataset,Transport for Greater Manchester,Transport for Greater Manchester,opendata@tfgm.com,Michelle Peel,,"As part of its commitment to transparency, Transport for Greater Manchester have been publishing information on payments since January 2010. 
+
+The reports on this page contain details of individual invoice payments made to external bodies and suppliers with a value of £500 or over (exclusive of VAT). The reports are prepared on a quarterly basis. 
+
+This dataset is available from the data.gov.uk website.",2014-12-24
+Library Loans by category,712340df-43a8-4985-8bc6-2c4e32ea5a84,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Library loans from Trafford libraries by category (adult fiction, adult non-fiction, talking book, junior, etc)",2014-12-19
+Manchester Volunteer Centre Statistics,abcc6630-062d-40a8-bebf-bcbb9b8c0023,dataset,Macc,Macc,data@macc.org.uk,Macc open data team,data@macc.org.uk,Quarterly statistics on the volunteers registered with the Volunteer Centre.,2014-11-01
+Macc Grants programmes statistics,bc9f88d7-b8ea-4ad4-9475-70b8fb91b628,dataset,Macc,Macc,data@macc.org.uk,Macc open data team,data@macc.org.uk,Data on our grants awarded,2014-11-01
+Manchester Community Central groups statistics,224084b4-ce2b-4001-a4a7-cf05c0e0163c,dataset,Macc,Macc,data@macc.org.uk,Macc open data team,data@macc.org.uk,Quarterly statistics on the groups registered with Manchester Community Central,2014-11-01
+Manchester State of the Sector survey,f3f4c514-34fd-4047-a43d-ae49d91bcaff,dataset,Macc,Macc,data@macc.org.uk,Macc open data team,data@macc.org.uk,Biannual results from a State of the Sector Survey,2014-11-01
+Metroshuttle bus API,4e4dc9a3-8053-4d98-9df0-c0ebe800ea34,dataset,Transport for Greater Manchester,Michelle Peel,opendata@tfgm.com,,,"Realtime location data for the Metroshuttle buses running in Manchester City Centre and Stockport. 
+
+To access the API, users should visit the Transport for Greater Manchester App Developer Portal and register as a user, before then registering their app.
+
+To access each API, please see the TfGM Application Developer Guidelines under the Guidelines tab of the App Developer Portal, and choose the appropriate section.",2014-10-30
+Planning Applications,a53672ac-af36-42ea-bfb0-3111acf87bcc,dataset,Manchester City Council ,,,,,Plannning Applications in Manchester 26/02/2014,2014-09-11
+Trafford Planning Applications,ce154788-cb3c-4f99-ba18-f484a059d5db,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,,,Planning applications in Trafford. This is the dataset from ~1980 to March 2014 that was used for the Greater Manchester Data Synchronisation Programme,2014-07-23
+DfT RoadSafety Accidents 2010 GM Subset,389d8e4c-8274-4056-bf5c-36eb16a181dd,dataset,Open Data Manchester,Julian Tait,julian@opendatamanchester.org.uk,NA,NA,"This file provides detailed data about the circumstances of personal injury road accidents in Greater Manchester in 2010, the types of vehicles involved and the consequential casualties. The statistics relate only to personal injury accidents on public roads that are reported to the police, and subsequently recorded, using the STATS19 accident reporting form.",2014-06-25
+DfT RoadSafety Accidents 2005 GM Subset,d61c5430-3f3b-464d-86ac-9dfc3eb5cc1c,dataset,Open Data Manchester,Julian Tait,julian@opendatamanchester.org.uk,NA,NA,"This file provides detailed data about the circumstances of personal injury road accidents in Greater Manchester in 2005, the types of vehicles involved and the consequential casualties. The statistics relate only to personal injury accidents on public roads that are reported to the police, and subsequently recorded, using the STATS19 accident reporting form.",2014-06-13
+Streetlights,c6f4fe5d-c47c-4075-b6cb-036ad68d5e6b,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,Jamie Whyte,jamie.whyte@trafford.gov.uk,All geocoded streetlights in Trafford,2014-06-07
+Trafford Council Streetlights,a2bbc490-d7e3-411c-abde-90d27e64a39e,dataset,Trafford Council,Trafford Council,webmaster@trafford.gov.uk,webmaster@trafford.gov.uk,webmaster@trafford.gov.uk,"Location of the 27,000 streetlights in Trafford",2014-05-28
+NHS North West Spend Data April 2010 to February 2011,891cfe6a-5d38-456c-b1f0-01741ef756f1,dataset,North West Strategic Health Authority ,NA,NA,NA,NA,"Spend over £25,000 by NHS North West covering Primary Care Trusts ",2014-05-22
+Highways Trees,ef982966-1361-434c-b04f-11ec6b2815ce,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,Locations and information on highways trees across Greater Manchester,2014-04-01
+Fire and Rescue Incidents,8764d5b6-e7ac-4fc4-b7ed-dabb7631423a,dataset,Greater Manchester Fire and Rescue Service ,NA,NA,NA,NA,"This dataset covers incidents attended by fire and rescue services (FRS) in Greater Manchester 
+
+31/08/2012(Jamie Whyte):Updated zip file received from GMFRS, archived old CSV.
+
+31/08/2012(Jamie Whyte):Removed temporal spec, so that multiple years worth of data can be added to this dataset",2014-03-11
+Greater Manchester Fire and Rescue Incidents 2012 2013,e15e25c7-f901-40d0-95b4-d157484690ec,dataset,Greater Manchester Fire and Rescue Service ,Mike Baines,,Mike Baines,,All incidents recorded by Greater Manchester Fire and Resce Service in 2012/2013,2014-03-11
+OpenStreetMap Data,5b955b38-72a0-4f21-b5f0-7e172cf8ce01,dataset,Greater Manchester,Geofabrik,,,info@geofabrik.de,"All data for Greater Manchester contained on OpenStreetMap is extracted each night, and is available for download and reuse.
+
+Files are very large, and may require specialist software.",2014-01-16
+Frequent bus services in GM 2000 - 2011,2089f715-7672-4dec-a31f-865e953c9432,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"The number of frequent bus services operating in GM 2000 - 2011. Source: TfGM Bus & Rail. RESTRICTIONS: None
+
+ 
+
+",2013-12-11
+Accessible Bus Routes,ff508c59-4e22-4e5f-b84b-d45df05bedec,dataset,Transport for Greater Manchester,,,,,,2013-12-11
+Childhood Obesity in Trafford,d0fd889f-9fd1-43a4-a896-4b34d0f0bd91,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,Trafford Council,"jamie.whyte@trafford.gov,uk","Childhood obesity is measured in schools in Reception and Year 6. The data here allows exploration of Trafford's childhood obesity levels, as well as access to raw data at as small a level as can be released.",2013-12-10
+Households with no car or van,1512170f-0bdb-4530-823d-cc0807c0f6a8,dataset,NA,Office for National Statistics,info@ons.gov.uk,info@ons.gov.uk,NA,NA,2013-12-08
+State Pension Claimants GM Wide,63e6b9ac-b695-4793-a401-2dfd46c688cd,dataset,NA,Office for National Statistics,info@ons.gov.uk,info@ons.gov.uk,NA,NA,2013-12-08
+Occupancy Rating All Manchester Geography,e07a8fc8-8fa6-43e8-b2d1-f16bff987cf1,dataset,NA,Office for National Statistics,NA,info@ons.gov.uk,NA,NA,2013-12-08
+All Full-Time Students Greater Manchester,4d6f9dcf-dc6b-4cf4-b9a3-7cd90df5b18e,dataset,NA,Office for National Statistics,info@ons.gov.uk,info@ons.gov.uk,NA,NA,2013-12-08
+State Pension Claimants May 2010,6824d12a-b771-44a5-a426-d15e5dab268b,dataset,NA,Office for National Statistics,info@ons.gov.uk,Office  for National Statistics,info@ons.gov.uk,State pension payments for each Greater Manchester authority May 2010  ,2013-12-08
+School Exclusions by Local Authority 2008 to 2009,37d22939-eba8-423c-9392-fd74ad77edff,dataset,NA,Department for Education Department for Business Innovation and Skills,schools.statistics@education.gsi.gov.uk,NA,schools.statistics@education.gsi.gov.uk,Permanent and fixed term exlcusions from schools by local authority and by ethnicity for 2008 to 2009,2013-12-08
+Accident and Emergency Attendances April to June 2010,8ea59b26-cc83-415b-a30b-a93ec2b21004,dataset,NA,Department of Health,NA,NA,NA,Accident and Emergency Admissions for each Greater Manchester NHS provider for the April to June 2010,2013-12-08
+Accident and Emergency Admissions October to December 2010,1d350ff6-3bd6-4280-a43e-244cec36c06d,dataset,NA,Department of Health,NA,NA,NA,Accident and Emergency admissions for each Greater Manchester provider for October to December 2010,2013-12-08
+Municipal Waste For Each Greater Manchester Authority 2009 to 2010,0670329d-1391-4b04-b9c1-bd64d5def69a,dataset,NA,Defra,NA,NA,NA,Household waste for each Greater Manchester local authority for 2009 to 2010,2013-12-08
+Accident and Emergency Admissions July to September 2010,4a33a473-d117-4a8d-83e0-bd418660026f,dataset,NA,Department of Health,NA,NA,NA,Accident and Emergency admissions for each Greater Manchester NHS provider for July to September 2010,2013-12-08
+Annual Hours Worked Survey 2010-2011,a197f945-4569-463e-9505-e60a59a141d8,dataset,NA,Office for National Statistics,NA,NA,NA,Annual hours worked for 2010-2011,2013-12-08
+NHS Waiting Times For Cancer Treatment in Greater Manchester October to December 2010,04d9222d-79da-467b-9135-c4daf0741b8f,dataset,NA,Department of Health,Cancer-waits@dh.gsi.gov.uk,NA,Cancer-waits@dh.gsi.gov.uk,Waiting times in Greater Manchester for cancer treatment for the period October to December 2010,2013-12-08
+All Full-Time Students across GM authorities and Trafford Wards,0cc369d0-62c0-452f-bb87-a08aa179644e,dataset,NA,Office for National Statistics,Office for National Statistics,info@statistics.gov.uk.,NA,Full time Students ,2013-12-08
+Census 2001 Age of Population,b93489b4-f98c-4757-a064-b8b9b237be07,dataset,NA,Office for National Statistics,NA,NA,NA,NA,2013-12-08
+Census 2001 Country of Birth,c43137a4-a5f3-482c-98f9-622a9f2d3870,dataset,NA,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Students and Schoolchildren Living Away During Term Time,65951b53-735c-4a24-a551-8ad8f429ff79,dataset,NA,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Provision of Unpaid Care,d77e5093-a305-4152-b0e1-c2e9ac4ed28c,dataset,NA,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Socio-Economic Classification Workplace Population,bb2ddb9d-ddac-4dcd-ae87-15248729e8c3,dataset,NA,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Spaces Accommodation Type,f2eba215-a76c-451b-8a3c-51fb6a876e06,dataset,NA,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Tenure Pensioners,cdbe66b7-9e1f-43bd-b7d7-f62dae4e7da6,dataset,NA,ONS,NA,NA,NA,NA,2013-12-08
+Births and Mortality in Trafford 2005,c4e06fb0-5bb2-4dc1-aa28-89bf0d5be08a,dataset,NA,Office for National Statistics,NA,NA,NA,NA,2013-12-08
+Births and Mortality Trafford 2006,0b89d351-ab23-42f8-97eb-441c2072f77d,dataset,NA,Office for National Statistics,NA,NA,NA,NA,2013-12-08
+Census 2001 Age of Workplace Population,3b7c2b74-d353-4263-b124-0a527ba97b2f,dataset,NA,ONS,NA,NA,NA,The workplace population is defined as the people aged 16 to 74 who are in employment and whose usual place of work is in the area.,2013-12-08
+Census 2001 Single Adult Households,3d500146-4a28-4a77-9fc9-942baeb93172,dataset,NA,ONS,NA,NA,NA,"Number of adults aged 18 to 64 who live in single adult households, from 2001 Census. ",2013-12-08
+Census 2001 Dependent Children,d89f044e-c694-4fb9-b532-0dfcac2a9c78,dataset,NA,ONS,NA,NA,NA,This dataset shows the number of households with dependent children.,2013-12-08
+Census 2001 Limiting Long-term Illness and Dependent Children,fd1352a9-fe8f-4b7e-83fd-ede3121e4ffc,dataset,NA,ONS,NA,NA,NA,"Number of households where a resident has a limiting long term illness and dependent children.
+
+A dependent child is a person in a household aged 0 -15 (whether or not in a family) or a person aged   16 - 18 who is a full-time student in a family with parent(s).",2013-12-08
+Census 2001 NSSeC of Household Reference Person,808505de-3a8a-4d1a-883d-5a5c0b618b7a,dataset,NA,ONS,NA,NA,NA,"This dataset shows the number of households by the NS-SEC of the Household Reference Person (also known as HRP). 
+
+NS-SEC is an occupationally based classification but has rules to provide coverage of the whole adult population. ",2013-12-08
+Census Distance Travelled to Work (Workplace Population),48b0b836-7382-4050-88c3-f20b1778a956,dataset,NA,ONS,NA,NA,NA,"The workplace population is defined as the people aged 16 to 74 who are in employment and whose usual place of work is in the area. 
+
+The distance travelled to work is measured in kilometres of a straight line between the residence postcode and the workplace postcode. It is not calculated for people working mainly at or from home, people with no fixed workplace, people working on an off-shore outpost.",2013-12-08
+Census Migration People,88830ab9-cb47-48dd-bc70-e567e850a784,dataset,NA,ONS,NA,NA,NA,Number of people who have migrated and within/across what area.,2013-12-08
+Census 2001 Industry of Employment,0e85685c-4896-4e31-98a4-b3869c542190,dataset,NA,ONS,NA,NA,NA,Data on the industry of employment of the population of Greater Manchester. It covers the population 'all people aged 16-74 in employment'.,2013-12-08
+Census 2001 Industry of Employment Females,7e1188a5-be14-423a-9b65-4a34b882a494,dataset,NA,ONS,NA,NA,NA,Dataset covers the industry of employment for females aged 16-74 that are in employment.,2013-12-08
+Census 2001 Limiting Long Term Illness,cdffcd50-f267-4392-b159-d5c39d43a538,dataset,NA,ONS,NA,NA,NA,People with limiting long-term illness.,2013-12-08
+Census 2001 Occupancy Rating,672d9f89-b9c7-4f38-91fb-2c2d5fdac769,dataset,NA,ONS,NA,NA,NA,The table shows all households by levels of occupancy rating.,2013-12-08
+Census 2001 Household Composition,f1daaebc-7bfd-460b-a14a-2c93f9b6738c,dataset,NA,ONS,NA,NA,NA,This table provides information on the household composition of the population of Greater Manchester.,2013-12-08
+Crime Statistics June 2011 (By Street),b7ca7960-50e5-4970-8198-d5206ae78011,dataset,NA,Police UK,NA,Poice UK,NA,Greater Manchester crime statistics by street for June 2011.,2013-12-08
+Attacks on Firefighters 2012/13,d4c74928-dd68-42d5-9ddb-6d415f1df6cd,dataset,NA,GMFRS,NA,NA,NA,"This dataset covers attacks on firefighters in Greater Manchester by ward and type during 2012/2013.
+
+31/08/2012(Jame Whyte): Data is currently up to August 2012. Working on regular updates.",2013-12-08
+Annual hours worked,0a3e2dd8-ffbc-4e66-96b0-779df3ae842c,dataset,Association of Greater Manchester Authorities,Office for National Statistics,info@statistics.gov.uk ,Office  for National Statistics,info@statistics.gov.uk ,"Results for 2003 and earlier exclude supplementary surveys. In 2006 there						
+were a number of methodological changes made. For further details goto :						
+http://www.nomisweb.co.uk/articles/341.aspx						
+http://www.nomisweb.co.uk/articles/341.aspx						
+",2013-12-08
+Attacks on Firefighters,85871ed5-9b75-4328-b95a-46c130170e49,dataset,Greater Manchester Fire and Rescue Service ,NA,NA,NA,NA,"This dataset covers attacks on firefighters in Greater Manchester by ward and type
+
+31/08/2012(Jamie Whyte): Removed temporal spec to allow multiple years' data to be added to this dataset.",2013-12-08
+Bolton Supplier Spend - November 2010,0b9748c9-3cc9-4125-abf3-f7b13afb7251,dataset,Bolton Metropolitan Borough Council,Bolton Metropolitan Borough Council,expenditureover500@bolton.gov.uk,Bolton Metropolitan Borough Council,expenditureover500@bolton.gov.uk,Supplier Spend £500+,2013-12-08
+Bus lanes in GM by district,2a0134b3-07f6-4cf3-b0e6-743fd729fbd7,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Bus lanes in Greater Manchester by district, location and length. Source: TfGM (HFAS). RESTRICTIONS: None
+
+",2013-12-08
+Bus patronage UK and selected EU cities,b2445e4c-5d0a-4f26-a866-bcfd098cb7af,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Bus Patronage in the UK & Selected EU cities. Source: PTEG / EMTA / DfT. RESTRICTIONS: none
+
+",2013-12-08
+Car Occupancy,3257bcbd-990d-4e2c-b5d7-541d4c175515,dataset,Transport for Greater Manchester,Craig Berry,NA,Paul Westland,NA,Average Peak and Off-Peak Car Occupancy in Greater Manchester,2013-12-08
+Categories of railway stations in GM,a18f7e3a-d9e2-4a4b-b5cd-d26d676db423,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"GM railway stations by category & facilities operator (Nor=Northern, FTPE=First Transpennine, NR=Network Rail, VT=Virgin trains). Source: TfGM. RESTRICTIONS: none
+
+",2013-12-08
+Census 2001 Single Adult Households,72001827-3007-4c64-86d6-f931944f81d4,dataset,Association of Greater Manchester Authorities,Office for National Statistics,NA,NA,NA,"Number of 18 to 64 year olds living in single adult households, from 2001 Census.",2013-12-08
+Census 2001 Accommodation Type,84dce198-f080-4f79-8b55-d50ab0937581,dataset,Association of Greater Manchester Authorities,Office for National Statistics,NA,NA,NA,NA,2013-12-08
+Census 2001 Amenities,7a7ea15f-aa64-4a53-a958-71bb368f4ce5,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,This dataset is taken from the 2001 Census and shows the number of occupied household spaces with/without central heating and with/without baths and showers.,2013-12-08
+Census 2001 Armed Forces,9c5e28cb-16ed-44c0-b903-4d13c49aedbf,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Location and type of residence for armed forces across the Greater Manchester local authorities. The set is taken from the 2001 Census.,2013-12-08
+Census 2001 Cars or Vans,65ff4421-6acb-4149-a8ff-4b43d6bb5e0d,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,This dataset shows number of households which have one or more cars or vans. From Census 2001.,2013-12-08
+Census 2001 Communal Establishment Residents,e72f99a8-ca63-46bb-92b9-1f6ea12156a2,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Number of residents living in communal establishment, from 2001 Census.",2013-12-08
+Census 2001 Distance Travelled to Work Daytime Population,a2470bdb-6ff4-429f-9438-93d89b981404,dataset,Association of Greater Manchester Authorities,NA,NA,NA,NA,"Daytime population refers to the number of people who are present in an area during normal business hours, including workers. This is in contrast to the “resident” population present during the evening and nighttime hours.",2013-12-08
+Census 2001 Distance Travelled to Work Resident Population,f31ffa69-ca29-4101-b3ee-ba596acebc55,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Distance travelled to work for the resident population, people who live and sleep in the area. The distance travelled to work is measured in kilometres of a straight line between the residence postcode and the workplace postcode.",2013-12-08
+Census 2001 Dwellings,d3c17e75-3f3a-4655-96ac-865344b80d46,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Number of shared and unshared dwellings from the 2001 Census.,2013-12-08
+Census 2001 Economic Activity All,f7e3f073-ce87-4921-a852-cefeea3d855a,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Economic activity (whether or not a person is working or looking for work) ,2013-12-08
+Census 2001 Economic Activity Females,9ae2df67-a7a0-4a4a-868a-8c6dcc39acef,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Economic activity for females (whether or not a person is working or looking for work) ,2013-12-08
+Census 2001 Economic Activity Males,f571f3f2-5eb0-4628-941d-bf1cb862e3d0,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Economic activity among males (whether or not a person is working or looking for work) ,2013-12-08
+Census 2001 Economic Activity Students,c13e4599-55fb-48a5-b997-6e92cc93db0a,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Economic activity among full-time students (whether they are unemployed, employed or looking for work)",2013-12-08
+Census 2001 Ethnicity,4d4bec09-e6c6-48ff-a2ba-af12f9729b90,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Ethnic group of population from the 2001 Census.,2013-12-08
+Census 2001 General Health,cd7156df-e92d-4129-94fd-cf0922ecbc91,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Residents' self-classification of their health as 'good', 'fairly good' and 'not good' from the 2001 Census.",2013-12-08
+Census 2001 Health and Provision of Unpaid Care,e4a7eefa-a934-4c97-8278-cb1009c0267c,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,This table provides information on the health of and provision of unpaid care by the population of Greater Manchester. ,2013-12-08
+Census 2001 Hours Worked,a3d9bf4d-b661-4db8-b096-c27180693109,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Number of hours worked per week. From the 2001 Census.,2013-12-08
+Census 2001 Household Spaces,932d961b-1e1d-4dc9-9f57-4ae36736097f,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Number of spaces per type of household, from 2001 Census.",2013-12-08
+Census 2001 Housing Stock,a81bc5dc-5053-4fd3-be4d-5a1180ff4e52,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Occupied and vacant household spaces, from Census 2001.",2013-12-08
+Census 2001 Living Arrangements,519aa575-3daf-430a-8bf3-e1d074b3ddc0,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"This dataset shows living arrangements by marital status and relationship matrix. This means that a person living as part of a 'cohabiting couple' could in fact be married (to someone else) but will not appear as married or separated in this classification.
+
+A person not living in a couple can be classified married (or re-married) if they denote their marital status as married (or re-married) but have no spouse or partner resident in the household.
+
+",2013-12-08
+Census 2001 Lowest Floor Level,d08971fc-dbbe-45c9-b9a2-72bfdeac3f75,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,All households by the lowest floor level of the accommodation lived in.,2013-12-08
+Census 2001 Marital Status,96464d90-f9e5-4012-a504-f9671f54f82c,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Migration Households,e6282008-9192-47a1-8e6c-f624e3045653,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Migration of households.,2013-12-08
+Census 2001 Multiple Ethnic Group,eb672e38-2331-4eab-ab3f-e8050ea0c1d8,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,This dataset shows the number of people who are of multiple ethnic origin.,2013-12-08
+Census 2001 Number of People in Households,980d0cae-5063-4857-94c5-4892dc967dd0,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Number of Rooms,701d78a6-9a49-479e-974f-895d2c05f0f3,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,The count of the number of rooms in a household's accommodation.,2013-12-08
+Census 2001 Occupation Group,68febede-3627-40fb-9fc9-0f9915df7b64,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Number of people in the different occupation groups as per the 2001 Census.,2013-12-08
+Census 2001 Occupation Group Females,c6fa5a5a-ee67-47d0-9c9d-63f277b0508e,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Number of females in different occupation groups.,2013-12-08
+Census 2001 Persons per Room,da69d14e-d807-41eb-aae5-bcfc0233477d,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Tenure and persons per room by accommodation type.,2013-12-08
+Census 2001 Persons per Room Household Residents,82efa4b0-b77e-4024-ab07-296c4bc2fc0b,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Residency of Population,f8847d0d-23b1-43ee-b7fd-3c1fe268d711,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Number of people in different types of residency, including rough sleepers.",2013-12-08
+Census 2001 Population Age Structure,18ab20a8-5bec-4007-8849-003dab31b149,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Population by age bracket.,2013-12-08
+Census 2001 Population Density,1151dce0-3cfb-43fa-aed6-cbf3654bf7eb,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Qualificiations,f7ed0f19-0ef2-461b-8ca9-7c98b11b4ede,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Religion,f490823f-42f8-4adc-ad79-85fd06172039,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,NA,2013-12-08
+Census 2001 Residents Household NSSeC Reference Person,04b1e53d-26d3-4935-90e8-d49f503f7233,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Number of residents per household according to the 
+National Statistics Socio-economic Classification (NS SEC) of the Household Reference Person.
+
+
+The NS-SEC is a flexible and structured, occupationally based classification.
+
+",2013-12-08
+Census 2001 Same Sex Couples,e56f441b-0676-4ef3-8a99-bad3952e2ed0,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Number of same-sex couples living in each local authority.,2013-12-08
+Census 2001 Social Grade of Workplace Population,3d3c8075-98e9-4192-91a7-0826981925ea,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Estimated social grade of workplace population. 
+
+The workplace population is defined as the people aged 16 to 74 who are in employment and whose usual place of work is in the area.",2013-12-08
+Census 2001 Socio-Economic Classification,bc4db313-a5c3-4b35-9e0b-0e1d96fc7bc4,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Socio-economic classification by occupation group.,2013-12-08
+Census 2001 Socio-Economic Classification All,d0644f04-5688-4709-bef9-52fbc02cb8b0,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Socio economic classification by occupation.,2013-12-08
+Census 2001 Socio-Economic Classification Females,43aae06c-2462-4b80-ace8-1146e1c2a0b2,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Socio economic classification of females by occupation.,2013-12-08
+Census 2001 Socio-Economic Classification Males,83437f61-934e-4634-b1a1-009bd06e76d3,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Socio economic classification of males by occupation.,2013-12-08
+Census 2001 Tenure All People,3dd3574d-7432-4d11-95b7-5000049cbe7b,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Tenure of Household.,2013-12-08
+Census 2001 Tenure of Households,65f4bc6c-6abe-4749-9d64-883a0ee2f248,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Tenure of Household,2013-12-08
+Census 2001 Time Since Last Worked,d73af651-b077-423b-bff6-1255a8afa37f,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,Time since last in employment.,2013-12-08
+Census 2001 Usual Resident Population,bb5c746b-f4a2-4892-976c-cbdfafa2f767,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Number of people 'usually resident"" in a particular area (where they live and sleep most of the time), from Census 2001.",2013-12-08
+Census 2001 Distance Travelled to Work,eb149d92-04b9-49bb-94a4-4182b1b9cf3b,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Distance travelled to work, including those working abroad and at offshore installations. From 2001 Census.",2013-12-08
+Census 2001 NSSeC Household Reference Person under Pension Age,67b230fa-c803-458b-a63d-6ac2ceaa6687,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Household Reference Persons by their National Statistics Socio-economic Classification (NS SEC). 
+
+The NS-SEC is a flexible and structured, occupationally based classification.
+
+",2013-12-08
+Census 2001 Occupation Group,ec2ebb28-35e8-4c49-ba8b-22f896e512c8,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,"Employment by socio-economic occupation group (managers, professionals etc.) ",2013-12-08
+Census 2001 Population by Sex,57192293-1235-43bc-8f69-d4c6881e9e4d,dataset,Association of Greater Manchester Authorities,ONS,NA,NA,NA,NA,2013-12-08
+Crime Statistics April 2011 (By Neighbourhood),b0cd6aa5-b855-4550-88c9-34652a128d27,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics April 2011 (By Street),faf274be-cd21-4aba-ae4a-d122420e5ded,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics August 2011 By Neighbourhood,11b7f4f3-7d70-4c7b-8871-e32b984e1cc8,dataset,Greater Manchester Police,Police UK,NA,Police UK,NA,Greater Manchester crime statistics for August 2011 by neighbourhood,2013-12-08
+Crime Statistics August 2011 By Street,64466cf2-0b59-4821-b8a2-c720b2608c98,dataset,Greater Manchester Police,Police UK,NA,Police UK,NA,Greater Manchester crime statistics by street for August 2011,2013-12-08
+Crime Statistics December 2010 (By Neighbourhood),85c0f5de-5b55-4f8d-9a28-d918b8fedc3f,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics December 2010 (By Street),0bb387be-e818-4d73-9df0-1445207e6122,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics February 2011 (By Neighbourhood),7de13740-391d-4556-a7b5-54a45617ed3a,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics February 2011 (By Street),4f8ba0c1-3cbc-4f85-98fe-c4553d2010d0,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics January 2011 (By Neighbourhood),45f5a21b-3a70-4294-8ace-042b39889155,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics January 2011 (By Street),d2cf1c26-161a-4644-a630-e282470c160d,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics July 2011 By Neighbourhood,2d4d617a-df7a-4e84-bc35-2412ec01bc2d,dataset,Greater Manchester Police,Police UK,NA,Police UK,NA,Greater Manchester crime statistics by neighbourhood for July 2011,2013-12-08
+Crime Statistics July 2011 By Street,29faafa2-3af6-4c41-90fc-c6cbe20902c2,dataset,Greater Manchester Police,Police UK,NA,Police UK,NA,Greater Manchester crime statistics by street for July 2011,2013-12-08
+Crime Statistics June 2011 (By Neighbourhood),f5bfe67b-9026-4d51-84d9-efbce4816922,dataset,Greater Manchester Police,PoliceUK,NA,NA,NA,Greater Manchester crime statistics for June 2011 by neighbourhood.,2013-12-08
+Crime Statistics March 2011 (By Neighbourhood),516d7eda-3ff8-472e-a420-edebf3425ca0,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics March 2011 (By Street),e2ae04b7-1b8e-4edd-9ad4-772b530382de,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics May 2011 (By Neighbourhood),c47aea9f-a246-4d3a-ae85-7d2da3b70d7e,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Crime Statistics May 2011 (By Street),320cea0f-523b-460d-95b9-0dc3e7e9a261,dataset,Greater Manchester Police,NA,NA,NA,NA,NA,2013-12-08
+Cycle market data,88c36f16-ba8f-44b0-9dc4-d05353eb681b,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Cycle market data covering UK & EU bike sales, bike ownership, mode share, to 2011 where available. Sources: Various (Association of the European Bicycle Industry, Cycling Demonstration Towns data). RESTRICTIONS: None",2013-12-08
+Fire Home Safety Checks - Completed and Refused,97b826e0-3d16-4099-bd69-5685a2b112bf,dataset,Greater Manchester Fire and Rescue Service ,GMFRS,NA,NA,NA,"Data on fire Home Safety Checks completed by Greater Manchester Fire and Rescue Service, by Ward and LSOA. Also shows how many were refused.",2013-12-08
+GCSE Results by Local Authority from 2005/6-2009/10,ea30a92c-2d42-48c9-8963-b2f14e966d78,dataset,Association of Greater Manchester Authorities,Department for Education Department for Buisness Innovation and Skills,attainment.statistics@education.gsi.gov.uk,attainment.statistics@education.gsi.gov.uk,NA,GCSE results by Greater Manchester local authority at the end of Key Stage 4 and by gender from 2005/6-2009/10,2013-12-08
+GMFRS Risk and Response Times by Ward,410727d1-061a-4323-b601-ea696bacace8,dataset,Greater Manchester Fire and Rescue Service ,GMFRS,NA,NA,NA,"File showing the categorisation of risk of Wards in GM by Greater Manchester Fire and Rescue Service, as well as the response time to that ward.",2013-12-08
+Indices of Multiple Deprivation 2010,651b2dff-a90a-4e38-ad4e-54356534c5db,dataset,Association of Greater Manchester Authorities,Department for communities and Local Government,indices.deprivation@communities.gsi.gov.uk,Deparment for communities and local government,indices.deprivation@communities.gsi.gov.uk,Indices of Multiple Deprivation for each Greater Manchester authority 2010,2013-12-08
+Indices of Multiple Deprivation Health and Disability 2010,22d91112-a74b-422c-9337-9fcfee5b3d58,dataset,Association of Greater Manchester Authorities,Department for communities and Local Government, indices.deprivation@communities.gsi.gov.uk,Deparment for communities and local government, indices.deprivation@communities.gsi.gov.uk,Health and Disability area of the English Indices of Deprivation 2010,2013-12-08
+Key Stage 2 School Performance Tables 2011,5578e870-30f6-482e-a3d5-38f4f39fbba0,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,School performance tables for each Key Stage 2 provider in GM.  Guidance can be found at education.gov.uk,2013-12-08
+Key Stage 4 School Performance Tables 2011,ea0b3dd6-83ff-48a9-9f75-313a4f05ef2f,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,School performance tables for each Key Stage 4 provider in GM. Guidance can be found at education.gov.uk,2013-12-08
+Key Stage 5 School Performance Tables 2011,43c71fc9-ad74-4aca-a82b-8d0071dbba68,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,School performance tables for each Key Stage 5 provider in GM.  Guidance can be found at education.gov.uk,2013-12-08
+Life Expectancy at Birth 2007-2009,a989f584-35e2-4e38-8196-60325023d550,dataset,Association of Greater Manchester Authorities,Department for Health,dais@ic.nhs.uk ,Department for Health,dais@ic.nhs.uk ,Life expectancy at birth for Greater Manchester Authorities for 2007-2009,2013-12-08
+Local Authorities with Declared Air Quality Management Areas,1364e16b-d71a-4f32-9684-cbe88d4f8181,dataset,Association of Greater Manchester Authorities,Defra,NA,NA,NA,Greater Manchester Local Authorities With Declared Air Quality Management Areas,2013-12-08
+Metrolink Km per passenger 1993 - 2010,9435f60d-0feb-49b5-b2fd-65ed11043a73,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Total Passenger Km travelled on Metrolink 1993 - 2010. Derivation of Km travelled per passenger. Source: TfGM Metrolink. RESTRICTIONS: None
+
+ 
+
+",2013-12-08
+Metrolink patronage 1993 - 2011,016e05d5-459d-49eb-a341-b9a3aadfeaaf,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Metrolink patronage in GM 1993 - 2011. Source: TfGM Metrolink. RESTRICTIONS: None
+
+",2013-12-08
+Mode of travel to work GM and districts,9336b098-7457-4bd9-9db4-4de8d08a7938,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Mode of travel to work by GM and district. UK figures included. Source: 2005 update of 2001 census. (KS15, ONS).   ONS Copyright
+
+",2013-12-08
+Nursery School Inspection Judgements 2010_11,743cd5ff-175b-471f-bf6b-2718711d0326,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,"This data present inspection judgements for inspections carried out in the academic year 2010/11 where the inspection report had been published by 14 October 2011. Inspectors make judgements on a four point scale (1 = outstanding, 2 = good, 3 = satisfactory, 4 = inadequate).",2013-12-08
+Oldham Supplier Spend December 2010,392c6d5c-5912-4b3d-b44e-34cf945a4f96,dataset,Oldham Metropolitan Borough Council,mailto:information.manager@oldham.gov.uk,mailto:information.manager@oldham.gov.uk,mailto:information.manager@oldham.gov.uk,NA,Supplier Spend,2013-12-08
+Oldham Supplier Spend November 2010,8e870d49-d0f9-429a-b982-77d71661b1ae,dataset,Oldham Metropolitan Borough Council,mailto:information.manager@oldham.gov.uk,mailto:information.manager@oldham.gov.uk,mailto:information.manager@oldham.gov.uk,NA,Supplier Spend  ,2013-12-08
+Pilot S8 Deemed S5 Inspection Judgements 2010_11,27b43bec-9952-4124-acee-a3fb09f62050,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,"This data present inspection judgements for inspections carried out in the academic year 2010/11 where the inspection report had been published by 14 October 2011. Inspectors make judgements on a four point scale (1 = outstanding, 2 = good, 3 = satisfactory, 4 = inadequate).",2013-12-08
+Planning applications by authority and type of development 2008-2009,13ec9d02-52aa-48e3-bb8b-0b24f8660997,dataset,Association of Greater Manchester Authorities,Communities and Local Government,contactus@communities.gov.uk,contactus@communities.gov.uk,contactus@communities.gov.uk,Speed and type of planning decisions by local authority for 2008-2009,2013-12-08
+Primary School Inspection Judgements 2010_11,323460c4-0020-4c08-bda3-7c98aad2a5ec,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,"This data present inspection judgements for inspections carried out in the academic year 2010/11 where the inspection report had been published by 14 October 2011. Inspectors make judgements on a four point scale (1 = outstanding, 2 = good, 3 = satisfactory, 4 = inadequate).",2013-12-08
+Pupil Referral Unit Inspection Judgements 2010_11,6a12d567-94af-4bcb-b7eb-55dd0aff9833,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,"This data present inspection judgements for inspections carried out in the academic year 2010/11 where the inspection report had been published by 14 October 2011. Inspectors make judgements on a four point scale (1 = outstanding, 2 = good, 3 = satisfactory, 4 = inadequate).",2013-12-08
+Pupil Teacher Ratios for Local Authority Maintained Schools 2010,bfbaaa05-c30c-4e81-b3b1-0b1cd72f84cf,dataset,Association of Greater Manchester Authorities,Department for Education Department for Business Innovation and Skills,richard.howe@education.gsi.gov.uk,richard.howe@education.gsi.gov.uk,richard.howe@education.gsi.gov.uk,"Ratios of pupils to teachers for nursery, primary and secondary schools for each Greater Manchester local authority ",2013-12-08
+Rail patronage GM,9e1759e4-ea7a-4924-972e-2dee256d3671,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Rail patronage in GM 1980 - 2011. Source: TfGM RESTRICTIONS: None
+
+",2013-12-08
+Rochdale Local Election Candidates 2011,331d0313-c2de-4366-9cea-79b2084b5745,dataset,Rochdale Metropolitan Borough Council,NA,NA,NA,NA,Local election candidates for Rochdale 2011,2013-12-08
+Secondary School Inspection Judgements 2010_11,8c356e9d-4072-4542-93ae-5bc31a3c4dd3,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,"This data present inspection judgements for inspections carried out in the academic year 2010/11 where the inspection report had been published by 14 October 2011. Inspectors make judgements on a four point scale (1 = outstanding, 2 = good, 3 = satisfactory, 4 = inadequate).",2013-12-08
+Special School Inspection Judgements 2010_11,8cf5a1db-6225-42f3-ac0e-4386273b65dd,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,"This data present inspection judgements for inspections carried out in the academic year 2010/11 where the inspection report had been published by 14 October 2011. Inspectors make judgements on a four point scale (1 = outstanding, 2 = good, 3 = satisfactory, 4 = inadequate).",2013-12-08
+Sponsor Led Academy Inspection Judgements 2010_11,91d1822e-41cb-420b-8408-1fac5d0ab0c3,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,"This data present inspection judgements for inspections carried out in the academic year 2010/11 where the inspection report had been published by 14 October 2011. Inspectors make judgements on a four point scale (1 = outstanding, 2 = good, 3 = satisfactory, 4 = inadequate).",2013-12-08
+Stockport Local Election Candidates 2011,0a1b39e2-9ca8-4425-8ef9-50a8ab8cb342,dataset,Stockport Metropolitan Borough Council,NA,NA,NA,NA,Local election candidates for Stockport 2011,2013-12-08
+Taxi and private hire use in GM,77d4c609-6c1f-4a23-bd25-dd3e2c5bd69f,dataset,Transport for Greater Manchester,Craig Berry,craig.berry@tfgm.com,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Taxi statistics available for GM, including travel to work/school by taxi. Source DfT/TfGM data. RESTRICTIONS: none
+
+ 
+
+",2013-12-08
+Traffic Signal Installations,19a6a3ed-b46b-43a9-80ac-10a92b1eda88,dataset,Transport for Greater Manchester,Criag Berry,NA,Paul Westland,NA,All traffic signal installations across Greater Manchester by district (including H.A & privately maintained sites),2013-12-08
+Trafford Local Election Candidates 2011,27b91106-3411-4a89-ab24-ae347e9d0d64,dataset,Trafford Council,NA,NA,NA,NA,Local election candidates for Trafford 2011,2013-12-08
+Voting Turnout Trafford Local Elections 2010,e0e73d0f-dbb9-48c1-849b-eca9287763e8,dataset,Trafford Council,NA,NA,NA,NA,Turnout at Trafford local elections for 2010,2013-12-08
+Births and Mortality Trafford 2007,830a020b-b371-404b-a68f-f4afbf0199c3,dataset,Trafford Council,Office for National Statistics,NA,NA,NA,NA,2013-12-08
+Births and Mortality Trafford 2008,cce03049-0e58-4486-941e-86f3650325ef,dataset,Trafford Council,Office for National Statistics,NA,NA,NA,NA,2013-12-08
+Births and Mortality in Trafford 2009,52de753b-0bd8-4f87-a820-c9e84c876547,dataset,Trafford Council,Office for National Statistics,NA,NA,NA,NA,2013-12-08
+Births and Mortality in Trafford Wards 2005,899d090c-d0a2-4fa1-90bb-e55526376149,dataset,Trafford Council,Office for National Statistics,NA,NA,NA,NA,2013-12-08
+Births and Mortality in Trafford Wards in 2008,59405776-be80-4551-acd1-8c3ba0573c86,dataset,Trafford Council,Office for National Statistics,NA,NA,NA,"Licence:
+Contains Ordnance Survey data © Crown copyright and database right 
+
+For further information see:
+http://www.ordnancesurvey.co.uk/oswebsite/opendata/docs/os-opendata-licence.pdf
+",2013-12-08
+Births and Mortality Wards Trafford 2009,b81e2dfb-445d-48ea-8ca5-bf5a4a82cd83,dataset,Trafford Council,Office for National Statistics,NA,NA,NA,"Licence:
+Contains Ordnance Survey data © Crown copyright and database right 
+
+For further information see:
+http://www.ordnancesurvey.co.uk/oswebsite/opendata/docs/os-opendata-licence.pdf
+",2013-12-08
+Ward Lists,7200fb60-601b-40b3-9ab9-a1650e90b1bf,dataset,Greater Manchester,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,NA,2013-12-08
+Ward List - Wigan Council,526a62f8-980c-481b-8009-42676840406c,dataset,Wigan Metropolitan Borough Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,NA,2013-12-08
+Wigan Council Senior Salary Information,4ab30689-421f-4df7-b84a-2c4f24728053,dataset,Wigan Metropolitan Borough Council,mailto:businesstransformation@wigan.gov.uk,mailto:businesstransformation@wigan.gov.uk,NA,mailto:businesstransformation@wigan.gov.uk,Senior Salary Information for Wigan Council,2013-12-08
+Wigan Council Tax Bands,4bb38155-4ffd-47bd-bbe7-2f954c749028,dataset,Wigan Metropolitan Borough Council,mailto:businesstransformation@wigan.gov.uk,mailto:businesstransformation@wigan.gov.uk,NA,mailto:businesstransformation@wigan.gov.uk,Council Tax Bands in Wigan,2013-12-08
+Wigan Local Election Candidates 2011,7127dbb7-e88f-4012-bd77-ca2ac40bc896,dataset,Wigan Metropolitan Borough Council,NA,NA,NA,NA,Local election candidates for wigan 2011,2013-12-08
+Wigan Supplier Spend - October to December 2010,dd6405c9-95db-47dd-9de0-34b85cb4a2d1,dataset,Wigan Metropolitan Borough Council,Wigan Council,NA,NA,NA,Supplier Spend £500+,2013-12-08
+Trafford Supplier Spend 2011,e4529c5c-475f-4908-a129-4a280ce11877,dataset,Trafford Council,,,,,"Collection of CSV files showing supplier spend in Trafford in 2011, arranged by month.",2013-12-08
+Trafford Supplier Spend 2012,87e8a866-5566-4d08-90e5-fc5cd9b1542c,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,Jamie Whyte,jamie.whyte@trafford.gov.uk,"Collection of CSV files showing supplier spend in Trafford in 2012, arranged by month",2013-12-08
+Trafford Allotments,93624637-798b-43c2-b487-cb4f4d177a1b,dataset,Trafford Council,Trafford Council,webmaster@trafford.gov.uk,Trafford Council,webmaster@trafford.gov.uk,Location of allotments in Trafford,2013-12-06
+Trafford Output Areas,38e482fd-0a02-4e9d-abb0-4e0d8e488121,dataset,Trafford Council,Trafford Council,NA,NA,NA,"Information on the output areas, super output areas and census output areas within Trafford and their relationships.",2013-12-06
+Children's Centres,c9ed8c39-871c-4a05-abfa-1c1bf1229db7,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,NA,2013-10-28
+TfGM Spend Over £500,2b72ef3a-3f9e-4343-9514-293e99373849,dataset,NA,Craig Berry,craig.berry@tfgm.com,Craig Berry,craig.berry@tfgm.com,NA,2013-08-24
+DfT RoadSafety Accidents 2009 GM Subset,b39a71aa-cfc7-4fb9-9ab5-fd44e7f52ff5,dataset,Open Data Manchester,Julian Tait,julian@opendatamanchester.org.uk,NA,NA,"This file provides detailed data about the circumstances of personal injury road accidents in Greater Manchester in 2009, the types of vehicles involved and the consequential casualties. The statistics relate only to personal injury accidents on public roads that are reported to the police, and subsequently recorded, using the STATS19 accident reporting form.",2013-07-29
+Manchester Monitor,7a0da161-ef15-42f0-978e-fb31f4b6a46b,dataset,New Economy Manchester,Commission for New Economy,richard.cook@neweconomymanchester.com,Richard Cook,richard.cook@neweconomymanchester.com,"This link points to all data in the Manchester Monitor, a monthly publication by New Economy which analyses the economy of Greater Manchester.",2013-06-25
+Trafford Council Libraries,619fbe7c-6be2-4161-b6ae-4000a7aeaf17,dataset,NA,NA,NA,NA,NA,Libraries in Trafford,2013-05-06
+Council Job Vacancies,52fff4ff-00fa-4605-a1bd-2b123c619214,dataset,NA,NA,NA,NA,NA,All jobs currently being advertised by the ten Greater Manchester local authorities and other local public sector bodies.,2013-05-06
+All Charities Containing Bolton,a6da307e-4c58-47b0-ba30-08873ae9a9cb,dataset,NA,NA,NA,NA,NA,Charities containing 'Bolton' on Open Charities,2013-05-06
+All Charities Containing Bury,8d11caf6-48e5-472b-a10a-58be4f9693ac,dataset,NA,NA,NA,NA,NA,Charities containing 'Bury' on Open Charities,2013-05-06
+All Charities Containing Manchester,26a3b077-dc63-4bfd-86a3-36dc35529359,dataset,NA,NA,NA,NA,NA,Charities containing 'Manchester' on Open Charities,2013-05-06
+All Charities Containing Oldham,74cb73f3-2afb-4197-b376-14338cc35569,dataset,NA,NA,NA,NA,NA,Charities containing 'Oldham' on Open Charities,2013-05-06
+All Charities Containing Rochdale,533117a4-8cde-435d-8b44-c6d0fe5a4b87,dataset,NA,NA,NA,NA,NA,Charities containing 'Rochdale' on Open Charities,2013-05-06
+All Charities containing Salford,3ee2aa1e-4f4e-4b46-86b1-6955ea48b7bf,dataset,NA,NA,NA,NA,NA,Charities containing 'Salford' on Open Charities,2013-05-06
+All Charities containing Stockport,f21d4531-fc03-4948-b467-f45f221ffb28,dataset,NA,NA,NA,NA,NA,Charities containing 'Stockport' on Open Charities,2013-05-06
+All Charities containing Wigan,e4928c24-dde7-406e-b814-ec70bc37d96b,dataset,NA,NA,NA,NA,NA,All Charities containing 'Wigan' on Open Charities,2013-05-06
+All Charities containing Trafford,b1421636-4bee-48b0-9a44-f0f6741cb917,dataset,NA,NA,NA,NA,NA,Charities containing 'Trafford' on Open Charities,2013-05-06
+All Charities containing Tameside,5a3ca86b-ebcd-4cc0-a544-c802ce29d910,dataset,NA,NA,NA,NA,NA,Charities contaiing 'Tameside' on Open Charities,2013-05-06
+All Charities Containing Greater Manchester,9080b743-1cb6-4ee6-8e3c-f0a48885f1a8,dataset,NA,NA,NA,NA,NA,Charities containing 'Greater Manchester' on Open Charities ,2013-05-06
+Worklessness Economic Activity 2010,60e3f7e1-1bf9-4808-9e43-f38c442ee9b7,dataset,NA,Office for National Statistics,NA,NA,NA,NA,2013-05-06
+Census 2001 Estimated Social Grade,40386b21-1141-49fb-b91e-2091e0ce92eb,dataset,NA,ONS,NA,NA,NA,"This dataset covers the approximated social grade of the population.
+
+Social Grade is the socio-economic classification used by the Market Research and Marketing Industries, most often in the analysis of spending habits and consumer attitudes. 
+",2013-05-06
+TfGM Bus Stops and Schedules Linked Data,6949e822-8b6c-4308-b010-a95ce1a6b928,dataset,NA,Ric Roberts,hello@linkedmanchester.org,NA,NA,"Linked data version of the TfGM bus stops and schedule data that is released as ATCO-CIF data. See http://datagm.org.uk/package/atco-cif for details.
+
+It combines the schedule data with location information on bus stops from the 'NaPTAN' dataset available through http://transport.data.gov.uk
+
+The end result is a queryable resource for bus timetable and bus route information.",2013-05-06
+Civil Parishes,6fc748f9-9cb0-4b86-b82d-c4105506dd3d,dataset,Trafford Council,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,Details of the parish councils,2013-05-06
+Constituencies,2d8814a2-ec1d-43a7-a862-232d02953f2b,dataset,Trafford Council,Paul Westland,NA,NA,NA,Details of the parliamentary constituencies,2013-05-06
+General Election Results,bec0c7b5-736c-495b-8efc-3f26524a487a,dataset,Trafford Council,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,Results of general elections,2013-05-06
+Leisure Centres in Trafford,b090cb17-78d5-4382-b0df-bce5dae4f04c,dataset,Trafford Council,Trafford Council,webmaster@trafford.gov.uk,Trafford Council,webmaster@trafford.gov.uk,"Location of Leisure Centres in Trafford.
+
+Licence: 
+Contains Ordnance Survey data © Crown copyright and database right 2011.
+
+http://www.ordnancesurvey.co.uk/oswebsite/opendata/docs/os-opendata-licence.pdf
+",2013-05-06
+Local Authority/City Boundaries,279c383e-7cd0-4214-aa74-a8366929ae78,dataset,Greater Manchester,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,Map files for the authority and city boundaries across Greater Manchester,2013-05-06
+Local Election Results,ccb4307f-39b7-413d-9fb1-e88379d13b27,dataset,Trafford Council,Paul Westland,paul.westland@trafford.gov.uk,NA,NA,Results of local elections,2013-05-06
+Trafford Local Election 2011 - Results,fa4cf121-c873-4ef0-a4e3-cf855a83cfd4,dataset,Trafford Council,NA,NA,NA,NA,NA,2013-05-06
+Trafford Local Election Results,8487b842-2a45-44b1-9e5b-626816b3d4c2,dataset,Trafford Council,Trafford Council,NA,NA,NA,Full results of the local elections in Trafford from 1998 up to until 2010.,2013-05-06
+Trafford Recycling Centres,7ad43e07-ed53-436c-b708-8996c0d08d55,dataset,Trafford Council,Trafford Council,webmaster@trafford.gov.uk,Trafford Council,webmaster@trafford.gov.uk,Location of recycling centres in Trafford including materials accepted at each,2013-05-06
+Schools,9a680450-500e-4b98-af34-40cf9256b3d3,dataset,Greater Manchester,Paul Westland,paul.westland@trafford.gov.uk,Trafford Council,webmaster@trafford.gov.uk,Location and details schools,2013-05-06
+Ward List - Trafford Council,1e28ef8c-26ee-4fd3-8468-764555aef59b,dataset,Trafford Council,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,NA,2013-05-06
+Ward List - Manchester City Council,62979d46-8ebe-4cc1-8794-02a030aa4fee,dataset,Greater Manchester,Jamie Whyte,jamie.whyte@trafford.gov.uk,NA,NA,NA,2013-03-28
+Requires deleting,2c9a5aed-36a2-4682-90fa-73280c85e8cb,dataset,NA,NA,NA,NA,NA,NA,2012-08-31
+Oldham Supplier Spend - January 2011,a648acb5-b774-4857-8ec1-d63115637672,dataset,NA,mailto:information.manager@oldham.gov.uk,mailto:information.manager@oldham.gov.uk,NA,mailto:information.manager@oldham.gov.uk,Supplier Spend 500+,2011-03-17

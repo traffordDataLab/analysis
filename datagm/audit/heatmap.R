@@ -29,6 +29,7 @@ df <- data.frame(
   updated = as.Date(str_sub(p$metadata_modified, 1, 10), format = "%Y-%m-%d"),
   stringsAsFactors = FALSE
 )
+write_csv(df, "resources.csv")
 
 # monthly activity by organisation ---------------------------
 activity <- df %>% 
@@ -43,11 +44,11 @@ activity <- df %>%
 periods <- data_frame(month_year = seq(as.Date('2013-01-01'), as.Date('2018-01-01'), by = "1 month"))
 
 # merge actvity log with periods ---------------------------
-activity_periods <- left_join(periods, activity, by = "month_year") %>% 
+activity_log <- left_join(periods, activity, by = "month_year") %>% 
   gather(organisation, n, -month_year) 
 
 ## plot a heatmap ---------------------------
-ggplot(activity_periods, aes(x = month_year, y = organisation, fill = n)) + 
+ggplot(activity_log, aes(x = month_year, y = organisation, fill = n)) + 
   geom_tile(color = "white", size = 0.4) + 
   scale_fill_viridis_c(name = "Update frequency", 
                        direction = -1, 
