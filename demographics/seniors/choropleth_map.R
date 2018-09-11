@@ -1,8 +1,7 @@
 ## Choropleth map ##
 
 # load libraries
-library(tidyverse) ; library(readxl) ; library(sf) ; library(ggplot2) ; 
-library(viridis) ; library(ggspatial)
+library(tidyverse) ; library(readxl) ; library(sf) ; library(ggplot2) ; library(classInt) ; library(ggspatial)
 
 # load geospatial data
 wards <- st_read("https://www.traffordDataLab.io/spatial_data/ward/2017/trafford_ward_generalised.geojson")
