@@ -1,0 +1,506 @@
+[
+ {
+   "area_code": "E05000819",
+   "area_name": "Altrincham",
+   "year_elected": 2018,
+   "councillor_number": 1,
+   "councillor_name": "COGGINS, Geraldine Philomena",
+   "winning_party": "Green Party"
+ },
+ {
+   "area_code": "E05000820",
+   "area_name": "Ashton upon Mersey",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "RIGBY, Brian Dean",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000821",
+   "area_name": "Bowdon",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "ANSTEE, Sean Brian",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000822",
+   "area_name": "Broadheath",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "WESTERN, Denise Ailsa",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000823",
+   "area_name": "Brooklands",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "BOYES, Chris",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000824",
+   "area_name": "Bucklow-St Martins",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "WRIGHT, James Alexander",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000825",
+   "area_name": "Clifford",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "STENNETT, Whit",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000826",
+   "area_name": "Davyhulme East",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "BLACKBURN, Linda Louise",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000827",
+   "area_name": "Davyhulme West",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "SHAW, Brian",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000828",
+   "area_name": "Flixton",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "LALLY, Paul Michael David",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000829",
+   "area_name": "Gorse Hill",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "WALSH, Laurence James",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000830",
+   "area_name": "Hale Barns",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "MYERS, Patrick John",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000831",
+   "area_name": "Hale Central",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "HADDAD, Denise Louise",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000832",
+   "area_name": "Longford",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "LLOYD, Judith Ann",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000833",
+   "area_name": "Priory",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "BROTHERTON, Barry",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000834",
+   "area_name": "St Mary's",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "HOLDEN, John Charles",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000835",
+   "area_name": "Sale Moor",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "FREEMAN, Mike",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000836",
+   "area_name": "Stretford",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "ROSS, Tom William",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000837",
+   "area_name": "Timperley",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "BROPHY, Jane Elisabeth",
+   "winning_party": "Liberal Democrats"
+ },
+ {
+   "area_code": "E05000838",
+   "area_name": "Urmston",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "HYNES, Catherine Louise",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000839",
+   "area_name": "Village",
+   "year_elected": 2016,
+   "councillor_number": 1,
+   "councillor_name": "BOWKER, Ray",
+   "winning_party": "Liberal Democrats"
+ },
+ {
+   "area_code": "E05000819",
+   "area_name": "Altrincham",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "JERROME, Dan",
+   "winning_party": "Green Party"
+ },
+ {
+   "area_code": "E05000820",
+   "area_name": "Ashton upon Mersey",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "LAMB, John Terrence",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000821",
+   "area_name": "Bowdon",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "BARCLAY, Karen Myra",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000822",
+   "area_name": "Broadheath",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "WHYTE, Amy Marie",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000823",
+   "area_name": "Brooklands",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "LONGDEN, Steven Gregory",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000824",
+   "area_name": "Bucklow-St Martins",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "NEW, Adele Louise",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000825",
+   "area_name": "Clifford",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "TAYLOR, Sophie Rachel",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000826",
+   "area_name": "Davyhulme East",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "DILLON, Jayne Elizabeth",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000827",
+   "area_name": "Davyhulme West",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "WHITHAM, Graham",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000828",
+   "area_name": "Flixton",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "THOMAS, Simon Garfield",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000829",
+   "area_name": "Gorse Hill",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "ACTON, David",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000830",
+   "area_name": "Hale Barns",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "BUTT, Dylan",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000831",
+   "area_name": "Hale Central",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "MITCHELL, Alan Robert",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000832",
+   "area_name": "Longford",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "JARMAN, David Paul",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000833",
+   "area_name": "Priory",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "BAUGH, Jane Everall",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000834",
+   "area_name": "St Mary's",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "CHILTON, Rob",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000835",
+   "area_name": "Sale Moor",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "PATEL, Elizabeth Alice Louise",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000836",
+   "area_name": "Stretford",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "SLATER, Jane Winifred",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000837",
+   "area_name": "Timperley",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "EVANS, Nathan Morris France",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000838",
+   "area_name": "Urmston",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "PROCTER, Kevin Alan",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000839",
+   "area_name": "Village",
+   "year_elected": 2018,
+   "councillor_number": 2,
+   "councillor_name": "CAREY, Thomas John Patrick",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000819",
+   "area_name": "Altrincham",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "WELTON, Michael John",
+   "winning_party": "Green Party"
+ },
+ {
+   "area_code": "E05000820",
+   "area_name": "Ashton upon Mersey",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "HARTLEY, Ben",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000821",
+   "area_name": "Bowdon",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "CHURCHILL, Claire Helen",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000822",
+   "area_name": "Broadheath",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "CARR, Serena",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000823",
+   "area_name": "Brooklands",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "THOMPSON, Rose",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000824",
+   "area_name": "Bucklow-St Martins",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "WILLIAMS, Aidan James",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000825",
+   "area_name": "Clifford",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "AKINOLA, Akilah",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000826",
+   "area_name": "Davyhulme East",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "WINSTANLEY, Barry Gerard",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000827",
+   "area_name": "Davyhulme West",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "CARTER, Karina Gay",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000828",
+   "area_name": "Flixton",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "PROCTER, Shirley Blair",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000829",
+   "area_name": "Gorse Hill",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "CORDINGLEY, Mike",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000830",
+   "area_name": "Hale Barns",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "MORGAN, Dave",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000831",
+   "area_name": "Hale Central",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "YOUNG, Patricia Beatrix",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000832",
+   "area_name": "Longford",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "DUFFIELD, Anne Christine",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000833",
+   "area_name": "Priory",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "WESTERN, Andrew Howard",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000834",
+   "area_name": "St Mary's",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "BUNTING, Dan",
+   "winning_party": "Conservative"
+ },
+ {
+   "area_code": "E05000835",
+   "area_name": "Sale Moor",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "BENNETT, Joanne Mary",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000836",
+   "area_name": "Stretford",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "ADSHEAD, Stephen Anthony",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000837",
+   "area_name": "Timperley",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "MINNIS, Meena",
+   "winning_party": "Liberal Democrats"
+ },
+ {
+   "area_code": "E05000838",
+   "area_name": "Urmston",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "HARDING, Jo",
+   "winning_party": "Labour"
+ },
+ {
+   "area_code": "E05000839",
+   "area_name": "Village",
+   "year_elected": 2019,
+   "councillor_number": 3,
+   "councillor_name": "NEWGROSH, Julian David",
+   "winning_party": "Liberal Democrats"
+ }
+]
