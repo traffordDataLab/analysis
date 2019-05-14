@@ -12,384 +12,300 @@
         "area_name": "Altrincham",
         "year": 2018,
         "electorate": 8892,
-        "ballots_issued": 4133,
-        "spoiled_ballots": 257,
-        "percentage_turnout": 46.5
+        "ballots_issued": 4133
       },
       {
         "area_code": "E05000820",
         "area_name": "Ashton upon Mersey",
         "year": 2018,
         "electorate": 7617,
-        "ballots_issued": 3590,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 47.1
+        "ballots_issued": 3590
       },
       {
         "area_code": "E05000821",
         "area_name": "Bowdon",
         "year": 2018,
         "electorate": 7335,
-        "ballots_issued": 3121,
-        "spoiled_ballots": 5,
-        "percentage_turnout": 42.5
+        "ballots_issued": 3121
       },
       {
         "area_code": "E05000822",
         "area_name": "Broadheath",
         "year": 2018,
         "electorate": 9891,
-        "ballots_issued": 4218,
-        "spoiled_ballots": 5,
-        "percentage_turnout": 42.6
+        "ballots_issued": 4218
       },
       {
         "area_code": "E05000823",
         "area_name": "Brooklands",
         "year": 2018,
         "electorate": 7844,
-        "ballots_issued": 4080,
-        "spoiled_ballots": 4,
-        "percentage_turnout": 52
+        "ballots_issued": 4080
       },
       {
         "area_code": "E05000824",
         "area_name": "Bucklow-St Martins",
         "year": 2018,
         "electorate": 7101,
-        "ballots_issued": 2027,
-        "spoiled_ballots": 4,
-        "percentage_turnout": 28.5
+        "ballots_issued": 2027
       },
       {
         "area_code": "E05000825",
         "area_name": "Clifford",
         "year": 2018,
         "electorate": 8183,
-        "ballots_issued": 3212,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 39.3
+        "ballots_issued": 3212
       },
       {
         "area_code": "E05000826",
         "area_name": "Davyhulme East",
         "year": 2018,
         "electorate": 7758,
-        "ballots_issued": 3837,
-        "spoiled_ballots": 2,
-        "percentage_turnout": 49.5
+        "ballots_issued": 3837
       },
       {
         "area_code": "E05000827",
         "area_name": "Davyhulme West",
         "year": 2018,
         "electorate": 7696,
-        "ballots_issued": 3884,
-        "spoiled_ballots": 3,
-        "percentage_turnout": 50.5
+        "ballots_issued": 3884
       },
       {
         "area_code": "E05000828",
         "area_name": "Flixton",
         "year": 2018,
         "electorate": 8290,
-        "ballots_issued": 4562,
-        "spoiled_ballots": 2,
-        "percentage_turnout": 55
+        "ballots_issued": 4562
       },
       {
         "area_code": "E05000829",
         "area_name": "Gorse Hill",
         "year": 2018,
         "electorate": 8357,
-        "ballots_issued": 2799,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 33.5
+        "ballots_issued": 2799
       },
       {
         "area_code": "E05000830",
         "area_name": "Hale Barns",
         "year": 2018,
         "electorate": 7431,
-        "ballots_issued": 2900,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 39
+        "ballots_issued": 2900
       },
       {
         "area_code": "E05000831",
         "area_name": "Hale Central",
         "year": 2018,
         "electorate": 7440,
-        "ballots_issued": 2999,
-        "spoiled_ballots": 7,
-        "percentage_turnout": 40.3
+        "ballots_issued": 2999
       },
       {
         "area_code": "E05000832",
         "area_name": "Longford",
         "year": 2018,
         "electorate": 9128,
-        "ballots_issued": 3658,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 40.1
+        "ballots_issued": 3658
       },
       {
         "area_code": "E05000833",
         "area_name": "Priory",
         "year": 2018,
         "electorate": 8191,
-        "ballots_issued": 3352,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 40.9
+        "ballots_issued": 3352
       },
       {
         "area_code": "E05000834",
         "area_name": "St Mary's",
         "year": 2018,
         "electorate": 8597,
-        "ballots_issued": 3432,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 39.9
+        "ballots_issued": 3432
       },
       {
         "area_code": "E05000835",
         "area_name": "Sale Moor",
         "year": 2018,
         "electorate": 7632,
-        "ballots_issued": 2777,
-        "spoiled_ballots": 5,
-        "percentage_turnout": 36.4
+        "ballots_issued": 2777
       },
       {
         "area_code": "E05000836",
         "area_name": "Stretford",
         "year": 2018,
         "electorate": 7928,
-        "ballots_issued": 3130,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 39.5
+        "ballots_issued": 3130
       },
       {
         "area_code": "E05000837",
         "area_name": "Timperley",
         "year": 2018,
         "electorate": 8479,
-        "ballots_issued": 4204,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 49.6
+        "ballots_issued": 4204
       },
       {
         "area_code": "E05000838",
         "area_name": "Urmston",
         "year": 2018,
         "electorate": 8591,
-        "ballots_issued": 3890,
-        "spoiled_ballots": 7,
-        "percentage_turnout": 45.3
+        "ballots_issued": 3890
       },
       {
         "area_code": "E05000839",
         "area_name": "Village",
         "year": 2018,
         "electorate": 7929,
-        "ballots_issued": 3267,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 41.2
+        "ballots_issued": 3267
       },
       {
         "area_code": "E05000819",
         "area_name": "Altrincham",
         "year": 2019,
         "electorate": 8867,
-        "ballots_issued": 3898,
-        "spoiled_ballots": 20,
-        "percentage_turnout": 44
+        "ballots_issued": 3898
       },
       {
         "area_code": "E05000820",
         "area_name": "Ashton upon Mersey",
         "year": 2019,
         "electorate": 7500,
-        "ballots_issued": 3588,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 47.8
+        "ballots_issued": 3588
       },
       {
         "area_code": "E05000821",
         "area_name": "Bowdon",
         "year": 2019,
         "electorate": 7242,
-        "ballots_issued": 2929,
-        "spoiled_ballots": 31,
-        "percentage_turnout": 40.4
+        "ballots_issued": 2929
       },
       {
         "area_code": "E05000822",
         "area_name": "Broadheath",
         "year": 2019,
         "electorate": 9960,
-        "ballots_issued": 4048,
-        "spoiled_ballots": 17,
-        "percentage_turnout": 40.6
+        "ballots_issued": 4048
       },
       {
         "area_code": "E05000823",
         "area_name": "Brooklands",
         "year": 2019,
         "electorate": 7735,
-        "ballots_issued": 3683,
-        "spoiled_ballots": 18,
-        "percentage_turnout": 47.6
+        "ballots_issued": 3682
       },
       {
         "area_code": "E05000824",
         "area_name": "Bucklow-St Martins",
         "year": 2019,
         "electorate": 7060,
-        "ballots_issued": 1824,
-        "spoiled_ballots": 16,
-        "percentage_turnout": 25.8
+        "ballots_issued": 1824
       },
       {
         "area_code": "E05000825",
         "area_name": "Clifford",
         "year": 2019,
         "electorate": 8351,
-        "ballots_issued": 3012,
-        "spoiled_ballots": 10,
-        "percentage_turnout": 36.1
+        "ballots_issued": 3012
       },
       {
         "area_code": "E05000826",
         "area_name": "Davyhulme East",
         "year": 2019,
         "electorate": 7700,
-        "ballots_issued": 3177,
-        "spoiled_ballots": 13,
-        "percentage_turnout": 41.3
+        "ballots_issued": 3177
       },
       {
         "area_code": "E05000827",
         "area_name": "Davyhulme West",
         "year": 2019,
-        "electorate": 7638,
-        "ballots_issued": 3179,
-        "spoiled_ballots": 11,
-        "percentage_turnout": 41.6
+        "electorate": 7681,
+        "ballots_issued": 3197
       },
       {
         "area_code": "E05000828",
         "area_name": "Flixton",
         "year": 2019,
         "electorate": 8322,
-        "ballots_issued": 3787,
-        "spoiled_ballots": 13,
-        "percentage_turnout": 45.5
+        "ballots_issued": 3787
       },
       {
         "area_code": "E05000829",
         "area_name": "Gorse Hill",
         "year": 2019,
         "electorate": 8391,
-        "ballots_issued": 2620,
-        "spoiled_ballots": 14,
-        "percentage_turnout": 31.2
+        "ballots_issued": 2620
       },
       {
         "area_code": "E05000830",
         "area_name": "Hale Barns",
         "year": 2019,
         "electorate": 7362,
-        "ballots_issued": 2817,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 38.3
+        "ballots_issued": 2817
       },
       {
         "area_code": "E05000831",
         "area_name": "Hale Central",
         "year": 2019,
-        "electorate": 7388,
-        "ballots_issued": 2973,
-        "spoiled_ballots": 29,
-        "percentage_turnout": 40.2
+        "electorate": 7394,
+        "ballots_issued": 2973
       },
       {
         "area_code": "E05000832",
         "area_name": "Longford",
         "year": 2019,
         "electorate": 9098,
-        "ballots_issued": 3242,
-        "spoiled_ballots": 32,
-        "percentage_turnout": 35.6
+        "ballots_issued": 3242
       },
       {
         "area_code": "E05000833",
         "area_name": "Priory",
         "year": 2019,
         "electorate": 8052,
-        "ballots_issued": 3109,
-        "spoiled_ballots": 11,
-        "percentage_turnout": 38.6
+        "ballots_issued": 3109
       },
       {
         "area_code": "E05000834",
         "area_name": "St Mary's",
         "year": 2019,
         "electorate": 8611,
-        "ballots_issued": 3126,
-        "spoiled_ballots": 13,
-        "percentage_turnout": 36.3
+        "ballots_issued": 3126
       },
       {
         "area_code": "E05000835",
         "area_name": "Sale Moor",
         "year": 2019,
         "electorate": 7549,
-        "ballots_issued": 2601,
-        "spoiled_ballots": 32,
-        "percentage_turnout": 34.5
+        "ballots_issued": 2601
       },
       {
         "area_code": "E05000836",
         "area_name": "Stretford",
         "year": 2019,
         "electorate": 7843,
-        "ballots_issued": 2804,
-        "spoiled_ballots": 12,
-        "percentage_turnout": 35.8
+        "ballots_issued": 2804
       },
       {
         "area_code": "E05000837",
         "area_name": "Timperley",
         "year": 2019,
         "electorate": 8410,
-        "ballots_issued": 3918,
-        "spoiled_ballots": 23,
-        "percentage_turnout": 46.6
+        "ballots_issued": 3918
       },
       {
         "area_code": "E05000838",
         "area_name": "Urmston",
         "year": 2019,
         "electorate": 8472,
-        "ballots_issued": 3394,
-        "spoiled_ballots": 17,
-        "percentage_turnout": 40.1
+        "ballots_issued": 3394
       },
       {
         "area_code": "E05000839",
         "area_name": "Village",
         "year": 2019,
         "electorate": 7905,
-        "ballots_issued": 3217,
-        "spoiled_ballots": 18,
-        "percentage_turnout": 40.7
+        "ballots_issued": 3217
       }
     ]
   },
   "transform": [
     {
-      "calculate": "(datum.percentage_turnout/100)", "as": "turnout"
+      "calculate": "datum.ballots_issued/datum.electorate", "as": "turnout"
     }
   ],
   "encoding": {
