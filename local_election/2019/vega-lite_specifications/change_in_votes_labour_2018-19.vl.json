@@ -7,594 +7,258 @@
   "title": {"text": "Change in share of Labour votes, 2018 - 2019", "offset": 20},
   "data": {
     "values": [
-      {
-        "area_code": "E05000819",
-        "area_name": "Altrincham",
-        "year": 2018,
-        "electorate": 8892,
-        "ballots_issued": 8266,
-        "spoiled_ballots": 257,
-        "percentage_turnout": 46.5,
-        "conservative_vote": 2728,
-        "green_vote": 3565,
-        "labour_vote": 1501,
-        "liberal_democrats_vote": 211,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000820",
-        "area_name": "Ashton upon Mersey",
-        "year": 2018,
-        "electorate": 7617,
-        "ballots_issued": 3590,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 47.1,
-        "conservative_vote": 1677,
-        "green_vote": 148,
-        "labour_vote": 1568,
-        "liberal_democrats_vote": 138,
-        "ukip_vote": 53
-      },
-      {
-        "area_code": "E05000821",
-        "area_name": "Bowdon",
-        "year": 2018,
-        "electorate": 7335,
-        "ballots_issued": 3121,
-        "spoiled_ballots": 5,
-        "percentage_turnout": 42.5,
-        "conservative_vote": 2130,
-        "green_vote": 169,
-        "labour_vote": 422,
-        "liberal_democrats_vote": 356,
-        "ukip_vote": 39
-      },
-      {
-        "area_code": "E05000822",
-        "area_name": "Broadheath",
-        "year": 2018,
-        "electorate": 9891,
-        "ballots_issued": 4218,
-        "spoiled_ballots": 5,
-        "percentage_turnout": 42.6,
-        "conservative_vote": 1716,
-        "green_vote": 160,
-        "labour_vote": 2077,
-        "liberal_democrats_vote": 170,
-        "ukip_vote": 56
-      },
-      {
-        "area_code": "E05000823",
-        "area_name": "Brooklands",
-        "year": 2018,
-        "electorate": 7844,
-        "ballots_issued": 4080,
-        "spoiled_ballots": 4,
-        "percentage_turnout": 52,
-        "conservative_vote": 1755,
-        "green_vote": 155,
-        "labour_vote": 1939,
-        "liberal_democrats_vote": 170,
-        "ukip_vote": 55
-      },
-      {
-        "area_code": "E05000824",
-        "area_name": "Bucklow-St Martins",
-        "year": 2018,
-        "electorate": 7101,
-        "ballots_issued": 2027,
-        "spoiled_ballots": 4,
-        "percentage_turnout": 28.5,
-        "conservative_vote": 424,
-        "green_vote": 44,
-        "labour_vote": 1427,
-        "liberal_democrats_vote": 38,
-        "ukip_vote": 90
-      },
-      {
-        "area_code": "E05000825",
-        "area_name": "Clifford",
-        "year": 2018,
-        "electorate": 8183,
-        "ballots_issued": 3212,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 39.3,
-        "conservative_vote": 165,
-        "green_vote": 255,
-        "labour_vote": 2702,
-        "liberal_democrats_vote": 82,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000826",
-        "area_name": "Davyhulme East",
-        "year": 2018,
-        "electorate": 7758,
-        "ballots_issued": 3837,
-        "spoiled_ballots": 2,
-        "percentage_turnout": 49.5,
-        "conservative_vote": 1388,
-        "green_vote": 100,
-        "labour_vote": 2205,
-        "liberal_democrats_vote": 73,
-        "ukip_vote": 69
-      },
-      {
-        "area_code": "E05000827",
-        "area_name": "Davyhulme West",
-        "year": 2018,
-        "electorate": 7696,
-        "ballots_issued": 3884,
-        "spoiled_ballots": 3,
-        "percentage_turnout": 50.5,
-        "conservative_vote": 1403,
-        "green_vote": 71,
-        "labour_vote": 2230,
-        "liberal_democrats_vote": 81,
-        "ukip_vote": 96
-      },
-      {
-        "area_code": "E05000828",
-        "area_name": "Flixton",
-        "year": 2018,
-        "electorate": 8290,
-        "ballots_issued": 4562,
-        "spoiled_ballots": 2,
-        "percentage_turnout": 55,
-        "conservative_vote": 1528,
-        "green_vote": 125,
-        "labour_vote": 2732,
-        "liberal_democrats_vote": 84,
-        "ukip_vote": 91
-      },
-      {
-        "area_code": "E05000829",
-        "area_name": "Gorse Hill",
-        "year": 2018,
-        "electorate": 8357,
-        "ballots_issued": 2799,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 33.5,
-        "conservative_vote": 485,
-        "green_vote": 115,
-        "labour_vote": 2039,
-        "liberal_democrats_vote": 88,
-        "ukip_vote": 66
-      },
-      {
-        "area_code": "E05000830",
-        "area_name": "Hale Barns",
-        "year": 2018,
-        "electorate": 7431,
-        "ballots_issued": 2900,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 39,
-        "conservative_vote": 1932,
-        "green_vote": 95,
-        "labour_vote": 477,
-        "liberal_democrats_vote": 258,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000831",
-        "area_name": "Hale Central",
-        "year": 2018,
-        "electorate": 7440,
-        "ballots_issued": 2999,
-        "spoiled_ballots": 7,
-        "percentage_turnout": 40.3,
-        "conservative_vote": 1604,
-        "green_vote": 166,
-        "labour_vote": 809,
-        "liberal_democrats_vote": 364,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000832",
-        "area_name": "Longford",
-        "year": 2018,
-        "electorate": 9128,
-        "ballots_issued": 3658,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 40.1,
-        "conservative_vote": 547,
-        "green_vote": 238,
-        "labour_vote": 2611,
-        "liberal_democrats_vote": 194,
-        "ukip_vote": 60
-      },
-      {
-        "area_code": "E05000833",
-        "area_name": "Priory",
-        "year": 2018,
-        "electorate": 8191,
-        "ballots_issued": 3352,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 40.9,
-        "conservative_vote": 988,
-        "green_vote": 170,
-        "labour_vote": 2018,
-        "liberal_democrats_vote": 170,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000834",
-        "area_name": "St Mary's",
-        "year": 2018,
-        "electorate": 8597,
-        "ballots_issued": 3432,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 39.9,
-        "conservative_vote": 2053,
-        "green_vote": 149,
-        "labour_vote": 1054,
-        "liberal_democrats_vote": 167,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000835",
-        "area_name": "Sale Moor",
-        "year": 2018,
-        "electorate": 7632,
-        "ballots_issued": 2777,
-        "spoiled_ballots": 5,
-        "percentage_turnout": 36.4,
-        "conservative_vote": 971,
-        "green_vote": 161,
-        "labour_vote": 1433,
-        "liberal_democrats_vote": 207,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000836",
-        "area_name": "Stretford",
-        "year": 2018,
-        "electorate": 7928,
-        "ballots_issued": 3130,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 39.5,
-        "conservative_vote": 490,
-        "green_vote": 211,
-        "labour_vote": 2231,
-        "liberal_democrats_vote": 98,
-        "ukip_vote": 92
-      },
-      {
-        "area_code": "E05000837",
-        "area_name": "Timperley",
-        "year": 2018,
-        "electorate": 8479,
-        "ballots_issued": 4204,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 49.6,
-        "conservative_vote": 1694,
-        "green_vote": 113,
-        "labour_vote": "NA",
-        "liberal_democrats_vote": 1329,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000838",
-        "area_name": "Urmston",
-        "year": 2018,
-        "electorate": 8591,
-        "ballots_issued": 3890,
-        "spoiled_ballots": 7,
-        "percentage_turnout": 45.3,
-        "conservative_vote": 1217,
-        "green_vote": 155,
-        "labour_vote": 2243,
-        "liberal_democrats_vote": 130,
-        "ukip_vote": 138
-      },
-      {
-        "area_code": "E05000839",
-        "area_name": "Village",
-        "year": 2018,
-        "electorate": 7929,
-        "ballots_issued": 3267,
-        "spoiled_ballots": 6,
-        "percentage_turnout": 41.2,
-        "conservative_vote": 1331,
-        "green_vote": 73,
-        "labour_vote": 742,
-        "liberal_democrats_vote": 1003,
-        "ukip_vote": 106
-      },
-      {
-        "area_code": "E05000819",
-        "area_name": "Altrincham",
-        "year": 2019,
-        "electorate": 8867,
-        "ballots_issued": 3898,
-        "spoiled_ballots": 20,
-        "percentage_turnout": 44,
-        "conservative_vote": 1057,
-        "green_vote": 2377,
-        "labour_vote": 313,
-        "liberal_democrats_vote": 128,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000820",
-        "area_name": "Ashton upon Mersey",
-        "year": 2019,
-        "electorate": 7500,
-        "ballots_issued": 3588,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 47.8,
-        "conservative_vote": 1398,
-        "green_vote": 273,
-        "labour_vote": 1535,
-        "liberal_democrats_vote": 247,
-        "ukip_vote": 127
-      },
-      {
-        "area_code": "E05000821",
-        "area_name": "Bowdon",
-        "year": 2019,
-        "electorate": 7242,
-        "ballots_issued": 2929,
-        "spoiled_ballots": 31,
-        "percentage_turnout": 40.4,
-        "conservative_vote": 1727,
-        "green_vote": 411,
-        "labour_vote": 351,
-        "liberal_democrats_vote": 411,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000822",
-        "area_name": "Broadheath",
-        "year": 2019,
-        "electorate": 9960,
-        "ballots_issued": 4048,
-        "spoiled_ballots": 17,
-        "percentage_turnout": 40.6,
-        "conservative_vote": 1219,
-        "green_vote": 346,
-        "labour_vote": 1904,
-        "liberal_democrats_vote": 219,
-        "ukip_vote": 255
-      },
-      {
-        "area_code": "E05000823",
-        "area_name": "Brooklands",
-        "year": 2019,
-        "electorate": 7735,
-        "ballots_issued": 3683,
-        "spoiled_ballots": 18,
-        "percentage_turnout": 47.6,
-        "conservative_vote": 1295,
-        "green_vote": 309,
-        "labour_vote": 1587,
-        "liberal_democrats_vote": 298,
-        "ukip_vote": 174
-      },
-      {
-        "area_code": "E05000824",
-        "area_name": "Bucklow-St Martins",
-        "year": 2019,
-        "electorate": 7060,
-        "ballots_issued": 1824,
-        "spoiled_ballots": 16,
-        "percentage_turnout": 25.8,
-        "conservative_vote": 327,
-        "green_vote": 134,
-        "labour_vote": 988,
-        "liberal_democrats_vote": 76,
-        "ukip_vote": 283
-      },
-      {
-        "area_code": "E05000825",
-        "area_name": "Clifford",
-        "year": 2019,
-        "electorate": 8351,
-        "ballots_issued": 3012,
-        "spoiled_ballots": 10,
-        "percentage_turnout": 36.1,
-        "conservative_vote": 155,
-        "green_vote": 378,
-        "labour_vote": 2375,
-        "liberal_democrats_vote": 93,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000826",
-        "area_name": "Davyhulme East",
-        "year": 2019,
-        "electorate": 7700,
-        "ballots_issued": 3177,
-        "spoiled_ballots": 13,
-        "percentage_turnout": 41.3,
-        "conservative_vote": 695,
-        "green_vote": 184,
-        "labour_vote": 1929,
-        "liberal_democrats_vote": 102,
-        "ukip_vote": 253
-      },
-      {
-        "area_code": "E05000827",
-        "area_name": "Davyhulme West",
-        "year": 2019,
-        "electorate": 7638,
-        "ballots_issued": 3179,
-        "spoiled_ballots": 11,
-        "percentage_turnout": 41.6,
-        "conservative_vote": 965,
-        "green_vote": 150,
-        "labour_vote": 1704,
-        "liberal_democrats_vote": 86,
-        "ukip_vote": 279
-      },
-      {
-        "area_code": "E05000828",
-        "area_name": "Flixton",
-        "year": 2019,
-        "electorate": 8322,
-        "ballots_issued": 3787,
-        "spoiled_ballots": 13,
-        "percentage_turnout": 45.5,
-        "conservative_vote": 915,
-        "green_vote": 217,
-        "labour_vote": 2203,
-        "liberal_democrats_vote": 152,
-        "ukip_vote": 287
-      },
-      {
-        "area_code": "E05000829",
-        "area_name": "Gorse Hill",
-        "year": 2019,
-        "electorate": 8391,
-        "ballots_issued": 2620,
-        "spoiled_ballots": 14,
-        "percentage_turnout": 31.2,
-        "conservative_vote": 310,
-        "green_vote": 252,
-        "labour_vote": 1703,
-        "liberal_democrats_vote": 129,
-        "ukip_vote": 212
-      },
-      {
-        "area_code": "E05000830",
-        "area_name": "Hale Barns",
-        "year": 2019,
-        "electorate": 7362,
-        "ballots_issued": 2817,
-        "spoiled_ballots": 8,
-        "percentage_turnout": 38.3,
-        "conservative_vote": 1613,
-        "green_vote": 196,
-        "labour_vote": 378,
-        "liberal_democrats_vote": 313,
-        "ukip_vote": 144
-      },
-      {
-        "area_code": "E05000831",
-        "area_name": "Hale Central",
-        "year": 2019,
-        "electorate": 7388,
-        "ballots_issued": 2973,
-        "spoiled_ballots": 29,
-        "percentage_turnout": 40.2,
-        "conservative_vote": 1430,
-        "green_vote": 512,
-        "labour_vote": 447,
-        "liberal_democrats_vote": 555,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000832",
-        "area_name": "Longford",
-        "year": 2019,
-        "electorate": 9098,
-        "ballots_issued": 3242,
-        "spoiled_ballots": 32,
-        "percentage_turnout": 35.6,
-        "conservative_vote": 336,
-        "green_vote": 406,
-        "labour_vote": 2150,
-        "liberal_democrats_vote": 318,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000833",
-        "area_name": "Priory",
-        "year": 2019,
-        "electorate": 8052,
-        "ballots_issued": 3109,
-        "spoiled_ballots": 11,
-        "percentage_turnout": 38.6,
-        "conservative_vote": 679,
-        "green_vote": 404,
-        "labour_vote": 1511,
-        "liberal_democrats_vote": 305,
-        "ukip_vote": 199
-      },
-      {
-        "area_code": "E05000834",
-        "area_name": "St Mary's",
-        "year": 2019,
-        "electorate": 8611,
-        "ballots_issued": 3126,
-        "spoiled_ballots": 13,
-        "percentage_turnout": 36.3,
-        "conservative_vote": 1527,
-        "green_vote": 294,
-        "labour_vote": 920,
-        "liberal_democrats_vote": 188,
-        "ukip_vote": 184
-      },
-      {
-        "area_code": "E05000835",
-        "area_name": "Sale Moor",
-        "year": 2019,
-        "electorate": 7549,
-        "ballots_issued": 2601,
-        "spoiled_ballots": 32,
-        "percentage_turnout": 34.5,
-        "conservative_vote": 664,
-        "green_vote": 355,
-        "labour_vote": 1347,
-        "liberal_democrats_vote": 203,
-        "ukip_vote": "NA"
-      },
-      {
-        "area_code": "E05000836",
-        "area_name": "Stretford",
-        "year": 2019,
-        "electorate": 7843,
-        "ballots_issued": 2804,
-        "spoiled_ballots": 12,
-        "percentage_turnout": 35.8,
-        "conservative_vote": 329,
-        "green_vote": 304,
-        "labour_vote": 1843,
-        "liberal_democrats_vote": 107,
-        "ukip_vote": 208
-      },
-      {
-        "area_code": "E05000837",
-        "area_name": "Timperley",
-        "year": 2019,
-        "electorate": 8410,
-        "ballots_issued": 3918,
-        "spoiled_ballots": 23,
-        "percentage_turnout": 46.6,
-        "conservative_vote": 1266,
-        "green_vote": 423,
-        "labour_vote": "NA",
-        "liberal_democrats_vote": 1653,
-        "ukip_vote": 187
-      },
-      {
-        "area_code": "E05000838",
-        "area_name": "Urmston",
-        "year": 2019,
-        "electorate": 8472,
-        "ballots_issued": 3394,
-        "spoiled_ballots": 17,
-        "percentage_turnout": 40.1,
-        "conservative_vote": 724,
-        "green_vote": 290,
-        "labour_vote": 1844,
-        "liberal_democrats_vote": 179,
-        "ukip_vote": 340
-      },
-      {
-        "area_code": "E05000839",
-        "area_name": "Village",
-        "year": 2019,
-        "electorate": 7905,
-        "ballots_issued": 3217,
-        "spoiled_ballots": 18,
-        "percentage_turnout": 40.7,
-        "conservative_vote": 942,
-        "green_vote": 196,
-        "labour_vote": 456,
-        "liberal_democrats_vote": 1310,
-        "ukip_vote": 295
-      }
+        {
+          "area_name": "Altrincham",
+          "year": 2018,
+          "ballots_issued": 8266,
+          "labour_vote": 1501
+        },
+        {
+          "area_name": "Ashton upon Mersey",
+          "year": 2018,
+          "ballots_issued": 3590,
+          "labour_vote": 1568
+        },
+        {
+          "area_name": "Bowdon",
+          "year": 2018,
+          "ballots_issued": 3121,
+          "labour_vote": 422
+        },
+        {
+          "area_name": "Broadheath",
+          "year": 2018,
+          "ballots_issued": 4218,
+          "labour_vote": 2077
+        },
+        {
+          "area_name": "Brooklands",
+          "year": 2018,
+          "ballots_issued": 4080,
+          "labour_vote": 1939
+        },
+        {
+          "area_name": "Bucklow-St Martins",
+          "year": 2018,
+          "ballots_issued": 2027,
+          "labour_vote": 1427
+        },
+        {
+          "area_name": "Clifford",
+          "year": 2018,
+          "ballots_issued": 3212,
+          "labour_vote": 2702
+        },
+        {
+          "area_name": "Davyhulme East",
+          "year": 2018,
+          "ballots_issued": 3837,
+          "labour_vote": 2205
+        },
+        {
+          "area_name": "Davyhulme West",
+          "year": 2018,
+          "ballots_issued": 3884,
+          "labour_vote": 2230
+        },
+        {
+          "area_name": "Flixton",
+          "year": 2018,
+          "ballots_issued": 4562,
+          "labour_vote": 2732
+        },
+        {
+          "area_name": "Gorse Hill",
+          "year": 2018,
+          "ballots_issued": 2799,
+          "labour_vote": 2039
+        },
+        {
+          "area_name": "Hale Barns",
+          "year": 2018,
+          "ballots_issued": 2900,
+          "labour_vote": 477
+        },
+        {
+          "area_name": "Hale Central",
+          "year": 2018,
+          "ballots_issued": 2999,
+          "labour_vote": 809
+        },
+        {
+          "area_name": "Longford",
+          "year": 2018,
+          "ballots_issued": 3658,
+          "labour_vote": 2611
+        },
+        {
+          "area_name": "Priory",
+          "year": 2018,
+          "ballots_issued": 3352,
+          "labour_vote": 2018
+        },
+        {
+          "area_name": "St Mary's",
+          "year": 2018,
+          "ballots_issued": 3432,
+          "labour_vote": 1054
+        },
+        {
+          "area_name": "Sale Moor",
+          "year": 2018,
+          "ballots_issued": 2777,
+          "labour_vote": 1433
+        },
+        {
+          "area_name": "Stretford",
+          "year": 2018,
+          "ballots_issued": 3130,
+          "labour_vote": 2231
+        },
+        {
+          "area_name": "Timperley",
+          "year": 2018,
+          "ballots_issued": 4204,
+          "labour_vote": "NA"
+        },
+        {
+          "area_name": "Urmston",
+          "year": 2018,
+          "ballots_issued": 3890,
+          "labour_vote": 2243
+        },
+        {
+          "area_name": "Village",
+          "year": 2018,
+          "ballots_issued": 3267,
+          "labour_vote": 742
+        },
+        {
+          "area_name": "Altrincham",
+          "year": 2019,
+          "ballots_issued": 3898,
+          "labour_vote": 313
+        },
+        {
+          "area_name": "Ashton upon Mersey",
+          "year": 2019,
+          "ballots_issued": 3588,
+          "labour_vote": 1535
+        },
+        {
+          "area_name": "Bowdon",
+          "year": 2019,
+          "ballots_issued": 2929,
+          "labour_vote": 351
+        },
+        {
+          "area_name": "Broadheath",
+          "year": 2019,
+          "ballots_issued": 4048,
+          "labour_vote": 1904
+        },
+        {
+          "area_name": "Brooklands",
+          "year": 2019,
+          "ballots_issued": 3682,
+          "labour_vote": 1587
+        },
+        {
+          "area_name": "Bucklow-St Martins",
+          "year": 2019,
+          "ballots_issued": 1824,
+          "labour_vote": 988
+        },
+        {
+          "area_name": "Clifford",
+          "year": 2019,
+          "ballots_issued": 3012,
+          "labour_vote": 2375
+        },
+        {
+          "area_name": "Davyhulme East",
+          "year": 2019,
+          "ballots_issued": 3177,
+          "labour_vote": 1929
+        },
+        {
+          "area_name": "Davyhulme West",
+          "year": 2019,
+          "ballots_issued": 3197,
+          "labour_vote": 1704
+        },
+        {
+          "area_name": "Flixton",
+          "year": 2019,
+          "ballots_issued": 3787,
+          "labour_vote": 2203
+        },
+        {
+          "area_name": "Gorse Hill",
+          "year": 2019,
+          "ballots_issued": 2620,
+          "labour_vote": 1703
+        },
+        {
+          "area_name": "Hale Barns",
+          "year": 2019,
+          "ballots_issued": 2817,
+          "labour_vote": 378
+        },
+        {
+          "area_name": "Hale Central",
+          "year": 2019,
+          "ballots_issued": 2973,
+          "labour_vote": 447
+        },
+        {
+          "area_name": "Longford",
+          "year": 2019,
+          "ballots_issued": 3242,
+          "labour_vote": 2150
+        },
+        {
+          "area_name": "Priory",
+          "year": 2019,
+          "ballots_issued": 3109,
+          "labour_vote": 1511
+        },
+        {
+          "area_name": "St Mary's",
+          "year": 2019,
+          "ballots_issued": 3126,
+          "labour_vote": 920
+        },
+        {
+          "area_name": "Sale Moor",
+          "year": 2019,
+          "ballots_issued": 2601,
+          "labour_vote": 1347
+        },
+        {
+          "area_name": "Stretford",
+          "year": 2019,
+          "ballots_issued": 2804,
+          "labour_vote": 1843
+        },
+        {
+          "area_name": "Timperley",
+          "year": 2019,
+          "ballots_issued": 3918,
+          "labour_vote": "NA"
+        },
+        {
+          "area_name": "Urmston",
+          "year": 2019,
+          "ballots_issued": 3394,
+          "labour_vote": 1844
+        },
+        {
+          "area_name": "Village",
+          "year": 2019,
+          "ballots_issued": 3217,
+          "labour_vote": 456
+        }
     ]
   },
   "transform": [
@@ -658,6 +322,6 @@
   ],
   "config": {
     "style": {"cell": {"stroke": "transparent"}},
-    "axis": {"ticks": false, "domainColor": null}
+    "axis": {"ticks": false, "domainColor": ""}
   }
 }
