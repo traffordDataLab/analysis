@@ -8,7 +8,7 @@ bdy <- getbb("Trafford", format_out = "sf_polygon")
 centroids <- st_centroid(bdy) %>% st_coordinates() %>%  as.data.frame()
 distance <- bdy %>% st_cast("POINT") %>% st_distance() %>% max() * 0.5
 
-hotspots <- ebirdgeo(key = "6hanhdiola5p",
+hotspots <- ebirdgeo(key = "#",
                      species = NULL,
                      lat = centroids$Y,
                      lng = centroids$X, 
@@ -28,7 +28,7 @@ birds <- ebirdregion(key = "6hanhdiola5p", loc = "L3267897", back = 30) %>%
   arrange(total) %>% 
   mutate(comName = factor(comName, levels = comName))
 
-birds_sf <- ebirdregion(key = "6hanhdiola5p", loc = paste(hotspots, collapse = ", "), back = 30) %>% 
+birds_sf <- ebirdregion(key = "#", loc = paste(hotspots, collapse = ", "), back = 30) %>% 
   as_tibble() %>%
   group_by(locName, lat, lng) %>%
   summarise(n = sum(howMany)) %>% 
