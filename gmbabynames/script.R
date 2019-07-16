@@ -10,7 +10,8 @@ df <- tempfile(fileext = ".xlsx")
 GET(url = "https://www.ons.gov.uk/visualisations/dvc526/downloadthedata/mapdata.xlsx",
     write_disk(df))
 
-boys <- read_xlsx(df, sheet = 1) %>% 
+# baby girls' names
+girls_names <- read_xlsx(df, sheet = 3) %>% 
   filter(AREACD %in% c("E08000001", "E08000002", "E08000003", "E08000004",
                        "E08000005", "E08000006",  "E08000007", "E08000008",
                        "E08000009", "E08000010")) %>% 
@@ -18,23 +19,7 @@ boys <- read_xlsx(df, sheet = 1) %>%
   rename(area_code = AREACD, area_name = AREANM) %>% 
   gather(name, n, -area_code, -area_name) %>% 
   drop_na() %>% 
-  mutate(gender = "Male")
-
-girls <- read_xlsx(df, sheet = 3) %>% 
-  filter(AREACD %in% c("E08000001", "E08000002", "E08000003", "E08000004",
-                       "E08000005", "E08000006",  "E08000007", "E08000008",
-                       "E08000009", "E08000010")) %>% 
-  select(-Total) %>% 
-  rename(area_code = AREACD, area_name = AREANM) %>% 
-  gather(name, n, -area_code, -area_name) %>% 
-  drop_na() %>% 
-  mutate(gender = "Female")
-
-babies <- bind_rows(boys, girls) 
-
-# girls' names
-girlnames <- babies %>% 
-  filter(gender == "Female") %>% 
+  mutate(gender = "Female") %>% 
   arrange(desc(n)) %>%
   group_by(area_name) %>%
   slice(1:10) %>% 
@@ -42,13 +27,13 @@ girlnames <- babies %>%
   mutate(area_name = as.factor(area_name),
          name = reorder_within(name, n, area_name)) 
 
-ggplot(girlnames, aes(name, n, fill = area_name)) +
+ggplot(girls_names, aes(name, n, fill = area_name)) +
   geom_col(show.legend = FALSE) +
   scale_y_continuous(expand = c(0,0)) +
   scale_fill_brewer(palette = "Set3") + 
   facet_wrap(~area_name, scales = "free_y", nrow = 2) +
   geom_hline(yintercept = 3, size = 1, colour = "#000000") +
-  coord_flip(ylim = c(3, max(girlnames$n))) +
+  coord_flip(ylim = c(3, max(girls_names$n))) +
   scale_x_reordered() +
   labs(y = "Number of baby girls",
        x = NULL,
@@ -69,11 +54,18 @@ ggplot(girlnames, aes(name, n, fill = area_name)) +
     axis.text.y = element_text(colour = "#212121", size = 9)
   ) 
 
-ggsave("girlnames.png", width = 13, height = 9, dpi = 300)
+ggsave("girls_names.png", width = 13, height = 9, dpi = 300)
 
-# boys' names
-boynames <- babies %>% 
-  filter(gender == "Male") %>% 
+# baby boys' names
+boys_names <- read_xlsx(df, sheet = 1) %>% 
+  filter(AREACD %in% c("E08000001", "E08000002", "E08000003", "E08000004",
+                       "E08000005", "E08000006",  "E08000007", "E08000008",
+                       "E08000009", "E08000010")) %>% 
+  select(-Total) %>% 
+  rename(area_code = AREACD, area_name = AREANM) %>% 
+  gather(name, n, -area_code, -area_name) %>% 
+  drop_na() %>% 
+  mutate(gender = "Male")  %>% 
   arrange(desc(n)) %>%
   group_by(area_name) %>%
   slice(1:10) %>% 
@@ -81,13 +73,13 @@ boynames <- babies %>%
   mutate(area_name = as.factor(area_name),
          name = reorder_within(name, n, area_name)) 
 
-ggplot(boynames, aes(name, n, fill = area_name)) +
+ggplot(boys_names, aes(name, n, fill = area_name)) +
   geom_col(show.legend = FALSE) +
   scale_y_continuous(expand = c(0,0)) +
   scale_fill_brewer(palette = "Set3") + 
   facet_wrap(~area_name, scales = "free_y", nrow = 2) +
   geom_hline(yintercept = 3, size = 1, colour = "#000000") +
-  coord_flip(ylim = c(3, max(boynames$n))) +
+  coord_flip(ylim = c(3, max(boys_names$n))) +
   scale_x_reordered() +
   labs(y = "Number of baby boys",
        x = NULL,
@@ -108,5 +100,4 @@ ggplot(boynames, aes(name, n, fill = area_name)) +
     axis.text.y = element_text(colour = "#212121", size = 9)
   ) 
 
-ggsave("boynames.png", width = 13, height = 9, dpi = 300)
-
+ggsave("boys_names.png", width = 13, height = 9, dpi = 300)
