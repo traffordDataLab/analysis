@@ -22,6 +22,8 @@ trafford_lsoa <- st_read("data/trafford_lsoa.geojson", quiet = TRUE)
 trafford_wards <- st_read("data/trafford_wards.geojson", quiet = TRUE)
 ```
 
+This report explores the English Indices of Deprivation 2019 for Trafford. It compares Trafford with other local authorities in Greater Manchester using the  the rank of average score, tracks relative change in ranking between 2015 and 2019, assesses the percentage of LSOAs in the most deprived decile, and identifies the most deprived small areas.
+
 ## Background
 
 The [English Indices of Deprivation](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019) were published by the [Ministry of Housing, Communities & Local Government](https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government) in September 2019. The Indices measure relative levels of deprivation in 32,844 Lower-layer Super Output Areas (LSOAs) in England. Each LSOA contains approximately 1,500 residents or 650 households. They are ranked from 1 (most deprived) to 32,844 (least deprived) and assigned to a decile ranging from 1 (most deprived 10%) to 10 (least deprived 10%). Local authorities in England are also ranked from 1 to 317 based on a population weighted average rank or score of the LSOA data.
