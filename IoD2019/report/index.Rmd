@@ -46,7 +46,7 @@ A further 2 supplementary indices of income deprivation are also provided:
 * **Income Deprivation Affecting Older People Index** - the proportion of all those aged 60 or over who experience income deprivation   
 
 **Please note**      
-- The Indices of Deprivation measure *relative* deprivation so a change in rank between 2019 and 2015 releases does not necessarily indicate a change in *absolute* levels of deprivation.
+- The Indices of Deprivation measure *relative* deprivation so a change in rank between 2019 and 2015 releases does not necessarily indicate a change in *absolute* levels of deprivation.     
 - Local authority summaries for 2015 have been reaggregated to 2019 Local Authority District boundaries to enable direct comparisons to be made. The methodology followed is available in Appendix N of the IoD2019 [technical report](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833951/IoD2019_Technical_Report.pdf).
 
 ***
