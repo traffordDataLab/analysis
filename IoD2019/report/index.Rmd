@@ -45,12 +45,14 @@ A further 2 supplementary indices of income deprivation are also provided:
 * **Income Deprivation Affecting Children Index** - the proportion of all children aged 0 to 15 living in income deprived families          
 * **Income Deprivation Affecting Older People Index** - the proportion of all those aged 60 or over who experience income deprivation   
 
-**Please note** that the Indices of Deprivation measure *relative* deprivation so a change in rank between 2019 and 2015 releases does not necessarily indicate a change in *absolute* levels of deprivation.
+**Please note**      
+- The Indices of Deprivation measure *relative* deprivation so a change in rank between 2019 and 2015 releases does not necessarily indicate a change in *absolute* levels of deprivation.
+- Local authority summaries for 2015 have been reaggregated to 2019 Local Authority District boundaries to enable direct comparisons to be made. The methodology followed is available in Appendix N of the IoD2019 [technical report](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833951/IoD2019_Technical_Report.pdf).
 
 ***
 
 ## Index of Multiple Deprivation
-Trafford is ranked 191st out of 317 local authority districts in England on the average 2019 Index of Multiple Deprivation (IMD) score, where a rank of 1 is the most deprived. Trafford's relative position has fallen from 201st in 2015. This reflects a general trend in relative deprivation rankings across Greater Manchester where all but 1 local authority districts reported a fall in rank since 2015. However, Trafford remains the least deprived local authority in Greater Manchester.
+Trafford is ranked 191 out of 317 local authority districts in England on the average 2019 Index of Multiple Deprivation (IMD) score, where a rank of 1 is the most deprived. Trafford's relative position has fallen from 199 in 2015. This reflects a general trend in relative deprivation rankings across Greater Manchester where all but 1 local authority districts reported a fall in rank since 2015. However, Trafford remains the least deprived local authority in Greater Manchester.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average IMD score</h4>
@@ -59,9 +61,9 @@ Trafford is ranked 191st out of 317 local authority districts in England on the 
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -93,9 +95,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -113,23 +115,23 @@ The proportion of Trafford's LSOAs ranked in the 1st decile or 10% most deprived
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -199,6 +201,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Income
+Trafford is ranked 166 out of 317 local authorities in England on the average 2019 Income domain score. This represents a fall (-3) from 169 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Income score</h4>
@@ -207,9 +210,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Income") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -241,9 +244,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Income") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -259,23 +262,23 @@ filter(IoD_local_authority, index_domain == "Income") %>%
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Income") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -343,6 +346,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Employment
+Trafford is ranked 155 out of 317 local authorities in England on the average 2019 Employment domain score. This represents a rise (+5) from 150 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Employment score</h4>
@@ -351,9 +355,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Employment") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -385,9 +389,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Employment") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -403,23 +407,23 @@ filter(IoD_local_authority, index_domain == "Employment") %>%
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Employment") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -487,6 +491,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Education, Skills and Training
+Trafford is ranked 275 out of 317 local authorities in England on the average 2019 Education, Skills and Training domain score. This represents a rise (+1) from 274 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Education, Skills and Training score</h4>
@@ -495,9 +500,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -529,9 +534,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -547,23 +552,23 @@ filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -631,6 +636,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Health and Disability
+Trafford is ranked 147 out of 317 local authorities in England on the average 2019 Health and Disability domain score. This represents a rise (+20) from 127 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Health and Disability score</h4>
@@ -639,9 +645,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Health and Disability") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -673,9 +679,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Health and Disability") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -691,23 +697,23 @@ filter(IoD_local_authority, index_domain == "Health and Disability") %>%
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Health and Disability") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -775,6 +781,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Crime
+Trafford is ranked 138 out of 317 local authorities in England on the average 2019 Crime domain score. This represents a fall (-66) from 204 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Crime score</h4>
@@ -783,9 +790,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Crime") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -817,9 +824,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Crime") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -835,23 +842,23 @@ filter(IoD_local_authority, index_domain == "Crime") %>%
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Crime") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -919,6 +926,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Barriers to Housing and Services
+Trafford is ranked 289 out of 317 local authorities in England on the average 2019 Barriers to Housing and Services domain score. This represents a fall (-3) from 292 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Barriers to Housing and Services score</h4>
@@ -927,9 +935,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -961,9 +969,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -979,23 +987,23 @@ filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") 
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -1063,6 +1071,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Living Environment
+Trafford is ranked 131 out of 317 local authorities in England on the average 2019 Living Environment domain score. This represents a fall (-35) from 166 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Living Environment score</h4>
@@ -1071,9 +1080,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Living Environment") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -1105,9 +1114,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Living Environment") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -1123,23 +1132,23 @@ filter(IoD_local_authority, index_domain == "Living Environment") %>%
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Living Environment") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -1207,6 +1216,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Income Deprivation Affecting Children
+Trafford is ranked 214 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Children Index score. This represents an increase (+13) from 201 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average IDACI score</h4>
@@ -1215,9 +1225,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Children") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -1249,9 +1259,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Children") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -1267,23 +1277,23 @@ filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Childr
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Children") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
@@ -1351,6 +1361,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Income Deprivation Affecting Older People	
+Trafford is ranked 134 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Older People Index score. This represents an increase (5) from 129 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average IDAOPI score</h4>
@@ -1359,9 +1370,9 @@ left_join(trafford_lsoa,
 ```{r warning = FALSE, echo = FALSE}
 df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older People") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`)
+  spread(year, rank_average_score)
 
 ggplot() +
   geom_segment(
@@ -1393,9 +1404,9 @@ ggplot() +
 ```{r warning = FALSE, echo=FALSE}
 filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older People") %>% 
   select(`Local authority` = lad19nm,
-         `Rank of average IMD 2019 score`,
+         rank_average_score,
          year) %>%
-  spread(year, `Rank of average IMD 2019 score`) %>% 
+  spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -1411,23 +1422,23 @@ filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older 
 ```{r fig.align='center'}
 df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older People") %>% 
   select(`Local authority` = lad19nm,
-         `LSOAs in 1st decile`,
+         percent_bottom_decile,
          year) %>% 
-  spread(year, `LSOAs in 1st decile`) %>% 
+  spread(year, percent_bottom_decile) %>% 
   mutate(change = round((`2019` - `2015`)*100,1),
          status = case_when(
            `2019` > `2015` ~ "Increase",
            `2019` < `2015` ~ "Decrease",
            TRUE ~ "No change")) %>% 
-  gather(year, `LSOAs in 1st decile`, -`Local authority`, -status, -change) %>% 
+  gather(year, percent_bottom_decile, -`Local authority`, -status, -change) %>% 
   mutate(year = as.integer(year),
-         `LSOAs in 1st decile` = `LSOAs in 1st decile`*100) %>% 
-  select(`Local authority`, year, `LSOAs in 1st decile`, change, status)
+         percent_bottom_decile = percent_bottom_decile*100) %>% 
+  select(`Local authority`, year, percent_bottom_decile, change, status)
 
 ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = `LSOAs in 1st decile`, fill =  factor(status))) +
-  geom_point(aes(y = `LSOAs in 1st decile`), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', `LSOAs in 1st decile`), y = `LSOAs in 1st decile`), vjust = -1, size = 3) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
   geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
   scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
