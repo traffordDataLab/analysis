@@ -1,0 +1,197 @@
+---
+title: "Analysis of the Indices of Deprivation 2019 for `r params$ward_name`"
+output:
+  html_document:
+    highlight: null
+    includes:
+      after_body: rmd_report_footer.html
+      before_body: rmd_report_header.html
+      in_header: rmd_report_includes.html
+    mathjax: null
+    self_contained: no
+    theme: null
+  pdf_document: default
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+params:
+  ward_name: Bucklow-St Martins
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE)
+
+# Load the required libraries
+library(tidyverse) ; library(ggplot2) ; library(kableExtra) ; library(english) ;
+
+# Load in the ggplot2 Lab theme
+source("https://www.trafforddatalab.io/assets/theme/ggplot2/theme_lab.R")
+
+# Function to return numbers expressed as words if the number of words is 2 or less, or the original number. This is for academic non-technical report writing. Uses packages: english (John Fox, Bill Venables, Anthony Damico and Anne Pier Salverda), stringr (Hadley Wickham)
+number_for_reports <- function (num) {
+  # Convert the input to words
+  result <- words(num) # NOTE: very important to use 'words(n)' not 'english(n)' in R markdown as 'words' returns type character. Using 'english' doesn't work and simply returns the number - see: https://cran.r-project.org/web/packages/english/vignettes/the-english-patient.pdf
+  
+  # We only want to return numbers as words if they can be expressed with no more than 2 words
+  if ((str_count(result, " ") + 1) > 2) {
+    result <- num
+  }
+  else if (num < 100) {
+    result <- str_replace(result, " ", "-") # replace a space if it exists with a hyphen if the number is below 100
+  }
+  
+  result  # return the result
+}
+
+# Get the best fit look up data for LSOAs to wards
+df_lsoa_ward_best_fit <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa_to_ward_best-fit_lookup.csv")
+
+# Just get the LSOAs in Trafford as a vector
+lsoas_trafford <- df_lsoa_ward_best_fit %>%
+  filter( lad17nm == 'Trafford') %>%
+  .$lsoa11cd  # Hadley recommendation for taking one column from the df and converting to a vector (https://stackoverflow.com/questions/27149306/dplyrselect-one-column-and-output-as-vector/27160317)
+
+# Get the LSOAs which are best-fit within our chosen ward - same method as for Trafford
+lsoas_ward <- df_lsoa_ward_best_fit %>%
+  filter( lad17nm == 'Trafford',
+          wd17nm == params$ward_name) %>%
+  .$lsoa11cd
+
+# Load in the IoD data for 2015 and 2019 and filter for just the LSOAs in Trafford
+df_iod_trafford <- read_csv("https://www.trafforddatalab.io/imd19/data/imd.csv") %>%
+  filter(lsoa11cd %in% lsoas_trafford)
+
+# Get the same just for the ward
+df_iod_ward <- df_iod_trafford %>%
+  filter(lsoa11cd %in% lsoas_ward)
+```
+
+## Introduction
+The English Indices of Deprivation (IoD) are published by the [Ministry of Housing, Communities & Local Government (MHCLG)](https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government) and provide statistics on relative deprivation in small areas in England. The [data for 2019](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019) was published on 26^th^ September 2019 with the previous release, [data for 2015](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2015), published on 30^th^ September 2015.
+
+The Indices relatively rank each small area in England from most deprived to least deprived. There are 32,844 small areas (Lower-layer Super Output Areas or LSOA) in England and 138 in Trafford, each with an average population of 1,500. The LSOA ranked 1^st^ is the most deprived and the 32,844^th^ is the least deprived. Similarly the LSOAs are also grouped into deciles - ten groups containing the same number of LSOAs in each. Those LSOAs in the 1^st^ decile are the ten percent most deprived in England, whereas those in the 10^th^ decile are the ten percent least deprived.
+
+Statistical boundaries occassionally change in accordance with population changes, however the number of LSOAs has not changed since the 2015 data publication and is still based upon the 2011 geography definitions. 
+
+There are seven domains of deprivation which combine to create the Index of Multiple Deprivation (IMD2019):
+
+- **Income**: Measures  the proportion of the population experiencing deprivation  relating  to low income
+- **Employment**: Measures the proportion of the working age population in an area involuntarily  excluded from the labour market
+- **Education**: Measures  the lack of attainment  and skills  in the local population
+- **Health**: Measures the risk of premature death and the impairment of quality of life through poor physical or mental health
+- **Crime**: Measures  the risk of personal  and material victimisation  at local level
+- **Barriers to Housing & Services**: Measures  the physical and financial accessibility  of housing and local services
+- **Living Environment**: Measures  the quality  of both the ‘indoor’ and ‘outdoor’ local environment
+
+There are a further two sub-domains for income:
+
+- **Income Deprivation Affecting Children Index (IDACI)**: Measures the proportion of all children aged 0 to 15 living in income deprived families
+- **Income Deprivation Affecting Older People Index (IDAOPI)**: Measures the proportion of those aged 60+ who experience income deprivation
+
+It is important to note that IoD cannot be used to quantify how deprived or affluent an area is, identify deprived people or to measure an absolute change in deprivation over time. However, it can be used to look at changes in relative deprivation between iterations of the data and to identify the most deprived small areas.
+
+### Data time comparisons between 2015 and 2019 data publications
+The thirty-nine indicators which comprise the IoD are based on data from the most recent time point available. This means that there is not one consistent time point for all the data. Although published in 2019, the latest Indices of Deprivation data are based largely on administrative data from 2015 and 2016. Similarly the 2015 publication is mainly based on data from 2012. Therefore there may be recent developments which are not yet reflected in the information published.
+
+### Relationship between LSOAs and electoral wards
+Ward boundaries and LSOA boundaries do not always perfectly align and so it is impossible to aggregate from LSOA to ward exactly. Instead a 'best-fit' method is used to include those LSOAs which are either entirely within or the majority is within the ward boundary. Using this method, the ward of `r params$ward_name` encompasses the following `r number_for_reports(length(lsoas_ward))` LSOAs:
+
+```{r lsoa_table, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Create a table showing the LSOAs within the ward
+df_lsoa_codes_and_names <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/statistical_lookup.csv") %>%
+  filter(lsoa11cd %in% lsoas_ward) %>%
+  select(lsoa11cd, lsoa11nm) %>%
+  distinct(lsoa11cd, .keep_all = TRUE) %>%
+  arrange(lsoa11cd) %>%
+  rename("LSOA code" = lsoa11cd,
+         "LSOA name" = lsoa11nm)
+
+kable(df_lsoa_codes_and_names)
+```
+
+## Analysis
+The majority of the analysis focuses on the deciles and ranks, looking at the changes between the data published in 2015 and 2019 for the LSOAs within `r params$ward_name` and comparing those changes to Trafford as a whole. However for the Income and Employment domains as well as the two sub-domains for Income (IDACI AND IDAOPI) the score is also useful as this directly relates to the percentage of the relevant population experiencing that type of deprivation ([The English Indices of Deprivation 2019 Research Report](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833947/IoD2019_Research_Report.pdf)).
+
+### Index of Multiple Deprivation (IMD)
+
+```{r imd_chart, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+
+### Income domain
+The definition of low income used includes both those people that are out-of-work, and those that are in work but who have low earnings (and who satisfy the respective means tests). A combined count of income deprived individuals is produced by summing the following non-overlapping indicators:
+
+- Adults and children in Income Support families
+- Adults and children in income-based Jobseeker's Allowance families
+- Adults and children in income-based Employment and Support Allowance families
+- Adults and children in Pension Credit (Guarantee) families
+- Adults and children in Working Tax Credit and Child Tax Credit families not already counted
+- Adults and children in Universal Credit families where no adult is in 'Working - requirements' conditionality regime
+- Asylum seekers in England in receipt of subsistence support, accommodation support, or both
+
+#### Income Deprivation Affecting Children Index
+The proportion of children aged 0 to 15 living in income deprived households.
+
+#### Income Deprivation Affecting Older People Index
+The proportion of people aged 60 and over living in income deprived households.
+
+
+### Employment domain
+This domain measures the proportion of working age population who are involuntarily excluded from the labour market, including those who would like to work but are unable to do so due to unemployment, sickness or disability, or caring responsibilities. This comprises the following non-overlapping indicators:
+
+- Claimants of Jobseeker's Allowance (both contribution-based and income-based), women aged 18 to 59 and men aged 18 to 64
+- Claimants of Employment and Support Allowance, women aged 18 to 59 and men aged 18 to 64
+- Claimants of Incapacity Benefit, women aged 18 to 59 and men aged 18 to 64
+- Claimants of Severe Disablement Allowance, women aged 18 to 59 and men aged 18 to 64
+- Claimants of Carer's Allowance, women aged 18 to 59 and men aged 18 to 64
+- Claimants of Universal Credit in the 'Searching for work' and 'No work requirements' conditionality groups
+
+
+### Education, Skills and Training domain
+The indicators within this domain fall into two sub-domains: Children and Young People and Adult Skills. The Children and Young People sub-domain comprises:
+
+- Key Stage 2 attainment
+- Key Stage 4 attainment
+- Secondary school absence
+- Staying on in education post 16
+- Entry to higher education
+
+The Adult Skills sub-domain is a non-overlapping count of the following two indicators:
+
+- The proportion of working age adults with no or low qualifications (women aged 25 to 59 and men aged 25 to 64)
+- The proportion of working adults who cannot speak English or cannot speak English well (women aged 25 to 59 and men aged 25 to 64)
+
+
+### Health Deprivation and Disability domain
+Measuring the risk of premature death and the impairment of quality of life through poor physical or mental health through the following four indicators:
+
+- Years of potential life lost
+- Comparative illness and disability ratio
+- Acute morbidity
+- Mood and anxiety disorders
+
+
+### Crime domain
+This domain measures the rate of recorded crimes per 1,000 at risk population for violence, theft, burglary and criminal damage.
+
+
+### Barriers to Housing & Services domain
+The indicators which comprise this domain are split into two sub-domains: Geographical Barriers and Wider Barriers. Geographical Barriers takes into account road distances to a:
+
+- Post Office
+- Primary School
+- General Store
+- Supermarket
+
+Wider Barriers takes into account the following:
+
+- Household overcrowding
+- Homelessness
+- Housing affordability
+
+
+### Living Environment domain
+This domain is also derived from two sub-domains: Indoors and Outdoors.  The indoors sub-domain deals with the quality of housing stock; that is housing without central heating and housing in poor condition failing to meet the [Decent Homes standard](https://www.gov.uk/government/publications/a-decent-home-definition-and-guidance).
+
+The Outdoors sub-domain deals with air quality and road traffic accidents involving cyclists and pedestrians.
+
