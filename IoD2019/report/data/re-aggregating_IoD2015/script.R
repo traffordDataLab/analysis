@@ -109,15 +109,15 @@ rank_average_score <- bind_rows(rank_average_score_total_population,
                                 rank_average_score_older_population)
 
 # Calculate proportion of LSOAs in the most deprived 10% nationally
-percent_bottom_decile <- left_join(lsoa2015, lookup, by = "lsoa11cd") %>% 
+proportion_bottom_decile <- left_join(lsoa2015, lookup, by = "lsoa11cd") %>% 
   select(lsoa11cd, lad19cd, lad19nm, index_domain, decile) %>% 
   group_by(index_domain, lad19cd, lad19nm) %>% 
   summarise(n = sum(decile[decile == 1]),
             lsoas = n(),
-            percent_bottom_decile = n/lsoas) %>% 
-  select(lad19cd, index_domain, percent_bottom_decile)
+            proportion_bottom_decile = round(n/lsoas,4)) %>% 
+  select(lad19cd, index_domain, proportion_bottom_decile)
 
 # Join and write results
-left_join(rank_average_score, percent_bottom_decile, by = c("lad19cd", "index_domain")) %>% 
+left_join(rank_average_score, proportion_bottom_decile, by = c("lad19cd", "index_domain")) %>% 
   mutate(year = "2015") %>% 
   write_csv("data.csv")   
