@@ -129,16 +129,6 @@ E08000007,Stockport,"Education, Skills and Training",187,0.06842105263157895,201
 E08000008,Tameside,"Education, Skills and Training",70,0.11347517730496454,2015
 E08000009,Trafford,"Education, Skills and Training",274,0.021739130434782608,2015
 E08000010,Wigan,"Education, Skills and Training",82,0.15,2015
-E08000001,Bolton,Employment,43,0.20903954802259886,2015
-E08000002,Bury,Employment,76,0.13333333333333333,2015
-E08000003,Manchester,Employment,23,0.3333333333333333,2015
-E08000004,Oldham,Employment,29,0.24822695035460993,2015
-E08000005,Rochdale,Employment,11,0.291044776119403,2015
-E08000006,Salford,Employment,24,0.2866666666666667,2015
-E08000007,Stockport,Employment,130,0.08421052631578947,2015
-E08000008,Tameside,Employment,38,0.19858156028368795,2015
-E08000009,Trafford,Employment,150,0.057971014492753624,2015
-E08000010,Wigan,Employment,47,0.19,2015
 E08000001,Bolton,Health and Disability,35,0.22598870056497175,2015
 E08000002,Bury,Health and Disability,74,0.11666666666666667,2015
 E08000003,Manchester,Health and Disability,2,0.6560283687943262,2015
@@ -159,26 +149,6 @@ E08000007,Stockport,Income,145,0.06842105263157895,2015
 E08000008,Tameside,Income,48,0.1276595744680851,2015
 E08000009,Trafford,Income,169,0.07246376811594203,2015
 E08000010,Wigan,Income,84,0.12,2015
-E08000001,Bolton,Income Deprivation Affecting Children,81,0.11864406779661017,2015
-E08000002,Bury,Income Deprivation Affecting Children,131,0.06666666666666667,2015
-E08000003,Manchester,Income Deprivation Affecting Children,11,0.3617021276595745,2015
-E08000004,Oldham,Income Deprivation Affecting Children,49,0.1773049645390071,2015
-E08000005,Rochdale,Income Deprivation Affecting Children,40,0.17164179104477612,2015
-E08000006,Salford,Income Deprivation Affecting Children,23,0.24666666666666667,2015
-E08000007,Stockport,Income Deprivation Affecting Children,180,0.05789473684210526,2015
-E08000008,Tameside,Income Deprivation Affecting Children,51,0.11347517730496454,2015
-E08000009,Trafford,Income Deprivation Affecting Children,201,0.057971014492753624,2015
-E08000010,Wigan,Income Deprivation Affecting Children,108,0.1,2015
-E08000001,Bolton,Income Deprivation Affecting Older People,42,0.192090395480226,2015
-E08000002,Bury,Income Deprivation Affecting Older People,102,0.06666666666666667,2015
-E08000003,Manchester,Income Deprivation Affecting Older People,4,0.5,2015
-E08000004,Oldham,Income Deprivation Affecting Older People,38,0.20567375886524822,2015
-E08000005,Rochdale,Income Deprivation Affecting Older People,33,0.208955223880597,2015
-E08000006,Salford,Income Deprivation Affecting Older People,30,0.22666666666666666,2015
-E08000007,Stockport,Income Deprivation Affecting Older People,131,0.06315789473684211,2015
-E08000008,Tameside,Income Deprivation Affecting Older People,65,0.05673758865248227,2015
-E08000009,Trafford,Income Deprivation Affecting Older People,129,0.07246376811594203,2015
-E08000010,Wigan,Income Deprivation Affecting Older People,87,0.065,2015
 E08000001,Bolton,Index of Multiple Deprivation,51,0.2033898305084746,2015
 E08000002,Bury,Index of Multiple Deprivation,118,0.1,2015
 E08000003,Manchester,Index of Multiple Deprivation,5,0.4078014184397163,2015
@@ -199,3 +169,33 @@ E08000007,Stockport,Living Environment,174,0.042105263157894736,2015
 E08000008,Tameside,Living Environment,103,0.07801418439716312,2015
 E08000009,Trafford,Living Environment,166,0.014492753623188406,2015
 E08000010,Wigan,Living Environment,227,0.025,2015
+E08000001,Bolton,Employment,43,0.20903954802259886,2015
+E08000002,Bury,Employment,71,0.13333333333333333,2015
+E08000003,Manchester,Employment,35,0.3333333333333333,2015
+E08000004,Oldham,Employment,28,0.24822695035460993,2015
+E08000005,Rochdale,Employment,15,0.291044776119403,2015
+E08000006,Salford,Employment,26,0.2866666666666667,2015
+E08000007,Stockport,Employment,122,0.08421052631578947,2015
+E08000008,Tameside,Employment,38,0.19858156028368795,2015
+E08000009,Trafford,Employment,150,0.057971014492753624,2015
+E08000010,Wigan,Employment,46,0.19,2015
+E08000001,Bolton,Income Deprivation Affecting Children,71,0.11864406779661017,2015
+E08000002,Bury,Income Deprivation Affecting Children,134,0.06666666666666667,2015
+E08000003,Manchester,Income Deprivation Affecting Children,5,0.3617021276595745,2015
+E08000004,Oldham,Income Deprivation Affecting Children,47,0.1773049645390071,2015
+E08000005,Rochdale,Income Deprivation Affecting Children,41,0.17164179104477612,2015
+E08000006,Salford,Income Deprivation Affecting Children,30,0.24666666666666667,2015
+E08000007,Stockport,Income Deprivation Affecting Children,177,0.05789473684210526,2015
+E08000008,Tameside,Income Deprivation Affecting Children,55,0.11347517730496454,2015
+E08000009,Trafford,Income Deprivation Affecting Children,196,0.057971014492753624,2015
+E08000010,Wigan,Income Deprivation Affecting Children,112,0.1,2015
+E08000001,Bolton,Income Deprivation Affecting Older People,46,0.192090395480226,2015
+E08000002,Bury,Income Deprivation Affecting Older People,112,0.06666666666666667,2015
+E08000003,Manchester,Income Deprivation Affecting Older People,4,0.5,2015
+E08000004,Oldham,Income Deprivation Affecting Older People,52,0.20567375886524822,2015
+E08000005,Rochdale,Income Deprivation Affecting Older People,38,0.208955223880597,2015
+E08000006,Salford,Income Deprivation Affecting Older People,25,0.22666666666666666,2015
+E08000007,Stockport,Income Deprivation Affecting Older People,137,0.06315789473684211,2015
+E08000008,Tameside,Income Deprivation Affecting Older People,58,0.05673758865248227,2015
+E08000009,Trafford,Income Deprivation Affecting Older People,136,0.07246376811594203,2015
+E08000010,Wigan,Income Deprivation Affecting Older People,80,0.065,2015

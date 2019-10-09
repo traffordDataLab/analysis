@@ -1216,7 +1216,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Income Deprivation Affecting Children
-Trafford is ranked 214 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Children Index score. This represents an increase (+13) from 201 in 2015.
+Trafford is ranked 214 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Children Index score. This represents an increase (+18) from 196 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average IDACI score</h4>
@@ -1361,7 +1361,7 @@ left_join(trafford_lsoa,
 ***
 
 ## Income Deprivation Affecting Older People	
-Trafford is ranked 134 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Older People Index score. This represents an increase (5) from 129 in 2015.
+Trafford is ranked 134 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Older People Index score. This represents an fall (-2) from 136 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average IDAOPI score</h4>
