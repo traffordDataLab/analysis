@@ -2,7 +2,7 @@
 
 ### Method for calculating average scores
 
-1. Multiply each LSOA score by the appropriate population denominator for each domain or sub-domain:    
+**1**\. Multiply each LSOA score by the appropriate population denominator for each domain or sub-domain:    
 
 |Domain |Population Denominator |
 |:--- |:---- |
@@ -17,10 +17,10 @@
 |Income Deprivation Affecting Children Index(IDOACI) |dependent children |
 |Income Deprivation Affecting Older People Index (IDOPCI) |older population |
 
-2\. Sum scores by 2019 local authority district    
-3\. Sum LSOA population by local authority district     
-4\. Divide total score by appropriate local authority district population   
-5\. Rank in ascending order
+**2**\. Sum scores by 2019 local authority district    
+**3**\. Sum LSOA population by local authority district     
+**4**\. Divide total score by appropriate local authority district population   
+**5**\. Rank in ascending order
 
 ### Data
 
