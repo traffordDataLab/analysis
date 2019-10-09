@@ -1,8 +1,8 @@
-## Re-aggregating 2015 Indices of Deprivation to 2019 Local Authority district boundaries
+## Re-aggregating IoD2015 to 2019 Local Authority District boundaries
 
-#### Method for calculating average scores
+### Method for calculating average scores
 
-1. Multiply each LSOA score by the appropriate population denominator for each domain or sub-domain    
+1. Multiply each LSOA score by the appropriate population denominator for each domain or sub-domain:    
 
 |Domain |Population Denominator |
 |:--- |:---- |
@@ -22,7 +22,15 @@
 4\. Divide total score by appropriate local authority district population   
 5\. Rank in ascending order
 
-#### Sources    
+### Data
+
+A CSV file containing the re-aggregated rank of average scores and the proportion of LSOAs within the 1st decile for all local authority districts in England can be found [here](data.csv).
+
+### R script
+
+The R script to re-aggregate the IoD2015 to 2019 local authority district boundaries can be found [here](script.R).
+
+### Sources    
 
 - Appendix A, [IoD2019 Research report](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833947/IoD2019_Research_Report.pdf)     
 - Appendix N, [IoD2019 Technical report](https://www.gov.uk/government/publications/english-indices-of-deprivation-2019-technical-report)   
