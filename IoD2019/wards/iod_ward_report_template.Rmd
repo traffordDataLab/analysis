@@ -2,28 +2,75 @@
 title: "Analysis of the Indices of Deprivation 2019 for `r params$ward_name`"
 output:
   html_document:
-    highlight: null
+    theme: flatly
+    self_contained: TRUE
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    df_print: paged
     includes:
-      after_body: rmd_report_footer.html
-      before_body: rmd_report_header.html
       in_header: rmd_report_includes.html
     mathjax: null
-    self_contained: no
-    theme: null
-  pdf_document: default
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
   ward_name: Bucklow-St Martins
 ---
 
+<style>
+  h4
+  {
+    text-align: center;
+  }
+  
+  h4.date
+  {
+    text-align: left;
+  }
+  
+  p.caption
+  {
+    font-size: 0.75em;
+    font-weight: bold;
+    color: #757575;
+  }
+</style>
+
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE)
 
 # Load the required libraries
-library(tidyverse) ; library(ggplot2) ; library(kableExtra) ; library(english) ;
+library(tidyverse) ; library(ggplot2) ; library(kableExtra) ; library(english) ; library(janitor) ; library(scales)
 
 # Load in the ggplot2 Lab theme
 source("https://www.trafforddatalab.io/assets/theme/ggplot2/theme_lab.R")
+
+# Set up the chart highlight colour
+chart_highlight <- "#18BC9E"
+
+# Function to draw barcode plots
+barcode_plot <- function (domain) {
+  ggplot() +
+  geom_segment(data = filter(df_iod_trafford, !lsoa11cd %in% lsoas_ward, index_domain == domain), 
+               aes(x = rank, xend = rank, y = 0, yend = 1), 
+               colour = "#bdbdbd", size = 0.25, alpha = 1) +
+  geom_segment(data = filter(df_iod_trafford, lsoa11cd %in% lsoas_ward, index_domain == domain), 
+               aes(x = rank, xend = rank, y = 0, yend = 1), 
+               colour = chart_highlight, size = 0.25, alpha = 1) +
+  scale_x_continuous(limits = c(0, 32844), expand = c(0.005, 0.005), 
+                     breaks = c(3284, 6569, 9853, 13138, 16422, 19706, 22991, 26275, 29560, 32844),
+                     labels = c(1:10)) +
+  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL,
+       caption = "Source: 2019 Indices of Deprivation, MHCLG") +
+  theme_lab() +
+  theme(panel.grid.major = element_blank(),
+        plot.title = element_text(size = 26, face = "plain", hjust = 0.5, margin = margin(10, 0, 10, 0)),
+        plot.subtitle = element_text(hjust = 0.5, vjust = 5),
+        axis.text.x = element_text(face = "bold"),
+        axis.text.y = element_blank(),
+        legend.position = "none",
+        plot.tag.position = c(0.01, 0.02),
+        plot.tag = element_text(size = 10, colour = "#757575", hjust = 0))
+}
 
 # Function to return numbers expressed as words if the number of words is 2 or less, or the original number. This is for academic non-technical report writing. Uses packages: english (John Fox, Bill Venables, Anthony Damico and Anne Pier Salverda), stringr (Hadley Wickham)
 number_for_reports <- function (num) {
@@ -41,27 +88,47 @@ number_for_reports <- function (num) {
   result  # return the result
 }
 
-# Get the best fit look up data for LSOAs to wards
-df_lsoa_ward_best_fit <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa_to_ward_best-fit_lookup.csv")
-
-# Just get the LSOAs in Trafford as a vector
-lsoas_trafford <- df_lsoa_ward_best_fit %>%
-  filter( lad17nm == 'Trafford') %>%
-  .$lsoa11cd  # Hadley recommendation for taking one column from the df and converting to a vector (https://stackoverflow.com/questions/27149306/dplyrselect-one-column-and-output-as-vector/27160317)
-
-# Get the LSOAs which are best-fit within our chosen ward - same method as for Trafford
-lsoas_ward <- df_lsoa_ward_best_fit %>%
+# Get the LSOAs which are best-fit within our chosen ward
+lsoas_ward <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa_to_ward_best-fit_lookup.csv") %>%
   filter( lad17nm == 'Trafford',
           wd17nm == params$ward_name) %>%
   .$lsoa11cd
 
 # Load in the IoD data for 2015 and 2019 and filter for just the LSOAs in Trafford
-df_iod_trafford <- read_csv("https://www.trafforddatalab.io/imd19/data/imd.csv") %>%
-  filter(lsoa11cd %in% lsoas_trafford)
+#df_iod_trafford <- read_csv("https://www.trafforddatalab.io/imd19/data/imd.csv") %>%
+#  filter(lsoa11cd %in% lsoas_trafford)
 
-# Get the same just for the ward
-df_iod_ward <- df_iod_trafford %>%
-  filter(lsoa11cd %in% lsoas_ward)
+# English Indices of Deprivation 2019 #
+# Source: Ministry of Housing, Communities and Local Government
+# Publisher URL: https://www.gov.uk/government/statistics/announcements/english-indices-of-deprivation-2019
+# Licence: Open Government Licence 3.0
+df_iod_trafford <- read_csv("https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833982/File_7_-_All_IoD2019_Scores__Ranks__Deciles_and_Population_Denominators.csv") %>% 
+  clean_names() %>% 
+  filter(local_authority_district_name_2019 == "Trafford") %>% 
+  select(lsoa11cd = 1, lad19nm = 4, 5:34) %>% 
+  gather(variable, value, -lsoa11cd, -lad19nm) %>% 
+  mutate(measure = case_when(str_detect(variable, "score") ~ "score", 
+                             str_detect(variable, "decile") ~ "decile", 
+                             str_detect(variable, "rank") ~ "rank"),
+         index_domain = case_when(str_detect(variable, "index_of_multiple_deprivation") ~ "Index of Multiple Deprivation", 
+                                  str_detect(variable, "employment") ~ "Employment",
+                                  str_detect(variable, "education") ~ "Education",
+                                  str_detect(variable, "health") ~ "Health",
+                                  str_detect(variable, "crime") ~ "Crime",
+                                  str_detect(variable, "barriers") ~ "Barriers to Housing and Services",
+                                  str_detect(variable, "living") ~ "Living Environment",
+                                  str_detect(variable, "idaci") ~ "Income Deprivation Affecting Children",
+                                  str_detect(variable, "idaopi") ~ "Income Deprivation Affecting Older People",
+                                  TRUE ~ "Income"),
+         index_domain = fct_relevel(factor(index_domain), 
+                                    "Index of Multiple Deprivation", 
+                                    "Income", "Employment", "Education", "Health", "Crime",
+                                    "Barriers to Housing and Services", "Living Environment",
+                                    "Income Deprivation Affecting Older People",
+                                    "Income Deprivation Affecting Children")) %>% 
+  select(lsoa11cd, lad19nm, measure, value, index_domain) %>% 
+  spread(measure, value) %>% 
+  mutate(year = "2019")
 ```
 
 ## Introduction
@@ -105,18 +172,21 @@ df_lsoa_codes_and_names <- read_csv("https://www.trafforddatalab.io/spatial_data
   rename("LSOA code" = lsoa11cd,
          "LSOA name" = lsoa11nm)
 
-kable(df_lsoa_codes_and_names)
+kable(df_lsoa_codes_and_names) 
 ```
 
 ## Analysis
 The majority of the analysis focuses on the deciles and ranks, looking at the changes between the data published in 2015 and 2019 for the LSOAs within `r params$ward_name` and comparing those changes to Trafford as a whole. However for the Income and Employment domains as well as the two sub-domains for Income (IDACI AND IDAOPI) the score is also useful as this directly relates to the percentage of the relevant population experiencing that type of deprivation ([The English Indices of Deprivation 2019 Research Report](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833947/IoD2019_Research_Report.pdf)).
 
 ### Index of Multiple Deprivation (IMD)
+SOME EXPLANATORY TEXT HERE
 
-```{r imd_chart, echo=FALSE, message=FALSE, warning=FALSE}
-
+#### LSOAs in `r params$ward_name` relative to Trafford on IMD
+```{r barcode_imd, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Index of Multiple Deprivation")
 ```
 
+SOME COMMENTARY HERE
 
 ### Income domain
 The definition of low income used includes both those people that are out-of-work, and those that are in work but who have low earnings (and who satisfy the respective means tests). A combined count of income deprived individuals is produced by summing the following non-overlapping indicators:
@@ -129,12 +199,12 @@ The definition of low income used includes both those people that are out-of-wor
 - Adults and children in Universal Credit families where no adult is in 'Working - requirements' conditionality regime
 - Asylum seekers in England in receipt of subsistence support, accommodation support, or both
 
-#### Income Deprivation Affecting Children Index
-The proportion of children aged 0 to 15 living in income deprived households.
+#### LSOAs in `r params$ward_name` relative to Trafford on Income
+```{r barcode_income, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Income")
+```
 
-#### Income Deprivation Affecting Older People Index
-The proportion of people aged 60 and over living in income deprived households.
-
+SOME COMMENTARY HERE
 
 ### Employment domain
 This domain measures the proportion of working age population who are involuntarily excluded from the labour market, including those who would like to work but are unable to do so due to unemployment, sickness or disability, or caring responsibilities. This comprises the following non-overlapping indicators:
@@ -146,6 +216,12 @@ This domain measures the proportion of working age population who are involuntar
 - Claimants of Carer's Allowance, women aged 18 to 59 and men aged 18 to 64
 - Claimants of Universal Credit in the 'Searching for work' and 'No work requirements' conditionality groups
 
+#### LSOAs in `r params$ward_name` relative to Trafford on Employment
+```{r barcode_employment, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Employment")
+```
+
+SOME COMMENTARY HERE
 
 ### Education, Skills and Training domain
 The indicators within this domain fall into two sub-domains: Children and Young People and Adult Skills. The Children and Young People sub-domain comprises:
@@ -161,6 +237,12 @@ The Adult Skills sub-domain is a non-overlapping count of the following two indi
 - The proportion of working age adults with no or low qualifications (women aged 25 to 59 and men aged 25 to 64)
 - The proportion of working adults who cannot speak English or cannot speak English well (women aged 25 to 59 and men aged 25 to 64)
 
+#### LSOAs in `r params$ward_name` relative to Trafford on Education
+```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Education")
+```
+
+SOME COMMENTARY HERE
 
 ### Health Deprivation and Disability domain
 Measuring the risk of premature death and the impairment of quality of life through poor physical or mental health through the following four indicators:
@@ -170,10 +252,22 @@ Measuring the risk of premature death and the impairment of quality of life thro
 - Acute morbidity
 - Mood and anxiety disorders
 
+#### LSOAs in `r params$ward_name` relative to Trafford on Health
+```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Health")
+```
+
+SOME COMMENTARY HERE
 
 ### Crime domain
 This domain measures the rate of recorded crimes per 1,000 at risk population for violence, theft, burglary and criminal damage.
 
+#### LSOAs in `r params$ward_name` relative to Trafford on Crime
+```{r barcode_crime, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Crime")
+```
+
+SOME COMMENTARY HERE
 
 ### Barriers to Housing & Services domain
 The indicators which comprise this domain are split into two sub-domains: Geographical Barriers and Wider Barriers. Geographical Barriers takes into account road distances to a:
@@ -189,9 +283,41 @@ Wider Barriers takes into account the following:
 - Homelessness
 - Housing affordability
 
+#### LSOAs in `r params$ward_name` relative to Trafford on Barriers to Housing & Services
+```{r barcode_barriers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Barriers to Housing and Services")
+```
+
+SOME COMMENTARY HERE
 
 ### Living Environment domain
 This domain is also derived from two sub-domains: Indoors and Outdoors.  The indoors sub-domain deals with the quality of housing stock; that is housing without central heating and housing in poor condition failing to meet the [Decent Homes standard](https://www.gov.uk/government/publications/a-decent-home-definition-and-guidance).
 
 The Outdoors sub-domain deals with air quality and road traffic accidents involving cyclists and pedestrians.
 
+#### LSOAs in `r params$ward_name` relative to Trafford on Living Environment
+```{r barcode_living, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Living Environment")
+```
+
+SOME COMMENTARY HERE
+
+### Income Deprivation Affecting Children Index (IDACI)
+The proportion of children aged 0 to 15 living in income deprived households.
+
+#### LSOAs in `r params$ward_name` relative to Trafford on IDACI
+```{r barcode_idaci, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Income Deprivation Affecting Children")
+```
+
+SOME COMMENTARY HERE
+
+### Income Deprivation Affecting Older People Index (IDAOPI)
+The proportion of people aged 60 and over living in income deprived households.
+
+#### LSOAs in `r params$ward_name` relative to Trafford on IDAOPI
+```{r barcode_idaopi, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+barcode_plot(domain = "Income Deprivation Affecting Older People")
+```
+
+SOME COMMENTARY HERE
