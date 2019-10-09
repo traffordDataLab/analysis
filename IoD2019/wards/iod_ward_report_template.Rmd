@@ -41,11 +41,14 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, eval = TRU
 # Load the required libraries
 library(tidyverse) ; library(ggplot2) ; library(kableExtra) ; library(english) ; library(janitor) ; library(scales)
 
+
 # Load in the ggplot2 Lab theme
 source("https://www.trafforddatalab.io/assets/theme/ggplot2/theme_lab.R")
 
+
 # Set up the chart highlight colour
 chart_highlight <- "#18BC9E"
+
 
 # Function to draw barcode plots
 barcode_plot <- function (domain) {
@@ -56,6 +59,8 @@ barcode_plot <- function (domain) {
   geom_segment(data = filter(df_iod_trafford, lsoa11cd %in% lsoas_ward, index_domain == domain), 
                aes(x = rank, xend = rank, y = 0, yend = 1), 
                colour = chart_highlight, size = 0.25, alpha = 1) +
+  geom_point(data = filter(df_iod_trafford, lsoa11cd %in% lsoas_ward, index_domain == domain),
+               aes(x = rank, y = 1.1), pch = 6, colour = chart_highlight, size = 0.25) +
   scale_x_continuous(limits = c(0, 32844), expand = c(0.005, 0.005), 
                      breaks = c(3284, 6569, 9853, 13138, 16422, 19706, 22991, 26275, 29560, 32844),
                      labels = c(1:10)) +
@@ -71,6 +76,7 @@ barcode_plot <- function (domain) {
         plot.tag.position = c(0.01, 0.02),
         plot.tag = element_text(size = 10, colour = "#757575", hjust = 0))
 }
+
 
 # Function to return numbers expressed as words if the number of words is 2 or less, or the original number. This is for academic non-technical report writing. Uses packages: english (John Fox, Bill Venables, Anthony Damico and Anne Pier Salverda), stringr (Hadley Wickham)
 number_for_reports <- function (num) {
@@ -88,15 +94,13 @@ number_for_reports <- function (num) {
   result  # return the result
 }
 
+
 # Get the LSOAs which are best-fit within our chosen ward
 lsoas_ward <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa_to_ward_best-fit_lookup.csv") %>%
   filter( lad17nm == 'Trafford',
           wd17nm == params$ward_name) %>%
   .$lsoa11cd
 
-# Load in the IoD data for 2015 and 2019 and filter for just the LSOAs in Trafford
-#df_iod_trafford <- read_csv("https://www.trafforddatalab.io/imd19/data/imd.csv") %>%
-#  filter(lsoa11cd %in% lsoas_trafford)
 
 # English Indices of Deprivation 2019 #
 # Source: Ministry of Housing, Communities and Local Government
@@ -172,7 +176,8 @@ df_lsoa_codes_and_names <- read_csv("https://www.trafforddatalab.io/spatial_data
   rename("LSOA code" = lsoa11cd,
          "LSOA name" = lsoa11nm)
 
-kable(df_lsoa_codes_and_names) 
+kable(df_lsoa_codes_and_names) %>%
+  kable_styling(bootstrap_options = "striped")
 ```
 
 ## Analysis
