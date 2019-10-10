@@ -1,39 +1,23 @@
 ---
 title: "Analysis of the Indices of Deprivation 2019 for `r params$ward_name`"
+always_allow_html: true
 output:
   html_document:
-    theme: flatly
-    self_contained: TRUE
-    toc: true
-    toc_depth: 3
-    toc_float: true
     df_print: paged
     includes:
       in_header: rmd_report_includes.html
     mathjax: null
+    self_contained: yes
+    theme: flatly
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  word_document:
+    toc: no
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
   ward_name: Bucklow-St Martins
 ---
-
-<style>
-  h4
-  {
-    text-align: center;
-  }
-  
-  h4.date
-  {
-    text-align: left;
-  }
-  
-  p.caption
-  {
-    font-size: 0.75em;
-    font-weight: bold;
-    color: #757575;
-  }
-</style>
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE)
@@ -65,7 +49,7 @@ barcode_plot <- function (domain) {
                      breaks = c(3284, 6569, 9853, 13138, 16422, 19706, 22991, 26275, 29560, 32844),
                      labels = c(1:10)) +
   labs(x = NULL, y = NULL, title = NULL, subtitle = NULL,
-       caption = "Source: 2019 Indices of Deprivation, MHCLG") +
+       tag = "Each line represents an LSOA") +
   theme_lab() +
   theme(panel.grid.major = element_blank(),
         plot.title = element_text(size = 26, face = "plain", hjust = 0.5, margin = margin(10, 0, 10, 0)),
@@ -73,7 +57,7 @@ barcode_plot <- function (domain) {
         axis.text.x = element_text(face = "bold"),
         axis.text.y = element_blank(),
         legend.position = "none",
-        plot.tag.position = c(0.01, 0.02),
+        plot.tag.position = c(0.01, -0.05),
         plot.tag = element_text(size = 10, colour = "#757575", hjust = 0))
 }
 
@@ -187,7 +171,7 @@ The majority of the analysis focuses on the deciles and ranks, looking at the ch
 SOME EXPLANATORY TEXT HERE
 
 #### LSOAs in `r params$ward_name` relative to Trafford on IMD
-```{r barcode_imd, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_imd, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Index of Multiple Deprivation")
 ```
 
@@ -205,7 +189,7 @@ The definition of low income used includes both those people that are out-of-wor
 - Asylum seekers in England in receipt of subsistence support, accommodation support, or both
 
 #### LSOAs in `r params$ward_name` relative to Trafford on Income
-```{r barcode_income, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_income, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income")
 ```
 
@@ -222,7 +206,7 @@ This domain measures the proportion of working age population who are involuntar
 - Claimants of Universal Credit in the 'Searching for work' and 'No work requirements' conditionality groups
 
 #### LSOAs in `r params$ward_name` relative to Trafford on Employment
-```{r barcode_employment, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_employment, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Employment")
 ```
 
@@ -243,7 +227,7 @@ The Adult Skills sub-domain is a non-overlapping count of the following two indi
 - The proportion of working adults who cannot speak English or cannot speak English well (women aged 25 to 59 and men aged 25 to 64)
 
 #### LSOAs in `r params$ward_name` relative to Trafford on Education
-```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Education")
 ```
 
@@ -258,7 +242,7 @@ Measuring the risk of premature death and the impairment of quality of life thro
 - Mood and anxiety disorders
 
 #### LSOAs in `r params$ward_name` relative to Trafford on Health
-```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Health")
 ```
 
@@ -268,7 +252,7 @@ SOME COMMENTARY HERE
 This domain measures the rate of recorded crimes per 1,000 at risk population for violence, theft, burglary and criminal damage.
 
 #### LSOAs in `r params$ward_name` relative to Trafford on Crime
-```{r barcode_crime, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_crime, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Crime")
 ```
 
@@ -289,7 +273,7 @@ Wider Barriers takes into account the following:
 - Housing affordability
 
 #### LSOAs in `r params$ward_name` relative to Trafford on Barriers to Housing & Services
-```{r barcode_barriers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_barriers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Barriers to Housing and Services")
 ```
 
@@ -301,7 +285,7 @@ This domain is also derived from two sub-domains: Indoors and Outdoors.  The ind
 The Outdoors sub-domain deals with air quality and road traffic accidents involving cyclists and pedestrians.
 
 #### LSOAs in `r params$ward_name` relative to Trafford on Living Environment
-```{r barcode_living, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_living, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Living Environment")
 ```
 
@@ -311,7 +295,7 @@ SOME COMMENTARY HERE
 The proportion of children aged 0 to 15 living in income deprived households.
 
 #### LSOAs in `r params$ward_name` relative to Trafford on IDACI
-```{r barcode_idaci, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_idaci, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income Deprivation Affecting Children")
 ```
 
@@ -321,7 +305,7 @@ SOME COMMENTARY HERE
 The proportion of people aged 60 and over living in income deprived households.
 
 #### LSOAs in `r params$ward_name` relative to Trafford on IDAOPI
-```{r barcode_idaopi, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.cap="Each line represents an LSOA."}
+```{r barcode_idaopi, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income Deprivation Affecting Older People")
 ```
 

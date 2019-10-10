@@ -15,6 +15,24 @@
 
 
     /* --- Additions to the bootstrap styling --- */
+    h4 /* Used for plot titles */
+    {
+        text-align: center;
+    }
+
+    h4.date /* The date is written within an <h4> so this overrides the directive above */
+    {
+        text-align: left;
+    }
+
+    p.caption /* Plot captions, usually the source of the data */
+    {
+        font-size: 0.75em;
+        font-weight: bold;
+        color: #757575;
+        text-align: right;
+    }
+
     div.metadata
     {
         background-color: #f0f0f0;
@@ -29,55 +47,5 @@
     th
     {
         text-align: left;
-    }
-
-
-    /* --- Header --- */
-    div.traffordDataLabHeader
-    {
-        text-align: left;
-        border-bottom: 1px solid #757575;
-    }
-
-    .traffordDataLabLogo
-    {
-        margin: 9px 12px 0 0;
-        padding: 0;
-    }
-
-
-    /* --- Footer --- */
-    .traffordDataLabFooter
-    {
-        color: #212121;
-        height: 5em;
-        margin: 0;
-        padding: 0;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .leftFooter
-    {
-        display: inline-block;
-        white-space: nowrap;
-    }
-
-    .rightFooter
-    {
-        height: 100%;
-        display: inline-block;
-        float: right;
-    }
-
-    .logoTrafford
-    {
-        height: 5em;
-    }
-
-    .license
-    {
-        font-size: 0.7em;
-        padding: 10px 0px 0px 12px;
-        margin-top: 50px;
     }
 </style>
