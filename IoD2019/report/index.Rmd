@@ -109,15 +109,15 @@ This report explores the [2019 English Indices of Deprivation](https://www.gov.u
 
 ## Key findings
 
-- Trafford is ranked 191 on the 2019 Index of Multiple Deprivation (IMD) out of 317 local authority districts in England where 1 is the most deprived and 317 is the least deprived. 
+- Trafford is ranked 191 on the 2019 Index of Multiple Deprivation (IMD) out of 317 local authority districts in England where 1 is the most deprived and 317 is the least deprived. Trafford ranked 199 in 2015.
 - The increase in relative deprivation in Trafford between 2015 and 2019 is consistent with other Greater Manchester local authorities with the exception of Manchester.
 - The proportion of Trafford's Lower-layer Super Output areas in the most deprived 10% nationally was 5.1% on the 2019 IMD. This represents an increase of 2.2% since the 2015 IMD. All other local authorities in Greater Manchester reported relative increases with the exception of Bury which remained unchanged between IoD releases.
 - Trafford was ranked the least deprived of all Greater Manchester local authorities across the 2019 IoD Income, Employment, Education, Health, and Crime domains and the Income Deprivation Affecting Children sub-domain.
 - Trafford was the 7th most deprived local authority on the 2019 IoD Housing and Living Environment domains and 9th on the Income Deprivation Affecting Older People sub-domain.
 - Trafford 017E in Bucklow-St Martins ward is the most deprived LSOA in Trafford ranking 490 out of 32,844 LSOAs in England. It sits within the 5% most deprived LSOAs nationally for Income, Employment, Education, Health and Income Deprivation Affecting Children.
 - In Trafford 017E in Bucklow-St Martins ward, 44.1% of children aged 0 to 15 live in income deprived families.
-- Trafford 001A in Clifford ward ranks 572 out of 32,844 LSOAs nationally with 28.9% of working-age residents involuntarily excluded from the labour market.
-- Trafford 001D in Clifford ward ranks 298 out of 32,844 LSOAs nationally with 56.8% of all those aged 60 or over experiencing income deprivation.
+- Trafford 001A in Clifford ward ranks 572 out of 32,844 LSOAs nationally on the Employment domain with 28.9% of working-age residents involuntarily excluded from the labour market.
+- Trafford 001D in Clifford ward ranks 298 out of 32,844 LSOAs nationally on the Income Deprivation Affecting Older People sub-domain with 56.8% of all those aged 60 or over experiencing income deprivation.
 
 ## Background
 
