@@ -64,11 +64,9 @@ dumbbell_plot <- function(data){
 # change plot
 change_plot <- function(data, y_scale_range = c(0,50)){
   ggplot(data = data, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile), fill = "#f768a1") +
   geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
   geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
   scale_x_continuous(breaks = unique(data$year), expand = c(0.26, 0)) +
   scale_y_continuous(expand = c(0.005, 0.005), limits = y_scale_range) +
   facet_wrap(facets = ~`Local authority`, nrow = 2) +
