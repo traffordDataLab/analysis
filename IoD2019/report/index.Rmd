@@ -105,7 +105,7 @@ p.caption {
 
 </style>
 
-This report explores the English Indices of Deprivation 2019 for Trafford. It compares Trafford with other local authorities in Greater Manchester using the  the rank of average score, tracks relative change in ranking between 2015 and 2019, assesses the percentage of LSOAs in the most deprived decile, and identifies the most deprived small areas.
+This report explores the English Indices of Deprivation 2019 for Trafford. It compares Trafford with other local authorities in Greater Manchester using the rank of average score, tracks relative change in ranking between 2015 and 2019, indicates the percentage of LSOAs in the most deprived decile, and identifies the most deprived small areas.
 
 ## Background
 
@@ -121,7 +121,7 @@ Relative deprivation is measured using 39 indicators which are grouped across se
 * **Barriers to Housing and Services** - the physical and financial accessibility of housing and local services     
 * **Living Environment** - the  quality  of  the  local  environment. This includes an 'indoors' (quality  of housing) and an 'outdoors' (air quality and road traffic accidents) subdomain    
 
-Each domain is combined and weighted to create the **Index of Multiple Deprivation** (IMD), an overall relative measure of deprivation. 
+Each domain is combined and weighted to create the **Index of Multiple Deprivation** (IMD), an overall measure of relative deprivation. 
 
 A further 2 supplementary indices of income deprivation are also provided:    
 
@@ -130,7 +130,7 @@ A further 2 supplementary indices of income deprivation are also provided:
 
 **Please note**      
 - The Indices of Deprivation measure *relative* deprivation so a change in rank between 2019 and 2015 releases does not necessarily indicate a change in *absolute* levels of deprivation.     
-- Local authority summaries for 2015 have been reaggregated to 2019 Local Authority District boundaries to enable direct comparisons to be made. The methodology followed is available in Appendix N of the IoD2019 [technical report](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833951/IoD2019_Technical_Report.pdf).
+- Local authority summaries for 2015 have been reaggregated to 2019 Local Authority District boundaries to enable direct comparisons to be made. The methodology followed is available in Appendix A of the IoD2019 [research report](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833947/IoD2019_Research_Report.pdf).
 
 ***
 
@@ -258,6 +258,8 @@ filter(IoD_local_authority, index_domain == "Income") %>%
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 7.2% (10 out of 138) in 2019. This represents no change on 2015 when 7.2% (10 out of 138) of LSOAs were ranked within the 1st decile. 
+
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Income domain</h4>
 ```{r fig.align='center'}
@@ -344,6 +346,8 @@ filter(IoD_local_authority, index_domain == "Employment") %>%
 </div>
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
+
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 5.8% (8 out of 138) in 2019. This represents no change on 2015 when 5.8% (8 out of 138) of LSOAs were ranked within the 1st decile.
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Employment domain</h4>
@@ -434,6 +438,8 @@ filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 1.5% (2 out of 138) in 2019. This represents a relative fall since 2015 when 2.2% (3 out of 138) of LSOAs were ranked within the 1st decile. 
+
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Education, Skills and Training domain</h4>
 ```{r fig.align='center'}
@@ -522,6 +528,8 @@ filter(IoD_local_authority, index_domain == "Health and Disability") %>%
 </div>
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
+
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 5.1% (7 out of 138) in 2019. This represents a relative fall since 2015 when 5.8% (8 out of 138) of LSOAs were ranked within the 1st decile.
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Health and Disability domain</h4>
@@ -612,6 +620,8 @@ filter(IoD_local_authority, index_domain == "Crime") %>%
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 2.2% (3 out of 138) in 2019. This represents a relative increase on 2015 when 0% (0 out of 138) of LSOAs were ranked within the 1st decile.
+
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Crime domain</h4>
 ```{r fig.align='center'}
@@ -701,6 +711,8 @@ filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") 
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 0.7% (1 out of 138) in 2019. This represents no change on 2015 when 0.7% (1 out of 138) of LSOAs were ranked within the 1st decile.
+
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Barriers to Housing and Services domain</h4>
 ```{r fig.align='center'}
@@ -787,6 +799,8 @@ filter(IoD_local_authority, index_domain == "Living Environment") %>%
 </div>
 <h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
 <br />
+
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 2.9% (4 out of 138) in 2019. This represents a relative increase on 2015 when 1.4% (2 out of 138) of LSOAs were ranked within the 1st decile. 
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Living Environment domain</h4>
@@ -875,6 +889,8 @@ filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Childr
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 3.6% (5 out of 138) in 2019. This represents a relative fall since 2015 when 5.8% (8 out of 138) of LSOAs were ranked within the 1st decile.
+
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of IDACI</h4>
 ```{r fig.align='center'}
@@ -961,6 +977,8 @@ filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older 
 </div>
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
+
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 7.2% (10 out of 138) in 2019. This represents no change on 2015 when 7.2% (10 out of 138) of LSOAs were ranked within the 1st decile.
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of IDAOPI</h4>
