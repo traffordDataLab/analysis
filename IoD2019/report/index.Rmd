@@ -107,19 +107,31 @@ p.caption {
 
 This report explores the English Indices of Deprivation 2019 for Trafford. It compares Trafford with other local authorities in Greater Manchester using the rank of average score, tracks relative change in ranking between 2015 and 2019, indicates the percentage of LSOAs in the most deprived decile, and identifies the most deprived small areas.
 
+## Key findings
+
+- Trafford is ranked 191 on the 2019 Index of Multiple Deprivation (IMD) out of 317 local authority districts in England where 1 is the most deprived and 317 is the least deprived. 
+- The increase in relative deprivation at a local authority level between 2015 and 2019 reflects wider increases in other Greater Manchester local authorities with the exception of Manchester.
+- The proportion of Trafford's Lower-layer Super Output areas in the most deprived 10% nationally was 5.1% on the 2019 IMD. This represents an increase of 2.2% since the 2015 IMD. All other local authorities in Greater Manchester reported relative increases with the exception of Bury which remained unchanged between IoD releases.
+- Trafford was ranked the least deprived of all Greater Manchester local authorities across the 2019 IoD Income, Employment, Education, Health, and Crime domains and the Income Deprivation Affecting Children sub-domain.
+- Trafford was the 7th most deprived local authority on the 2019 IoD Housing and Living Environment domains and 9th on the Income Deprivation Affecting Older People sub-domain.
+- Trafford 017E in Bucklow-St Martins ward is the most deprived LSOA in Trafford ranking 490 out of 32,844 LSOAs in England. It sits within the 5% most deprived LSOAs nationally for Income, Employment, Education, Health and Income Deprivation Affecting Children.
+- In Trafford 017E in Bucklow-St Martins ward, 44.1% of children aged 0 to 15 live in income deprived families.
+- Trafford 001A in Clifford ward ranks 572 out of 32,844 LSOAs nationally with 28.9% of working-age residents involuntarily excluded from the labour market.
+- Trafford 001D in Clifford ward ranks 298 out of 32,844 LSOAs nationally with 56.8% of all those aged 60 or over experiencing income deprivation.
+
 ## Background
 
 The [English Indices of Deprivation](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019) were published by the [Ministry of Housing, Communities & Local Government](https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government) in September 2019. The Indices measure relative levels of deprivation in 32,844 Lower-layer Super Output Areas (LSOAs) in England. Each LSOA contains approximately 1,500 residents or 650 households. They are ranked from 1 (most deprived) to 32,844 (least deprived) and assigned to a decile ranging from 1 (most deprived 10%) to 10 (least deprived 10%). Local authorities in England are also ranked from 1 to 317 based on a population weighted average rank or score of the LSOA data.
 
 Relative deprivation is measured using 39 indicators which are grouped across seven different domains:
 
-* **Income** - the proportion of the population experiencing deprivation relating to low income    
-* **Employment** - the proportion of the working age population who would like to work but are unable to do because of unemployment, sickness or disability, or caring responsibilities     
-* **Education, Skills and Training** - the lack of attainment and skills in the local population    
-* **Health and Disability** - the  risk  of  premature  death  and  the impairment of quality of life through poor physical or mental health     
-* **Crime** - the risk of personal and material victimisation   
+* **Income** - the proportion of the population experiencing deprivation relating to low income, including those people-out-of-work, and those who have low earnings    
+* **Employment** - the proportion of the working age population in an area involuntarily excluded from the labour market     
+* **Education, Skills and Training** - the lack of attainment and skills in the local population   
+* **Health and Disability** - the risk of premature death and the impairment of quality of life through poor physical or mental health     
+* **Crime** - the risk of personal and material victimisation at a local level  
 * **Barriers to Housing and Services** - the physical and financial accessibility of housing and local services     
-* **Living Environment** - the  quality  of  the  local  environment. This includes an 'indoors' (quality  of housing) and an 'outdoors' (air quality and road traffic accidents) subdomain    
+* **Living Environment** - the quality of the local environment    
 
 Each domain is combined and weighted to create the **Index of Multiple Deprivation** (IMD), an overall measure of relative deprivation. 
 
@@ -128,9 +140,13 @@ A further 2 supplementary indices of income deprivation are also provided:
 * **Income Deprivation Affecting Children Index** - the proportion of all children aged 0 to 15 living in income deprived families          
 * **Income Deprivation Affecting Older People Index** - the proportion of all those aged 60 or over who experience income deprivation   
 
-**Please note**      
+#### Please note      
 - The Indices of Deprivation measure *relative* deprivation so a change in rank between 2019 and 2015 releases does not necessarily indicate a change in *absolute* levels of deprivation.     
 - Local authority summaries for 2015 have been reaggregated to 2019 Local Authority District boundaries to enable direct comparisons to be made. The methodology followed is available in Appendix A of the IoD2019 [research report](https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/833947/IoD2019_Research_Report.pdf).
+
+#### Further resources
+- Ward level summaries of the 2019 Indices of Deprivation for Trafford are available to view interactively in linked charts and maps [here](https://www.trafforddatalab.io/ward_profiler/).
+- A web application which interactively visualises the proportion of LSOAs in the most deprived decile and the spatial distribution of relative deprivation for every local authority district in England is available [here](https://trafforddatalab.shinyapps.io/imd19).
 
 ***
 
@@ -192,12 +208,12 @@ change_plot(data = imd_decile)
 <h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
 <br />
 
-The map below shows that 2 LSOAs in Bucklow-St Martins, 1 in Clifford, 2 in St-Mary’s, 1 in Stretford and 1 in Village ward were amongst the 10% most deprived LSOAs in England in 2019.
+2 LSOAs in Bucklow-St Martins, 1 in Clifford, 2 in St Mary’s, 1 in Stretford and 1 in Village ward were amongst the 10% most deprived LSOAs in England in 2019.
 
 <br />
 <h4 style="text-align: center;">Index of Multiple Deprivation 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 imd_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Index of Multiple Deprivation"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -205,7 +221,7 @@ imd_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = imd_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Index of Multiple Deprivation"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
@@ -226,6 +242,8 @@ left_join(trafford_lsoa,
 ***
 
 ## Income
+The Income domain measures the proportion of the population experiencing deprivation relating to low income, including those people-out-of-work, and those who have low earnings.      
+
 Trafford is ranked 166 out of 317 local authorities in England on the average 2019 Income domain score. This represents a fall (-3) from 169 in 2015.
 
 <br />
@@ -283,10 +301,14 @@ change_plot(data = income_decile)
 <h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
 <br />
 
+2 LSOAs in Bucklow-St Martins, 2 in St Mary's, 3 in Clifford, 1 in Stretford, 1 in Village and 1 in Sale Moor ward were amongst the 10% most deprived LSOAs on the Income domain in England in 2019. 5 LSOAs sit within the 5% most deprived LSOAs nationally.
+
+Trafford 017E in	Bucklow-St Martins ward 487 out of 32,844 LSOAs nationally with 39.1% of residents experiencing deprivation relating to low income, including those people-out-of-work, and those who have low earnings.     
+
 <br />
-<p class="caption">Income domain 2019, LSOAs in Trafford</p>
+<h4 style="text-align: center;">Income domain 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 income_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Income"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -294,14 +316,15 @@ income_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = income_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Income"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Income"), lsoa11cd, decile, rank, score), by = "lsoa11cd") %>% 
   filter(decile == 1) %>%  
   arrange(rank) %>% 
-  select(LSOA = lsoa11nm, Ward = wd18nm, Decile = decile, Rank = rank) %>% 
-  mutate(Rank = comma(Rank)) %>% 
+  select(LSOA = lsoa11nm, Ward = wd18nm, Decile = decile, Rank = rank, Score = score) %>% 
+  mutate(Rank = comma(Rank),
+         Score = percent(Score, accuracy = 0.1)) %>% 
   st_set_geometry(NULL) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -315,6 +338,8 @@ left_join(trafford_lsoa,
 ***
 
 ## Employment
+The Employment domain measures the proportion of the working age population in an area involuntarily excluded from the labour market.      
+
 Trafford is ranked 155 out of 317 local authorities in England on the average 2019 Employment domain score. This represents a rise (+5) from 150 in 2015.
 
 <br />
@@ -372,10 +397,14 @@ change_plot(data = employment_decile, y_scale_range = c(0,40))
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+1 LSOA in Clifford, 2 in Bucklow-St Martins, 2 in St Mary's, 1 in Village, 1 in Stretford, and 1 in Sale Moor Ward were amongst the 10% most deprived LSOAs on the Employment domain in England in 2019. 3 LSOAs sit within the 5% most deprived LSOAs nationally.
+
+Trafford 001A	in Clifford ward ranks 572 out of 32,844 LSOAs nationally with 28.9% of working-age residents involuntarily excluded from the labour market.
+
 <br />
 <h4 style="text-align: center;">Employment domain 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 employment_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Employment"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -383,14 +412,15 @@ employment_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = employment_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Employment"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Employment"), lsoa11cd, decile, rank, score), by = "lsoa11cd") %>% 
   filter(decile == 1) %>%  
   arrange(rank) %>% 
-  select(LSOA = lsoa11nm, Ward = wd18nm, Decile = decile, Rank = rank) %>% 
-  mutate(Rank = comma(Rank)) %>% 
+  select(LSOA = lsoa11nm, Ward = wd18nm, Decile = decile, Rank = rank, Score = score) %>% 
+  mutate(Rank = comma(Rank),
+         Score = percent(Score, accuracy = 0.1)) %>% 
   st_set_geometry(NULL) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -404,6 +434,8 @@ left_join(trafford_lsoa,
 ***
 
 ## Education, Skills and Training
+The Education, Skills and Training domain measures the lack of attainment and skills in the local population.    
+
 Trafford is ranked 275 out of 317 local authorities in England on the average 2019 Education, Skills and Training domain score. This represents a rise (+1) from 274 in 2015.
 
 <br />
@@ -463,10 +495,12 @@ change_plot(data = education_decile, y_scale_range = c(0,35))
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+2 LSOAs in Bucklow-St Martins ward were amongst the 10% most deprived LSOAs on the Education, Skills and Training domain in England in 2019. 1 LSOA sits within the 5% most deprived LSOAs nationally.
+
 <br />
 <h4 style="text-align: center;">Education, Skills and Training domain 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 education_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Education, Skills and Training"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -474,7 +508,7 @@ education_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = education_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Education, Skills and Training"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
@@ -495,6 +529,8 @@ left_join(trafford_lsoa,
 ***
 
 ## Health and Disability
+The Health and Disability domain measures the risk of premature death and the impairment of quality of life through poor physical or mental health.     
+
 Trafford is ranked 147 out of 317 local authorities in England on the average 2019 Health and Disability domain score. This represents a rise (+20) from 127 in 2015.
 
 <br />
@@ -554,10 +590,12 @@ change_plot(data = health_decile, y_scale_range = c(0,75))
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+3 LSOAs in Bucklow-St Martins, 2 in St Mary's, 1 in Stretford and 1 in Clifford ward were amongst the 10% most deprived LSOAs on the Health and Disability domain in England in 2019. 2 LSOAs sit within the 5% most deprived LSOAs nationally.
+
 <br />
 <h4 style="text-align: center;">Health and Disability domain 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 health_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Health and Disability"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -565,7 +603,7 @@ health_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = health_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Health and Disability"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
@@ -586,6 +624,8 @@ left_join(trafford_lsoa,
 ***
 
 ## Crime
+The Crime domain measures the risk of personal and material victimisation at a local level.      
+
 Trafford is ranked 138 out of 317 local authorities in England on the average 2019 Crime domain score. This represents a fall (-66) from 204 in 2015.
 
 <br />
@@ -645,10 +685,12 @@ change_plot(data = crime_decile, y_scale_range = c(0,70))
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+1 LSOA in Stretford and 2 in Bucklow-St Martins ward were amongst the 10% most deprived LSOAs on the Crime domain in England in 2019. 1 LSOA sits within the 5% most deprived LSOAs nationally.
+
 <br />
 <h4 style="text-align: center;">Crime domain 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 crime_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Crime"), lsoa11cd, index_domain, decile), by = "lsoa11cd")
@@ -656,7 +698,7 @@ crime_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = crime_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Crime"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
@@ -677,6 +719,8 @@ left_join(trafford_lsoa,
 ***
 
 ## Barriers to Housing and Services
+The Barriers to Housing and Services domain measures the physical and financial accessibility of housing and local services.     
+
 Trafford is ranked 289 out of 317 local authorities in England on the average 2019 Barriers to Housing and Services domain score. This represents a fall (-3) from 292 in 2015.
 
 <br />
@@ -736,10 +780,12 @@ change_plot(data = housing_decile, y_scale_range = c(0,10))
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+1 LSOA in Bowdon ward was amongst the 10% most deprived LSOAs on the Barriers to Housing and Services domain in England in 2019.
+
 <br />
 <h4 style="text-align: center;">Barriers to Housing and Services domain 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 housing_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Barriers to Housing and Services"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -747,7 +793,7 @@ housing_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = housing_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Barriers to Housing and Services"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
@@ -768,6 +814,8 @@ left_join(trafford_lsoa,
 ***
 
 ## Living Environment
+The Living Environment domain measures the quality of the local environment. This includes an ‘indoors’ (quality of housing) and an ‘outdoors’ (air quality and road traffic accidents) subdomain.
+
 Trafford is ranked 131 out of 317 local authorities in England on the average 2019 Living Environment domain score. This represents a fall (-35) from 166 in 2015.
 
 <br />
@@ -825,10 +873,12 @@ change_plot(data = environment_decile, y_scale_range = c(0,25))
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+1 LSOA in Urmston, 1 in Gorse Hill, in in Broadheath and 1 in Brooklands ward  were amongst the 10% most deprived LSOAs on the Living Environment domain in England in 2019.    
+
 <br />
 <h4 style="text-align: center;">Living Environment domain 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 environment_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Living Environment"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -836,7 +886,7 @@ environment_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = environment_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Living Environment"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
@@ -857,7 +907,11 @@ left_join(trafford_lsoa,
 ***
 
 ## Income Deprivation Affecting Children
-Trafford is ranked 214 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Children Index score. This represents an increase (+18) from 196 in 2015.
+The Income Deprivation Affecting Children sub-domain measures the proportion of all children aged 0 to 15 living in income deprived families.   
+
+Trafford is ranked 214 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Children Index score. This represents an increase (+18) from 196 in 2015. 1 LSOA sits within the 5% most deprived LSOAs nationally.
+
+Trafford 017E	in Bucklow-St Martins	ward ranks 805 out of 32,844 LSOAs nationally with 44.1% of children aged 0 to 15 living in income deprived families.     
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average IDACI score</h4>
@@ -914,10 +968,12 @@ change_plot(data = idaci_decile) %+% scale_y_continuous(limits = c(0, 45))
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+2 LSOAs in Bucklow-St Martins, 1 in St Mary's, 1 in Sale Moor and 1 in Clifford ward were amongst the 10% most deprived LSOAs on the Income Deprivation Affecting Children sub-domain in England in 2019.
+
 <br />
 <h4 style="text-align: center;">IDACI 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 idaci_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Children"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -925,14 +981,15 @@ idaci_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = idaci_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Children"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Children"), lsoa11cd, decile, rank, score), by = "lsoa11cd") %>% 
   filter(decile == 1) %>%  
   arrange(rank) %>% 
-  select(LSOA = lsoa11nm, Ward = wd18nm, Decile = decile, Rank = rank) %>% 
-  mutate(Rank = comma(Rank)) %>% 
+  select(LSOA = lsoa11nm, Ward = wd18nm, Decile = decile, Rank = rank, Score = score) %>% 
+  mutate(Rank = comma(Rank),
+         Score = percent(Score, accuracy = 0.1)) %>% 
   st_set_geometry(NULL) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
@@ -946,6 +1003,8 @@ left_join(trafford_lsoa,
 ***
 
 ## Income Deprivation Affecting Older People	
+The Income Deprivation Affecting Older People sub-domain measures the proportion of all those aged 60 or over who experience income deprivation.     
+
 Trafford is ranked 134 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Older People Index score. This represents an fall (-2) from 136 in 2015.
 
 <br />
@@ -1003,10 +1062,14 @@ change_plot(data = idaopi_decile, y_scale_range = c(0,60))
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
+6 LSOAs in Clifford, 2 in Longford, 1 in St Mary's and 1 in Stretford ward were amongst the 10% most deprived LSOAs on the Income Deprivation Affecting Older People sub-domain in England in 2019. 4 LSOAs sit within the 5% most deprived LSOAs nationally.
+
+Trafford 001D	in Clifford	ward ranks 298 out of 32,844 LSOAs nationally with 56.8% of all those aged 60 or over experiencing income deprivation.          
+
 <br />
 <h4 style="text-align: center;">IDAOPI 2019, LSOAs in Trafford</h4>
 <div class = "row">
-<div class = "col-md-7">
+<div class = "col-md-6">
 ```{r fig.height=8}
 idaopi_lsoas <- left_join(trafford_lsoa, 
           select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Older People"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
@@ -1014,14 +1077,15 @@ idaopi_lsoas <- left_join(trafford_lsoa,
 choropleth_map(data = idaopi_lsoas)
 ```
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 ```{r}
 left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Older People"), lsoa11cd, decile, rank), by = "lsoa11cd") %>% 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Older People"), lsoa11cd, decile, rank, score), by = "lsoa11cd") %>% 
   filter(decile == 1) %>%  
   arrange(rank) %>% 
-  select(LSOA = lsoa11nm, Ward = wd18nm, Decile = decile, Rank = rank) %>% 
-  mutate(Rank = comma(Rank)) %>% 
+  select(LSOA = lsoa11nm, Ward = wd18nm, Decile = decile, Rank = rank, Score = score) %>% 
+  mutate(Rank = comma(Rank),
+         Score = percent(Score, accuracy = 0.1)) %>% 
   st_set_geometry(NULL) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
