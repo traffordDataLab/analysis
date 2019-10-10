@@ -10,6 +10,18 @@ output:
     df_print: paged
 ---
 
+Last updated: 10 October 2019      
+
+<style>
+
+p.caption {
+ font-size: 0.75em;
+ text-align: right; 
+ color: #7f7f7f;
+}
+
+</style>
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
@@ -94,16 +106,6 @@ choropleth_map <- function(data){
                              keywidth = unit(5, units = "mm")))
 }
 ```
-
-<style>
-
-p.caption {
- font-size: 0.75em;
- text-align: right; 
- color: #7f7f7f;
-}
-
-</style>
 
 This report explores the [2019 English Indices of Deprivation](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019) for Trafford. It compares Trafford with other local authorities in Greater Manchester using the rank of average score, tracks relative change in ranking between 2015 and 2019, indicates the percentage of LSOAs in the most deprived decile, and identifies the most deprived small areas.
 
