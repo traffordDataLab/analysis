@@ -20,7 +20,90 @@ trafford_IoD <- read_csv("data/trafford_IoD.csv")
 IoD_local_authority <- read_csv("data/IoD_local_authority.csv")
 trafford_lsoa <- st_read("data/trafford_lsoa.geojson", quiet = TRUE)
 trafford_wards <- st_read("data/trafford_wards.geojson", quiet = TRUE)
+
+# dumbbell plot
+dumbbell_plot <- function(data){
+  ggplot() +
+  geom_segment(
+    data = gather(data, year, rank, -`Local authority`) %>% 
+      group_by(`Local authority`) %>% 
+      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
+      ungroup(),
+    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
+    color = "#e3e2e1", size = 2) +
+  geom_point(
+    data = gather(data, year, rank, -`Local authority`),
+    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
+    size = 4) +
+  scale_x_continuous(expand = c(0.005, 0.005), 
+                     limits = c(0, 317),
+                     breaks = c(1, 100, 200, 300)) +
+  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
+                     labels = c("2015", "2019")) +
+  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
+  theme_lab() +
+  theme(panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0),
+        legend.position = c(0.5,1),
+        legend.text = element_text(size = 10)) +
+  guides(color = guide_legend(nrow = 1))
+}
+
+# change plot
+change_plot <- function(data, y_scale_range = c(0,50)){
+  ggplot(data = data, aes(x = year)) +
+  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
+  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
+  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
+  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
+  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
+  scale_x_continuous(breaks = unique(data$year), expand = c(0.26, 0)) +
+  scale_y_continuous(expand = c(0.005, 0.005), limits = y_scale_range) +
+  facet_wrap(facets = ~`Local authority`, nrow = 2) +
+  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
+  theme_lab() +
+  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
+  theme(panel.grid.major.y = element_blank(),
+        panel.spacing = unit(1, "lines"),
+        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+}
+
+# chorolpleth map
+choropleth_map <- function(data){
+  ggplot(data) +
+  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
+  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
+  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
+  scale_fill_manual(breaks = 1:10,
+                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
+                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
+  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
+       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
+       fill = "") +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+  theme(legend.position = "bottom",
+        plot.caption = element_text(hjust = 0)) +
+  guides(fill = guide_legend(label.position = "bottom", 
+                             label.hjust = 0,
+                             direction = "horizontal",
+                             nrow = 1,
+                             keyheight = unit(2, units = "mm"), 
+                             keywidth = unit(5, units = "mm")))
+}
 ```
+
+<style>
+
+p.caption {
+ font-size: 0.75em;
+ text-align: right; 
+ color: #7f7f7f;
+}
+
+</style>
 
 This report explores the English Indices of Deprivation 2019 for Trafford. It compares Trafford with other local authorities in Greater Manchester using the  the rank of average score, tracks relative change in ranking between 2015 and 2019, assesses the percentage of LSOAs in the most deprived decile, and identifies the most deprived small areas.
 
@@ -59,36 +142,11 @@ Trafford is ranked 191 out of 317 local authority districts in England on the av
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation") %>% 
-  select(`Local authority` = lad19nm,
-         rank_average_score,
-         year) %>%
+imd_rank <- filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation") %>% 
+  select(`Local authority` = lad19nm, rank_average_score, year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = imd_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -99,13 +157,14 @@ filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation") %>%
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 The proportion of Trafford's LSOAs ranked in the 1st decile or 10% most deprived in England was 5.1% (7 out of 138) in 2019. This represents a relative increase on 2015 when 2.9% (4 out of 138) of LSOAs were ranked within the 1st decile. However, the proportion of LSOAs in Trafford in the bottom decile is much lower than other Greater Manchester local authorities.
@@ -113,7 +172,7 @@ The proportion of Trafford's LSOAs ranked in the 1st decile or 10% most deprived
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of IMD</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation") %>% 
+imd_decile <- filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -128,23 +187,7 @@ df <- filter(IoD_local_authority, index_domain == "Index of Multiple Deprivation
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = imd_decile)
 ```
 <h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
 <br />
@@ -156,28 +199,10 @@ The map below shows that 2 LSOAs in Bucklow-St Martins, 1 in Clifford, 2 in St-M
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Index of Multiple Deprivation"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+imd_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Index of Multiple Deprivation"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = imd_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -195,7 +220,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -208,36 +233,11 @@ Trafford is ranked 166 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Income") %>% 
-  select(`Local authority` = lad19nm,
-         rank_average_score,
-         year) %>%
+income_rank <- filter(IoD_local_authority, index_domain == "Income") %>% 
+  select(`Local authority` = lad19nm, rank_average_score, year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = income_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -248,19 +248,20 @@ filter(IoD_local_authority, index_domain == "Income") %>%
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Income domain</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Income") %>% 
+income_decile <- filter(IoD_local_authority, index_domain == "Income") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -275,54 +276,20 @@ df <- filter(IoD_local_authority, index_domain == "Income") %>%
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = income_decile)
 ```
 <h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
 <br />
 
 <br />
-<h4 style="text-align: center;">Income domain 2019, LSOAs in Trafford</h4>
+<p class="caption">Income domain 2019, LSOAs in Trafford</p>
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Income"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+income_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Income"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = income_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -340,7 +307,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -353,36 +320,11 @@ Trafford is ranked 155 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Employment") %>% 
-  select(`Local authority` = lad19nm,
-         rank_average_score,
-         year) %>%
+employment_rank <- filter(IoD_local_authority, index_domain == "Employment") %>% 
+  select(`Local authority` = lad19nm, rank_average_score, year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = employment_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -393,19 +335,20 @@ filter(IoD_local_authority, index_domain == "Employment") %>%
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Employment domain</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Employment") %>% 
+employment_decile <- filter(IoD_local_authority, index_domain == "Employment") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -420,25 +363,9 @@ df <- filter(IoD_local_authority, index_domain == "Employment") %>%
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = employment_decile, y_scale_range = c(0,40))
 ```
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
@@ -446,28 +373,10 @@ ggplot(data = df, aes(x = year)) +
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Employment"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+employment_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Employment"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = employment_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -485,7 +394,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -498,36 +407,13 @@ Trafford is ranked 275 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>% 
+education_rank <- filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>% 
   select(`Local authority` = lad19nm,
          rank_average_score,
          year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = education_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -538,19 +424,20 @@ filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Education, Skills and Training domain</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>% 
+education_decile <- filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -565,25 +452,9 @@ df <- filter(IoD_local_authority, index_domain == "Education, Skills and Trainin
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = education_decile, y_scale_range = c(0,35))
 ```
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
@@ -591,28 +462,10 @@ ggplot(data = df, aes(x = year)) +
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Education, Skills and Training"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+education_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Education, Skills and Training"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = education_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -630,7 +483,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -643,36 +496,13 @@ Trafford is ranked 147 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Health and Disability") %>% 
+health_rank <- filter(IoD_local_authority, index_domain == "Health and Disability") %>% 
   select(`Local authority` = lad19nm,
          rank_average_score,
          year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = health_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -683,19 +513,20 @@ filter(IoD_local_authority, index_domain == "Health and Disability") %>%
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Health and Disability domain</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Health and Disability") %>% 
+health_decile <- filter(IoD_local_authority, index_domain == "Health and Disability") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -710,25 +541,9 @@ df <- filter(IoD_local_authority, index_domain == "Health and Disability") %>%
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = health_decile, y_scale_range = c(0,75))
 ```
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
@@ -736,28 +551,10 @@ ggplot(data = df, aes(x = year)) +
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Health and Disability"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+health_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Health and Disability"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = health_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -775,7 +572,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -788,36 +585,13 @@ Trafford is ranked 138 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Crime") %>% 
+crime_rank <- filter(IoD_local_authority, index_domain == "Crime") %>% 
   select(`Local authority` = lad19nm,
          rank_average_score,
          year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = crime_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -828,19 +602,20 @@ filter(IoD_local_authority, index_domain == "Crime") %>%
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Crime domain</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Crime") %>% 
+crime_decile <- filter(IoD_local_authority, index_domain == "Crime") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -855,25 +630,9 @@ df <- filter(IoD_local_authority, index_domain == "Crime") %>%
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 70)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = crime_decile, y_scale_range = c(0,70))
 ```
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
@@ -881,28 +640,10 @@ ggplot(data = df, aes(x = year)) +
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Crime"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+crime_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Crime"), lsoa11cd, index_domain, decile), by = "lsoa11cd")
+
+choropleth_map(data = crime_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -920,7 +661,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -933,36 +674,13 @@ Trafford is ranked 289 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") %>% 
+housing_rank <- filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") %>% 
   select(`Local authority` = lad19nm,
          rank_average_score,
          year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = housing_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -973,19 +691,20 @@ filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") 
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Barriers to Housing and Services domain</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") %>% 
+housing_decile <- filter(IoD_local_authority, index_domain == "Barriers to Housing and Services") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -1000,25 +719,9 @@ df <- filter(IoD_local_authority, index_domain == "Barriers to Housing and Servi
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = housing_decile, y_scale_range = c(0,10))
 ```
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
@@ -1026,28 +729,10 @@ ggplot(data = df, aes(x = year)) +
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Barriers to Housing and Services"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+housing_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Barriers to Housing and Services"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = housing_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -1065,7 +750,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -1078,36 +763,11 @@ Trafford is ranked 131 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Living Environment") %>% 
-  select(`Local authority` = lad19nm,
-         rank_average_score,
-         year) %>%
+environment_rank <- filter(IoD_local_authority, index_domain == "Living Environment") %>% 
+  select(`Local authority` = lad19nm, rank_average_score, year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = environment_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -1118,6 +778,7 @@ filter(IoD_local_authority, index_domain == "Living Environment") %>%
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
@@ -1130,7 +791,7 @@ filter(IoD_local_authority, index_domain == "Living Environment") %>%
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Living Environment domain</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Living Environment") %>% 
+environment_decile <- filter(IoD_local_authority, index_domain == "Living Environment") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -1145,25 +806,9 @@ df <- filter(IoD_local_authority, index_domain == "Living Environment") %>%
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = environment_decile, y_scale_range = c(0,25))
 ```
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
@@ -1171,28 +816,10 @@ ggplot(data = df, aes(x = year)) +
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Living Environment"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+environment_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Living Environment"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = environment_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -1210,7 +837,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -1223,36 +850,11 @@ Trafford is ranked 214 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Children") %>% 
-  select(`Local authority` = lad19nm,
-         rank_average_score,
-         year) %>%
+idaci_rank <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Children") %>% 
+  select(`Local authority` = lad19nm, rank_average_score, year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = idaci_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -1263,19 +865,20 @@ filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Childr
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of IDACI</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Children") %>% 
+idaci_decile <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Children") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -1290,25 +893,9 @@ df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting 
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = idaci_decile) %+% scale_y_continuous(limits = c(0, 45))
 ```
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
@@ -1316,28 +903,10 @@ ggplot(data = df, aes(x = year)) +
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Children"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+idaci_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Children"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = idaci_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -1355,7 +924,7 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
 
 ***
@@ -1368,36 +937,11 @@ Trafford is ranked 134 out of 317 local authorities in England on the average 20
 <div class = "row">
 <div class = "col-md-8">
 ```{r warning = FALSE, echo = FALSE}
-df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older People") %>% 
-  select(`Local authority` = lad19nm,
-         rank_average_score,
-         year) %>%
+idaopi_rank <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older People") %>% 
+  select(`Local authority` = lad19nm, rank_average_score, year) %>%
   spread(year, rank_average_score)
 
-ggplot() +
-  geom_segment(
-    data = gather(df, year, rank, -`Local authority`) %>% 
-      group_by(`Local authority`) %>% 
-      summarise(start = range(rank)[1], end = range(rank)[2]) %>% 
-      ungroup(),
-    aes(x = start, xend = end, y = fct_reorder(`Local authority`, end, .desc = TRUE), yend = `Local authority`), 
-    color = "#e3e2e1", size = 2) +
-  geom_point(
-    data = gather(df, year, rank, -`Local authority`),
-    aes(x = rank, y = fct_reorder(`Local authority`, rank, .desc = TRUE), color = year), 
-    size = 4) +
-  scale_x_continuous(expand = c(0.005, 0.005), 
-                     limits = c(0, 317),
-                     breaks = c(1, 100, 200, 300)) +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4"), 
-                     labels = c("2015", "2019")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, colour = NULL) +
-  theme_lab() +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0),
-        legend.position = c(0.5,1),
-        legend.text = element_text(size = 10)) +
-  guides(color = guide_legend(nrow = 1))
+dumbbell_plot(data = idaopi_rank)
 ```
 </div>
 <div class = "col-md-4">
@@ -1408,19 +952,20 @@ filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older 
          year) %>%
   spread(year, rank_average_score) %>% 
   mutate(Change = `2019`-`2015`) %>% 
+  arrange(`2019`) %>% 
   kable() %>% 
   kable_styling(font_size = 12) %>%
   row_spec(0, bold = T, color = "#757575")
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of IDAOPI</h4>
 ```{r fig.align='center'}
-df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older People") %>% 
+idaopi_decile <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Older People") %>% 
   select(`Local authority` = lad19nm,
          percent_bottom_decile,
          year) %>% 
@@ -1435,25 +980,9 @@ df <- filter(IoD_local_authority, index_domain == "Income Deprivation Affecting 
          percent_bottom_decile = percent_bottom_decile*100) %>% 
   select(`Local authority`, year, percent_bottom_decile, change, status)
 
-ggplot(data = df, aes(x = year)) +
-  geom_ribbon(aes(ymin = 0, ymax = percent_bottom_decile, fill =  factor(status))) +
-  geom_point(aes(y = percent_bottom_decile), fill = "#212121", colour = "#FFFFFF", pch = 21, size = 3) +
-  geom_text(aes(label = sprintf('%0.1f%%', percent_bottom_decile), y = percent_bottom_decile), vjust = -1, size = 3) +
-  geom_text(aes(label = sprintf('%+0.1f%%', change)), x = 2017, y = 0, vjust = -1, fontface = 'bold', size = 3) +
-  scale_fill_manual(values = c('Increase' = '#ff6961', 'Decrease' = "#77dd77", 'No change' = '#ffe662')) +
-  scale_x_continuous(breaks = unique(df$year), expand = c(0.26, 0)) +
-  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 50)) +
-  facet_wrap(facets = ~`Local authority`, nrow = 2) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, caption = NULL, fill = NULL) +
-  theme_lab() +
-  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.spacing = unit(1, "lines"),
-        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 1),
-        axis.text.y = element_blank(),
-        legend.position = "none")
+change_plot(data = idaopi_decile, y_scale_range = c(0,60))
 ```
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation, MHCLG</h6>
+<p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
 <br />
@@ -1461,28 +990,10 @@ ggplot(data = df, aes(x = year)) +
 <div class = "row">
 <div class = "col-md-7">
 ```{r fig.height=8}
-left_join(trafford_lsoa, 
-          select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Older People"), lsoa11cd, index_domain, decile), by = "lsoa11cd")  %>% 
-  ggplot() +
-  geom_sf(aes(fill = factor(decile)), colour = "#FFFFFF", size = 0.25) +
-  geom_sf(data = trafford_wards, fill = NA, alpha = 1, colour = "#000000",  size = 0.8) +
-  # geom_shadowtext(data = trafford_wards, aes(x = lon, y = lat, label = wd18nm), colour = "#FFFFFF", fontface = "bold", size = 3, bg.colour = "#212121", nudge_y = 0.002) +
-  scale_fill_manual(breaks = 1:10,
-                    values = c("#453B52", "#454F69", "#3F657E", "#317B8D", "#239296", "#26A898", "#43BD93", "#6AD189", "#98E37D", "#CAF270"),
-                    labels = c("Most\ndeprived", 2:9, "Least\ndeprived")) +
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL, 
-       caption = "Contains Ordnance Survey data © Crown copyright and database right 2019", 
-       fill = "") +
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  theme_lab() +
-  theme(legend.position = "bottom",
-        plot.caption = element_text(hjust = 0)) +
-  guides(fill = guide_legend(label.position = "bottom", 
-                             label.hjust = 0,
-                             direction = "horizontal",
-                             nrow = 1,
-                             keyheight = unit(2, units = "mm"), 
-                             keywidth = unit(5, units = "mm")))
+idaopi_lsoas <- left_join(trafford_lsoa, 
+          select(filter(trafford_IoD, year == 2019, index_domain == "Income Deprivation Affecting Older People"), lsoa11cd, index_domain, decile), by = "lsoa11cd") 
+
+choropleth_map(data = idaopi_lsoas)
 ```
 </div>
 <div class = "col-md-5">
@@ -1500,5 +1011,5 @@ left_join(trafford_lsoa,
 ```
 </div>
 </div>
-<h6 style="text-align: right; color: #7f7f7f;">Source: English Indices of Deprivation (2019), MHCLG.</h6>
+<p class="caption">Source: English Indices of Deprivation (2019), MHCLG.</p>
 <br />
