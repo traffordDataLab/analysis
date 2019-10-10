@@ -1,5 +1,5 @@
 ---
-title: "Indices of Deprivation 2019"
+title: "Relative deprivation in Trafford"
 output:
   html_document:
     theme: flatly
@@ -105,7 +105,7 @@ p.caption {
 
 </style>
 
-This report explores the English Indices of Deprivation 2019 for Trafford. It compares Trafford with other local authorities in Greater Manchester using the rank of average score, tracks relative change in ranking between 2015 and 2019, indicates the percentage of LSOAs in the most deprived decile, and identifies the most deprived small areas.
+This report explores the [2019 English Indices of Deprivation](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019) for Trafford. It compares Trafford with other local authorities in Greater Manchester using the rank of average score, tracks relative change in ranking between 2015 and 2019, indicates the percentage of LSOAs in the most deprived decile, and identifies the most deprived small areas.
 
 ## Key findings
 
