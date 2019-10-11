@@ -215,6 +215,8 @@ The definition of low income used includes both those people that are out-of-wor
 * Adults and children in Universal Credit families where no adult is in 'Working - requirements' conditionality regime
 * Asylum seekers in England in receipt of subsistence support, accommodation support, or both
 
+This domain has a weighting of 22.5% when combined with the others to form the Index of Multiple Deprivation 2019.
+
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Income</h4>
 ```{r barcode_income, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income")
@@ -231,6 +233,8 @@ This domain measures the proportion of working age population who are involuntar
 * Claimants of Severe Disablement Allowance, women aged 18 to 59 and men aged 18 to 64
 * Claimants of Carer's Allowance, women aged 18 to 59 and men aged 18 to 64
 * Claimants of Universal Credit in the 'Searching for work' and 'No work requirements' conditionality groups
+
+This domain has a weighting of 22.5% when combined with the others to form the Index of Multiple Deprivation 2019.
 
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Employment</h4>
 ```{r barcode_employment, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
@@ -253,6 +257,8 @@ The Adult Skills sub-domain is a non-overlapping count of the following two indi
 * The proportion of working age adults with no or low qualifications (women aged 25 to 59 and men aged 25 to 64)
 * The proportion of working adults who cannot speak English or cannot speak English well (women aged 25 to 59 and men aged 25 to 64)
 
+This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2019.
+
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Education</h4>
 ```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Education")
@@ -268,6 +274,8 @@ Measuring the risk of premature death and the impairment of quality of life thro
 * Acute morbidity
 * Mood and anxiety disorders
 
+This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2019.
+
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Health</h4>
 ```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Health")
@@ -282,6 +290,8 @@ This domain measures the rate of recorded crimes per 1,000 at risk population fo
 * Burglary: number of recorded burglaries (4 recorded crime types)
 * Theft: number of recorded thefts (5 recorded crime types)
 * Criminal damage: number of recorded crimes (8 recorded crime types)
+
+This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
 
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Crime</h4>
 ```{r barcode_crime, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
@@ -304,6 +314,8 @@ Wider Barriers takes into account the following:
 * Homelessness
 * Housing affordability
 
+This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
+
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Barriers to Housing & Services</h4>
 ```{r barcode_barriers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Barriers to Housing and Services")
@@ -323,6 +335,8 @@ Outdoors sub-domain:
 
 * Air quality: A measure of air quality based on emissions rates for four pollutants
 * Road traffic accidents involving injury to pedestrians and cyclists: A measure of road traffic accidents involving injury to pedestrians and cyclists among the resident and workplace population
+
+This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
 
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Living Environment</h4>
 ```{r barcode_living, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
