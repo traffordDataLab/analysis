@@ -45,6 +45,7 @@ barcode_plot <- function (domain) {
                colour = chart_highlight, size = 0.25, alpha = 1) +
   geom_point(data = filter(df_iod_trafford, lsoa11cd %in% lsoas_ward, index_domain == domain),
                aes(x = rank, y = 1.1), pch = 6, colour = chart_highlight, size = 0.25) +
+  geom_point(aes(x = c(0, 32844), y = -0.05), pch = 15, colour = "#bdbdbd", size = 1) +
   scale_x_continuous(limits = c(0, 32844), expand = c(0.005, 0.005), 
                      breaks = c(3284, 6569, 9853, 13138, 16422, 19706, 22991, 26275, 29560, 32844),
                      labels = c(1:10)) +
