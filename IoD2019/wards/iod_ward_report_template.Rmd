@@ -89,7 +89,7 @@ lsoas_ward <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa
 # Get the spatial data for the LSOAs within our chosen ward
 sf_lsoas_ward <- st_read("https://www.trafforddatalab.io/spatial_data/lsoa/2011/trafford_lsoa_generalised.geojson") %>%
   filter(area_code %in% lsoas_ward) %>%
-  # Create new variables for the lon & lat coordinates of the centroids of the LSOA
+  # Create new variables for the lon & lat coordinates of the centroids of the LSOAs
   mutate(lon = map_dbl(geometry, ~st_centroid(.x)[[1]]),
          lat = map_dbl(geometry, ~st_centroid(.x)[[2]]))
 
@@ -180,11 +180,18 @@ ggplot() +
   geom_sf(data = sf_ward, fill = NA, alpha = 0.5, colour = "#2C3E50", size = 1.5) +
   # Add the LSOA boundaries
   geom_sf(data = sf_lsoas_ward, fill = NA, alpha = 1, colour = "#18BC9E", size = 0.6) +
+  # Add a point to the centroids
+  geom_sf(data = sf_lsoas_ward %>% # pipe the dataset into the data attribute
+            st_drop_geometry() %>% # remove the current geometry...
+            select(lon, lat) %>%   # ...and all other fields except lon and lat and then...
+            st_as_sf(coords = c("lon", "lat")) %>% # ...create a new geometry from them
+            st_set_crs(4326), # set the correct coordinate reference system
+          colour = "#18BC9E", fill = "#ffffff", shape = 21, size = 1, stroke = 0.5) +
   # Add the LSOA names to the centroids
   geom_text_repel(data = sf_lsoas_ward, aes(x = lon, y = lat, label = area_name), colour = "#2C3E50", size = 3, fontface = "bold") +
   # Remove all other plot labels
   labs(x = NULL, y = NULL, title = NULL, subtitle = NULL) +
-  # Set the coordinate projection system
+  # Set the coordinate reference system
   coord_sf(crs = st_crs(4326), datum = NA) +
   # Apply the themes
   theme_void(base_family = "Open Sans") +
@@ -192,7 +199,6 @@ ggplot() +
   theme(legend.position = "none",
         panel.background = element_blank(),
         axis.text = element_blank())
-
 ```
 
 ```{r lsoa_table, echo=FALSE, message=FALSE, warning=FALSE}
