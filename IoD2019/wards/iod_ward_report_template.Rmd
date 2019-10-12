@@ -172,10 +172,10 @@ A further 2 supplementary indices of income deprivation are also provided:
 #### Relationship between LSOAs and electoral wards
 Ward boundaries and LSOA boundaries do not always perfectly align and so it is impossible to aggregate from LSOA to ward exactly. Instead a 'best-fit' methodology is used by the [Office for National Statistics (ONS)](http://geoportal.statistics.gov.uk/datasets/500d4283cbe54e3fa7f358399ba3783e_0) to assign LSOAs to the most appropriate ward. This may mean that some parts of the LSOAs discussed within this report fall outside of the ward boundary and some areas within the boundary are not covered as they have been assigned to another ward. Using this method, the ward of `r params$ward_name` encompasses the following `r length(lsoas_ward)` LSOAs:
 
-```{r lsoa_map,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.align="center", fig.cap="Contains Ordnance Survey data © Crown copyright and database right 2019"}
+```{r lsoa_map,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.align="center", fig.cap="© CARTO. Contains Ordnance Survey data © Crown copyright and database right 2019"}
 ggplot() +
   # Add map tiles in background
-  annotation_map_tile(type = "cartolight") +
+  annotation_map_tile(type = "cartodark") +
   # Add the ward boundary
   geom_sf(data = sf_ward, fill = NA, alpha = 0.5, colour = "#2C3E50", size = 1.5) +
   # Add the LSOA boundaries
@@ -188,7 +188,7 @@ ggplot() +
             st_set_crs(4326), # set the correct coordinate reference system
           colour = "#18BC9E", fill = "#ffffff", shape = 21, size = 1, stroke = 0.5) +
   # Add the LSOA names to the centroids
-  geom_text_repel(data = sf_lsoas_ward, aes(x = lon, y = lat, label = area_name), colour = "#2C3E50", size = 3, fontface = "bold") +
+  geom_text_repel(data = sf_lsoas_ward, aes(x = lon, y = lat, label = area_name), colour = "#FFFFFF", size = 3, fontface = "bold") +
   # Remove all other plot labels
   labs(x = NULL, y = NULL, title = NULL, subtitle = NULL) +
   # Set the coordinate reference system
