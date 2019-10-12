@@ -23,7 +23,7 @@ params:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE)
 
 # Load the required libraries
-library(tidyverse) ; library(ggplot2) ; library(ggspatial) ; library(ggthemes) ; library(sf) ; library(kableExtra) ; library(english) ; library(janitor) ; library(scales)
+library(tidyverse) ; library(ggplot2) ; library(ggspatial) ; library(ggthemes) ; library(ggrepel) ; library(sf) ; library(kableExtra) ; library(english) ; library(janitor) ; library(scales)
 
 
 # Load in the ggplot2 Lab theme
@@ -88,7 +88,11 @@ lsoas_ward <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa
 
 # Get the spatial data for the LSOAs within our chosen ward
 sf_lsoas_ward <- st_read("https://www.trafforddatalab.io/spatial_data/lsoa/2011/trafford_lsoa_generalised.geojson") %>%
-  filter(area_code %in% lsoas_ward)
+  filter(area_code %in% lsoas_ward) %>%
+  # Create new variables for the lon & lat coordinates of the centroids of the LSOA
+  mutate(lon = map_dbl(geometry, ~st_centroid(.x)[[1]]),
+         lat = map_dbl(geometry, ~st_centroid(.x)[[2]]))
+
 
 # Get the spatial data for the boundary of our chosen ward
 sf_ward <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2017/trafford_ward_generalised.geojson") %>%
@@ -170,14 +174,25 @@ Ward boundaries and LSOA boundaries do not always perfectly align and so it is i
 
 ```{r lsoa_map,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.align="center", fig.cap="Contains Ordnance Survey data © Crown copyright and database right 2019"}
 ggplot() +
+  # Add map tiles in background
   annotation_map_tile(type = "cartolight") +
+  # Add the ward boundary
   geom_sf(data = sf_ward, fill = NA, alpha = 0.5, colour = "#2C3E50", size = 1.5) +
+  # Add the LSOA boundaries
   geom_sf(data = sf_lsoas_ward, fill = NA, alpha = 1, colour = "#18BC9E", size = 0.6) +
+  # Add the LSOA names to the centroids
+  geom_text_repel(data = sf_lsoas_ward, aes(x = lon, y = lat, label = area_name), colour = "#2C3E50", size = 3, fontface = "bold") +
+  # Remove all other plot labels
   labs(x = NULL, y = NULL, title = NULL, subtitle = NULL) +
+  # Set the coordinate projection system
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  # Apply the themes
+  theme_void(base_family = "Open Sans") +
   theme_map() +
   theme(legend.position = "none",
         panel.background = element_blank(),
         axis.text = element_blank())
+
 ```
 
 ```{r lsoa_table, echo=FALSE, message=FALSE, warning=FALSE}
