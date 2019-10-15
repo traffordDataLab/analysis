@@ -10,7 +10,7 @@ output:
     df_print: paged
 ---
 
-Last updated: 10 October 2019      
+Last updated: `r format(Sys.time(), '%d %B %Y')`
 
 <style>
 
@@ -113,7 +113,7 @@ This report explores the [2019 English Indices of Deprivation](https://www.gov.u
 - The increase in relative deprivation in Trafford between 2015 and 2019 is consistent with other Greater Manchester local authorities with the exception of Manchester.
 - The proportion of Trafford's Lower-layer Super Output areas in the most deprived 10% nationally was 5.1% on the 2019 IMD. This represents an increase of 2.2% since the 2015 IMD. All other local authorities in Greater Manchester reported relative increases with the exception of Bury and Stockport which remained unchanged between IoD releases.
 - Trafford was ranked the least deprived of all Greater Manchester local authorities across the 2019 IoD Income, Employment, Education, Health, and Crime domains and the Income Deprivation Affecting Children sub-domain.
-- Trafford was the 7th most deprived local authority on the 2019 IoD Housing and Living Environment domains and 9th on the Income Deprivation Affecting Older People sub-domain.
+- Trafford was the 7th most deprived local authority on the 2019 IoD Housing and Living Environment domains in Greater Manchester and 9th on the Income Deprivation Affecting Older People sub-domain.
 - Trafford 017E in Bucklow-St Martins ward is the most deprived LSOA in Trafford ranking 490 out of 32,844 LSOAs in England. It sits within the 5% most deprived LSOAs nationally for Income, Employment, Education, Health and Income Deprivation Affecting Children.
 - Trafford 017E in Bucklow-St Martins ward ranks 805 out of 32,844 LSOAs nationally on the Income Deprivation Affecting Children sub-domain with 44.1% of children aged 0 to 15 living in income deprived families.
 - Trafford 001A in Clifford ward ranks 572 out of 32,844 LSOAs nationally on the Employment domain with 28.9% of working-age residents involuntarily excluded from the labour market.
@@ -146,12 +146,13 @@ A further 2 supplementary indices of income deprivation are also provided:
 
 #### Further resources
 - Ward level summaries of the 2019 Indices of Deprivation for Trafford are available to view interactively in linked charts and maps [here](https://www.trafforddatalab.io/ward_profiler/).
-- A web application which interactively visualises the proportion of LSOAs in the most deprived decile and the spatial distribution of relative deprivation for every local authority district in England is available [here](https://trafforddatalab.shinyapps.io/imd19).
+- A web application which interactively visualises the proportion of LSOAs in the most deprived decile and the spatial distribution of relative deprivation for every local authority district in England is available [here](https://trafforddatalab.shinyapps.io/imd19).    
+- A simple interactive visualisation which compares Trafford's rank of average score against its [CIPFA nearest neighbours](https://www.cipfastats.net/resources/nearestneighbours) is available [here](https://www.trafforddatalab.io/analysis/IoD2019/nearest_neighbours).
 
 ***
 
 ## Index of Multiple Deprivation
-Trafford is ranked 191 out of 317 local authority districts in England on the average 2019 Index of Multiple Deprivation (IMD) score, where a rank of 1 is the most deprived. Trafford's relative position has fallen from 199 in 2015. This reflects a general trend in relative deprivation rankings across Greater Manchester where all but 1 local authority districts reported a fall in rank since 2015. However, Trafford remains the least deprived local authority in Greater Manchester.
+Trafford is ranked 191 out of 317 local authority districts in England on the average 2019 Index of Multiple Deprivation (IMD) score, where a rank of 1 is the most deprived. Trafford's relative position has fallen from 199 in 2015. This reflects a general trend in relative deprivation rankings across Greater Manchester where all but 1 local authority districts reported an increase in relative deprivation since 2015. However, Trafford remains the least deprived local authority in Greater Manchester.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average IMD score</h4>
@@ -244,7 +245,7 @@ left_join(trafford_lsoa,
 ## Income
 The Income domain measures the proportion of the population experiencing deprivation relating to low income, including those people-out-of-work, and those who have low earnings.      
 
-Trafford is ranked 166 out of 317 local authorities in England on the average 2019 Income domain score. This represents a fall (-3) from 169 in 2015.
+Trafford is ranked 166 out of 317 local authorities in England on the average 2019 Income domain score. This represents an increase in relative deprivation (-3) from 169 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Income score</h4>
@@ -470,7 +471,7 @@ filter(IoD_local_authority, index_domain == "Education, Skills and Training") %>
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
-The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 1.5% (2 out of 138) in 2019. This represents a relative fall since 2015 when 2.2% (3 out of 138) of LSOAs were ranked within the 1st decile. 
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 1.5% (2 out of 138) in 2019. This represents a decline in relative deprivation since 2015 when 2.2% (3 out of 138) of LSOAs were ranked within the 1st decile. 
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Education, Skills and Training domain</h4>
@@ -565,7 +566,7 @@ filter(IoD_local_authority, index_domain == "Health and Disability") %>%
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
-The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 5.1% (7 out of 138) in 2019. This represents a relative fall since 2015 when 5.8% (8 out of 138) of LSOAs were ranked within the 1st decile.
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 5.1% (7 out of 138) in 2019. This represents a decline in relative deprivation since 2015 when 5.8% (8 out of 138) of LSOAs were ranked within the 1st decile.
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of Health and Disability domain</h4>
@@ -626,7 +627,7 @@ left_join(trafford_lsoa,
 ## Crime
 The Crime domain measures the risk of personal and material victimisation at a local level.      
 
-Trafford is ranked 138 out of 317 local authorities in England on the average 2019 Crime domain score. This represents a fall (-66) from 204 in 2015.
+Trafford is ranked 138 out of 317 local authorities in England on the average 2019 Crime domain score. This represents an increase in relative deprivation (-66) from 204 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Crime score</h4>
@@ -721,7 +722,7 @@ left_join(trafford_lsoa,
 ## Barriers to Housing and Services
 The Barriers to Housing and Services domain measures the physical and financial accessibility of housing and local services.     
 
-Trafford is ranked 289 out of 317 local authorities in England on the average 2019 Barriers to Housing and Services domain score. This represents a fall (-3) from 292 in 2015.
+Trafford is ranked 289 out of 317 local authorities in England on the average 2019 Barriers to Housing and Services domain score. This represents an increase in relative deprivation (-3) from 292 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Barriers to Housing and Services score</h4>
@@ -816,7 +817,7 @@ left_join(trafford_lsoa,
 ## Living Environment
 The Living Environment domain measures the quality of the local environment. This includes an ‘indoors’ (quality of housing) and an ‘outdoors’ (air quality and road traffic accidents) subdomain.
 
-Trafford is ranked 131 out of 317 local authorities in England on the average 2019 Living Environment domain score. This represents a fall (-35) from 166 in 2015.
+Trafford is ranked 131 out of 317 local authorities in England on the average 2019 Living Environment domain score. This represents an increase in relative deprivation (-35) from 166 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average Living Environment score</h4>
@@ -943,7 +944,7 @@ filter(IoD_local_authority, index_domain == "Income Deprivation Affecting Childr
 <p class="caption">Source: English Indices of Deprivation, MHCLG</p>
 <br />
 
-The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 3.6% (5 out of 138) in 2019. This represents a relative fall since 2015 when 5.8% (8 out of 138) of LSOAs were ranked within the 1st decile.
+The proportion of Trafford’s LSOAs ranked in the 1st decile or 10% most deprived in England was 3.6% (5 out of 138) in 2019. This represents a decline in relative deprivation since 2015 when 5.8% (8 out of 138) of LSOAs were ranked within the 1st decile.
 
 <br />
 <h4 style="text-align: center;">Change in percentage of LSOAs in 1st decile of IDACI</h4>
@@ -1005,7 +1006,7 @@ left_join(trafford_lsoa,
 ## Income Deprivation Affecting Older People	
 The Income Deprivation Affecting Older People sub-domain measures the proportion of all those aged 60 or over who experience income deprivation.     
 
-Trafford is ranked 134 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Older People Index score. This represents an fall (-2) from 136 in 2015.
+Trafford is ranked 134 out of 317 local authorities in England on the average 2019 Income Deprivation Affecting Older People Index score. This represents an increase in relative deprivation (-2) from 136 in 2015.
 
 <br />
 <h4 style="text-align: center;">Relative change in rank of average IDAOPI score</h4>
