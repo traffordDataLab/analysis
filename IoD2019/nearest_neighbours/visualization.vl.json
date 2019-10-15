@@ -14,7 +14,7 @@
     "offset": 20
   },
   "data": {
-    "url": "statistical_neighbours.csv"
+    "url": "nearest_neighbours.csv"
   },
   "selection": {
     "select": {
