@@ -54,11 +54,12 @@
   </div>
 
   <script type="text/javascript">
-    vegaEmbed('#vis', "visualization.vl.json", {defaultStyle: true}).catch(console.warn);
-    var divs = document.createElement('div');
-    divs.classList.add("source");
-    divs.innerHTML = "Source: English Indices of Deprivation, MHCLG";
-    document.getElementById("vis").appendChild(divs);
+    vegaEmbed('#vis', "visualization.vl.json", {defaultStyle: true}).then(function(result) {
+      var divs = document.createElement('div');
+      divs.classList.add("source");
+      divs.innerHTML = "Source: English Indices of Deprivation, MHCLG";
+      document.getElementById("vis").appendChild(divs);
+  }).catch(console.warn);
   </script>
 </body>
 </html>
