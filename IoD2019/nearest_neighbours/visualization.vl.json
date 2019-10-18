@@ -69,7 +69,7 @@
         "title": "Rank of average score",
         "titleFontSize": 14,
         "titlePadding": 10,
-        "orient": "top"
+        "orient": "bottom"
       }
     },
     "y": {
