@@ -16,7 +16,7 @@ output:
     toc: no
 date: "Last updated: `r format(Sys.time(), '%d %B %Y')`"
 params:
-  ward_name: Bucklow-St Martins
+  ward_name: NA
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
@@ -174,7 +174,7 @@ A further 2 supplementary indices of income deprivation are also provided:
 #### Relationship between LSOAs and electoral wards
 Ward boundaries and LSOA boundaries do not always perfectly align and so it is impossible to aggregate from LSOA to ward exactly. Instead a 'best-fit' methodology is used by the [Office for National Statistics (ONS)](http://geoportal.statistics.gov.uk/datasets/500d4283cbe54e3fa7f358399ba3783e_0) to assign LSOAs to the most appropriate ward. This may mean that some parts of the LSOAs discussed within this report fall outside of the ward boundary and some areas within the boundary are not covered as they have been assigned to another ward. Using this method, the ward of `r params$ward_name` encompasses the following `r length(lsoas_ward)` LSOAs:
 
-```{r lsoa_map,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.align="center", fig.cap="© CARTO. Contains Ordnance Survey data © Crown copyright and database right 2019"}
+```{r lsoa_map,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.align="center", fig.cap="Contains Ordnance Survey data © Crown copyright and database right 2019"}
 ggplot() +
   # Add the LSOA boundaries
   geom_sf(data = sf_lsoas_ward, fill = "#18BC9E", alpha = 1, colour = "#FFFFFF", size = 0.6) +
