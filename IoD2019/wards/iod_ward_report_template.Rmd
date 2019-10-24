@@ -23,7 +23,7 @@ params:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE)
 
 # Load the required libraries
-library(tidyverse) ; library(ggplot2) ; library(ggspatial) ; library(ggthemes) ; library(ggrepel) ; library(sf) ; library(kableExtra) ; library(english) ; library(janitor) ; library(scales)
+library(tidyverse) ; library(ggplot2) ; library(ggspatial) ; library(ggthemes) ; library(ggrepel) ; library(sf) ; library(kableExtra) ; library(janitor) ; library(scales)
 
 
 # Load in the ggplot2 Lab theme
@@ -63,20 +63,29 @@ barcode_plot <- function (domain) {
 }
 
 
-# Function to return numbers expressed as words if the number of words is 2 or less, or the original number. This is for academic non-technical report writing. Uses packages: english (John Fox, Bill Venables, Anthony Damico and Anne Pier Salverda), stringr (Hadley Wickham)
-number_for_reports <- function (num) {
-  # Convert the input to words
-  result <- words(num) # NOTE: very important to use 'words(n)' not 'english(n)' in R markdown as 'words' returns type character. Using 'english' doesn't work and simply returns the number - see: https://cran.r-project.org/web/packages/english/vignettes/the-english-patient.pdf
-  
-  # We only want to return numbers as words if they can be expressed with no more than 2 words
-  if ((str_count(result, " ") + 1) > 2) {
-    result <- num
+# Function to create a table for a chosen domain
+domain_table <- function (domain) {
+  # we want to include the score if it reflects the % of population affected
+  if (domain %in% c("Income","Employment","Income Deprivation Affecting Children","Income Deprivation Affecting Older People")) {
+    df_for_table <- df_iod_trafford %>%
+      filter(index_domain == domain, lsoa11cd %in% lsoas_ward) %>%
+        select(LSOA = lsoa11nm, Decile = decile, Rank = rank, Score = score) %>%
+        arrange(Rank) %>%
+        mutate(Rank = comma(Rank),
+               Score = percent(Score, accuracy = 0.1))  
   }
-  else if (num < 100) {
-    result <- str_replace(result, " ", "-") # replace a space if it exists with a hyphen if the number is below 100
+  else {
+    df_for_table <- df_iod_trafford %>%
+      filter(index_domain == domain, lsoa11cd %in% lsoas_ward) %>%
+        select(LSOA = lsoa11nm, Decile = decile, Rank = rank) %>%
+        arrange(Rank) %>%
+        mutate(Rank = comma(Rank))
   }
   
-  result  # return the result
+  df_for_table %>%
+    kable() %>%
+    kable_styling(font_size = 12, bootstrap_options = c("striped", "condensed"), full_width = F) %>%
+    row_spec(0, bold = T, color = "#757575")
 }
 
 
@@ -85,6 +94,7 @@ lsoas_ward <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa
   filter( lad17nm == 'Trafford',
           wd17nm == params$ward_name) %>%
   .$lsoa11cd
+
 
 # Get the spatial data for the LSOAs within our chosen ward
 sf_lsoas_ward <- st_read("https://www.trafforddatalab.io/spatial_data/lsoa/2011/trafford_lsoa_generalised.geojson") %>%
@@ -99,7 +109,14 @@ sf_ward <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2017/traffo
   filter(area_name == params$ward_name)
 
 
-# English Indices of Deprivation 2019 #
+# Get the Trafford LSOA codes and names in a tibble
+df_trafford_lsoa_codes_and_names <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/statistical_lookup.csv") %>%
+  filter(lad11nm == "Trafford") %>%
+  select(lsoa11cd, lsoa11nm) %>%
+  distinct(lsoa11cd, .keep_all = TRUE)
+
+
+# English Indices of Deprivation 2019 for Trafford #
 # Source: Ministry of Housing, Communities and Local Government
 # Publisher URL: https://www.gov.uk/government/statistics/announcements/english-indices-of-deprivation-2019
 # Licence: Open Government Licence 3.0
@@ -127,9 +144,9 @@ df_iod_trafford <- read_csv("https://assets.publishing.service.gov.uk/government
                                     "Barriers to Housing and Services", "Living Environment",
                                     "Income Deprivation Affecting Older People",
                                     "Income Deprivation Affecting Children")) %>% 
-  select(lsoa11cd, lad19nm, measure, value, index_domain) %>% 
-  spread(measure, value) %>% 
-  mutate(year = "2019")
+  select(lsoa11cd, measure, value, index_domain) %>% 
+  spread(measure, value) %>%
+  left_join(df_trafford_lsoa_codes_and_names, by = "lsoa11cd")
 ```
 
 This report explores the [2019 English Indices of Deprivation](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019) for the small areas (Lower-Layer Super Output Areas or LSOAs) within `r params$ward_name`. It compares these small areas relative to Trafford using the rank and score and highlights the indicators and data sources behind these measures.
@@ -197,27 +214,28 @@ ggplot() +
 ```{r lsoa_table, echo=FALSE, message=FALSE, warning=FALSE}
 
 # Create a table showing the LSOAs within the ward
-df_lsoa_codes_and_names <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/statistical_lookup.csv") %>%
+df_trafford_lsoa_codes_and_names %>%
   filter(lsoa11cd %in% lsoas_ward) %>%
-  select(lsoa11cd, lsoa11nm) %>%
   distinct(lsoa11cd, .keep_all = TRUE) %>%
   arrange(lsoa11cd) %>%
   rename("LSOA code" = lsoa11cd,
-         "LSOA name" = lsoa11nm)
-
-kable(df_lsoa_codes_and_names) %>%
-  kable_styling(bootstrap_options = "striped")
+         "LSOA name" = lsoa11nm) %>%
+  kable() %>%
+  kable_styling(font_size = 12, bootstrap_options = c("striped", "condensed"), full_width = F) %>%
+  row_spec(0, bold = T, color = "#757575")
 ```
 
 ## Index of Multiple Deprivation
 As mentioned above, the 7 domains are combined and weighted to create the Index of Multiple Deprivation which is an overall measure of relative deprivation. The plot below shows where the `r length(lsoas_ward)` LSOAs within `r params$ward_name` lie relative to all the LSOAs in Trafford, and in which decile.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on IMD</h4>
 ```{r barcode_imd, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Index of Multiple Deprivation")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_imd, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Index of Multiple Deprivation")
+```
 
 ## Income
 The definition of low income used includes both those people that are out-of-work, and those that are in work but who have low earnings (and who satisfy the respective means tests). A combined count of income deprived individuals is produced by summing the following non-overlapping indicators:
@@ -231,13 +249,15 @@ The definition of low income used includes both those people that are out-of-wor
 * Asylum seekers in England in receipt of subsistence support, accommodation support, or both
 
 This domain has a weighting of 22.5% when combined with the others to form the Index of Multiple Deprivation 2019.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Income</h4>
 ```{r barcode_income, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_income, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Income")
+```
 
 ## Employment
 This domain measures the proportion of working age population who are involuntarily excluded from the labour market, including those who would like to work but are unable to do so due to unemployment, sickness or disability, or caring responsibilities. This comprises the following non-overlapping indicators:
@@ -250,13 +270,15 @@ This domain measures the proportion of working age population who are involuntar
 * Claimants of Universal Credit in the 'Searching for work' and 'No work requirements' conditionality groups
 
 This domain has a weighting of 22.5% when combined with the others to form the Index of Multiple Deprivation 2019.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Employment</h4>
 ```{r barcode_employment, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Employment")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_employment, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Employment")
+```
 
 ## Education, Skills and Training
 The indicators within this domain fall into two sub-domains: Children and Young People and Adult Skills. The Children and Young People sub-domain comprises:
@@ -273,13 +295,15 @@ The Adult Skills sub-domain is a non-overlapping count of the following two indi
 * The proportion of working adults who cannot speak English or cannot speak English well (women aged 25 to 59 and men aged 25 to 64)
 
 This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2019.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Education</h4>
 ```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Education")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_education, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Education")
+```
 
 ## Health and Disability
 Measuring the risk of premature death and the impairment of quality of life through poor physical or mental health through the following four indicators:
@@ -290,13 +314,15 @@ Measuring the risk of premature death and the impairment of quality of life thro
 * Mood and anxiety disorders
 
 This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2019.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Health</h4>
 ```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Health")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_health, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Health")
+```
 
 ## Crime
 This domain measures the rate of recorded crimes per 1,000 at risk population for:
@@ -307,13 +333,15 @@ This domain measures the rate of recorded crimes per 1,000 at risk population fo
 * Criminal damage: number of recorded crimes (8 recorded crime types)
 
 This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Crime</h4>
 ```{r barcode_crime, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Crime")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_crime, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Crime")
+```
 
 ## Barriers to Housing and Services
 The indicators which comprise this domain are split into two sub-domains: Geographical Barriers and Wider Barriers. Geographical Barriers takes into account road distances to a:
@@ -330,17 +358,18 @@ Wider Barriers takes into account the following:
 * Housing affordability
 
 This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Barriers to Housing & Services</h4>
 ```{r barcode_barriers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Barriers to Housing and Services")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_barriers, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Barriers to Housing and Services")
+```
 
 ## Living Environment
 This domain is also derived from two sub-domains: Indoors and Outdoors.  
-
 Indoors sub-domain:
 
 * Houses without central heating
@@ -352,30 +381,36 @@ Outdoors sub-domain:
 * Road traffic accidents involving injury to pedestrians and cyclists: A measure of road traffic accidents involving injury to pedestrians and cyclists among the resident and workplace population
 
 This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Living Environment</h4>
 ```{r barcode_living, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Living Environment")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_living, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Living Environment")
+```
 
 ## Income Deprivation Affecting Children
 The proportion of children aged 0 to 15 living in income deprived households.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on IDACI</h4>
 ```{r barcode_idaci, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income Deprivation Affecting Children")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_idaci, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Income Deprivation Affecting Children")
+```
 
 ## Income Deprivation Affecting Older People
 The proportion of people aged 60 and over living in income deprived households.
-
+<br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on IDAOPI</h4>
 ```{r barcode_idaopi, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income Deprivation Affecting Older People")
 ```
-
-TO BE COMPLETED
+<br />  
+```{r table_idaopi, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Income Deprivation Affecting Older People")
+```
