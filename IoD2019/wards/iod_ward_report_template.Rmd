@@ -259,6 +259,8 @@ barcode_plot(domain = "Income")
 domain_table(domain = "Income")
 ```
 
+***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
+
 ## Employment
 This domain measures the proportion of working age population who are involuntarily excluded from the labour market, including those who would like to work but are unable to do so due to unemployment, sickness or disability, or caring responsibilities. This comprises the following non-overlapping indicators:
 
@@ -279,6 +281,8 @@ barcode_plot(domain = "Employment")
 ```{r table_employment, echo=FALSE, message=FALSE, warning=FALSE}
 domain_table(domain = "Employment")
 ```
+
+***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
 
 ## Education, Skills and Training
 The indicators within this domain fall into two sub-domains: Children and Young People and Adult Skills. The Children and Young People sub-domain comprises:
@@ -403,6 +407,8 @@ barcode_plot(domain = "Income Deprivation Affecting Children")
 domain_table(domain = "Income Deprivation Affecting Children")
 ```
 
+***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
+
 ## Income Deprivation Affecting Older People
 The proportion of people aged 60 and over living in income deprived households.
 <br /><br />
@@ -414,3 +420,5 @@ barcode_plot(domain = "Income Deprivation Affecting Older People")
 ```{r table_idaopi, echo=FALSE, message=FALSE, warning=FALSE}
 domain_table(domain = "Income Deprivation Affecting Older People")
 ```
+
+***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
