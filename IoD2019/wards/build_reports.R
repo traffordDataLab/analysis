@@ -1,6 +1,6 @@
 # --- Build script for the IoD19 ward reports
 
-library(tidyverse) ;
+library(tidyverse) ; library(sf) ;
 
 # Get the Trafford ward names
 wards <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2017/trafford_ward_generalised.geojson") %>%
