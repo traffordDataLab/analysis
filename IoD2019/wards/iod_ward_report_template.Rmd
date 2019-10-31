@@ -31,37 +31,34 @@ source("https://www.trafforddatalab.io/assets/theme/ggplot2/theme_lab.R")
 
 
 # Set up the chart highlight colour
-chart_highlight <- "#000000"
-
+chart_highlight <- "#fc6721"
 
 # Function to draw barcode plots
 barcode_plot <- function (domain) {
   ggplot() +
+  annotate("rect", xmin = 0, xmax = 32844, ymin = 0, ymax = 1, 
+           alpha = 0.5, fill = "#f6f6f6") +
   geom_segment(data = filter(df_iod_trafford, !lsoa11cd %in% lsoas_ward, index_domain == domain), 
                aes(x = rank, xend = rank, y = 0, yend = 1), 
-               colour = "#18BC9E", size = 0.25, alpha = 1) +
+               colour = "#cccccc", size = 0.5, alpha = 1) +
   geom_segment(data = filter(df_iod_trafford, lsoa11cd %in% lsoas_ward, index_domain == domain), 
                aes(x = rank, xend = rank, y = 0, yend = 1), 
-               colour = chart_highlight, size = 0.25, alpha = 1) +
-  geom_point(data = filter(df_iod_trafford, lsoa11cd %in% lsoas_ward, index_domain == domain),
-               aes(x = rank, y = 1.03), pch = 25, colour = chart_highlight, fill = chart_highlight, size = 0.75) +
-  geom_point(data = filter(df_iod_trafford, lsoa11cd %in% lsoas_ward, index_domain == domain),
-               aes(x = rank, y = -0.03), pch = 24, colour = chart_highlight, fill = chart_highlight, size = 0.75) +
-  geom_point(aes(x = c(0, 32844), y = -0.05), pch = 15, colour = "#18BC9E", size = 1) +
+               colour = chart_highlight, size = 0.5, alpha = 1) +
   scale_x_continuous(limits = c(0, 32844), expand = c(0.005, 0.005), 
                      breaks = c(3284, 6569, 9853, 13138, 16422, 19706, 22991, 26275, 29560, 32844),
                      labels = c(1:10)) +
+  scale_y_continuous(expand = c(0.005, 0.005)) +
   labs(x = NULL, y = NULL, title = NULL, subtitle = NULL,
       tag = "Each line represents an LSOA") +
   theme_lab() +
   theme(panel.grid.major = element_blank(),
         plot.title = element_text(size = 26, face = "plain", hjust = 0.5, margin = margin(10, 0, 10, 0)),
         plot.subtitle = element_text(hjust = 0.5, vjust = 5),
-        axis.text.x = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8, face = "bold"),
         axis.text.y = element_blank(),
-        legend.position = "none",
-        plot.tag.position = c(0.01, -0.05),
-        plot.tag = element_text(size = 10, colour = "#757575", hjust = 0))
+        plot.tag.position = c(0.01, -0.04),
+        plot.tag = element_text(size = 10, colour = "#757575", hjust = 0),
+        legend.position = "none")
 }
 
 
@@ -231,7 +228,7 @@ df_trafford_lsoa_codes_and_names %>%
 As mentioned above, the 7 domains are combined and weighted to create the Index of Multiple Deprivation which is an overall measure of relative deprivation. The plot below shows where the `r length(lsoas_ward)` LSOAs within `r params$ward_name` lie relative to all the LSOAs in Trafford, and in which decile.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on IMD</h4>
-```{r barcode_imd, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_imd, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Index of Multiple Deprivation")
 ```
 <br />  
@@ -253,7 +250,7 @@ The definition of low income used includes both those people that are out-of-wor
 This domain has a weighting of 22.5% when combined with the others to form the Index of Multiple Deprivation 2019.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Income</h4>
-```{r barcode_income, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_income, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income")
 ```
 <br />  
@@ -276,7 +273,7 @@ This domain measures the proportion of working age population who are involuntar
 This domain has a weighting of 22.5% when combined with the others to form the Index of Multiple Deprivation 2019.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Employment</h4>
-```{r barcode_employment, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_employment, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Employment")
 ```
 <br />  
@@ -303,7 +300,7 @@ The Adult Skills sub-domain is a non-overlapping count of the following two indi
 This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2019.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Education</h4>
-```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Education")
 ```
 <br />  
@@ -322,7 +319,7 @@ Measuring the risk of premature death and the impairment of quality of life thro
 This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2019.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Health</h4>
-```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Health")
 ```
 <br />  
@@ -341,7 +338,7 @@ This domain measures the rate of recorded crimes per 1,000 at risk population fo
 This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Crime</h4>
-```{r barcode_crime, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_crime, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Crime")
 ```
 <br />  
@@ -366,7 +363,7 @@ Wider Barriers takes into account the following:
 This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Barriers to Housing & Services</h4>
-```{r barcode_barriers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_barriers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Barriers to Housing and Services")
 ```
 <br />  
@@ -389,7 +386,7 @@ Outdoors sub-domain:
 This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2019.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on Living Environment</h4>
-```{r barcode_living, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_living, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Living Environment")
 ```
 <br />  
@@ -401,7 +398,7 @@ domain_table(domain = "Living Environment")
 The proportion of children aged 0 to 15 living in income deprived households.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on IDACI</h4>
-```{r barcode_idaci, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_idaci, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income Deprivation Affecting Children")
 ```
 <br />  
@@ -415,7 +412,7 @@ domain_table(domain = "Income Deprivation Affecting Children")
 The proportion of people aged 60 and over living in income deprived households.
 <br /><br />
 <h4 class="plotTitle">LSOAs in `r params$ward_name` relative to Trafford on IDAOPI</h4>
-```{r barcode_idaopi, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
+```{r barcode_idaopi, echo=FALSE, message=FALSE, warning=FALSE, fig.height=1.2, fig.align='center', fig.cap="Source: 2019 Indices of Deprivation, MHCLG"}
 barcode_plot(domain = "Income Deprivation Affecting Older People")
 ```
 <br />  
