@@ -23,7 +23,7 @@ params:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE)
 
 # Load the required libraries
-library(tidyverse) ; library(ggplot2) ; library(ggspatial) ; library(ggthemes) ; library(ggrepel) ; library(sf) ; library(kableExtra) ; library(janitor) ; library(scales)
+library(tidyverse) ; library(ggplot2) ; library(ggspatial) ; library(ggthemes) ; library(ggrepel) ; library(sf) ; library(kableExtra) ; library(janitor) ; library(scales) ; library(leaflet) ; library(leaflet.providers) ; library(leaflet.extras) ; library(htmlwidgets) ;
 
 
 # Load in the ggplot2 Lab theme
@@ -88,6 +88,13 @@ domain_table <- function (domain) {
 }
 
 
+# Get the Trafford LSOA codes and names in a tibble
+df_trafford_lsoa_codes_and_names <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/statistical_lookup.csv") %>%
+  filter(lad11nm == "Trafford") %>%
+  select(lsoa11cd, lsoa11nm) %>%
+  distinct(lsoa11cd, .keep_all = TRUE)
+
+
 # Get the LSOAs which are best-fit within our chosen ward as a vector
 lsoas_ward <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa_to_ward_best-fit_lookup.csv") %>%
   filter( lad17nm == 'Trafford',
@@ -96,23 +103,17 @@ lsoas_ward <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/lsoa
 
 
 # Get the spatial data for the LSOAs within our chosen ward
-sf_lsoas_ward <- st_read("https://www.trafforddatalab.io/spatial_data/lsoa/2011/trafford_lsoa_generalised.geojson") %>%
+sf_lsoas_ward <- st_read("https://www.trafforddatalab.io/spatial_data/lsoa/2011/trafford_lsoa_full_resolution.geojson") %>%
   filter(area_code %in% lsoas_ward) %>%
+  left_join(df_trafford_lsoa_codes_and_names, by = c("area_code" = "lsoa11cd")) %>%
   # Create new variables for the lon & lat coordinates of the centroids of the LSOAs
   mutate(lon = map_dbl(geometry, ~st_centroid(.x)[[1]]),
          lat = map_dbl(geometry, ~st_centroid(.x)[[2]]))
 
 
 # Get the spatial data for the boundary of our chosen ward
-sf_ward <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2017/trafford_ward_generalised.geojson") %>%
+sf_ward <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2017/trafford_ward_full_resolution.geojson") %>%
   filter(area_name == params$ward_name)
-
-
-# Get the Trafford LSOA codes and names in a tibble
-df_trafford_lsoa_codes_and_names <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/statistical_lookup.csv") %>%
-  filter(lad11nm == "Trafford") %>%
-  select(lsoa11cd, lsoa11nm) %>%
-  distinct(lsoa11cd, .keep_all = TRUE)
 
 
 # English Indices of Deprivation 2019 for Trafford #
@@ -149,6 +150,26 @@ df_iod_trafford <- read_csv("https://assets.publishing.service.gov.uk/government
 ```
 
 This report explores the [2019 English Indices of Deprivation](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019) for the small areas (Lower-Layer Super Output Areas or LSOAs) within `r params$ward_name`. It compares these small areas relative to Trafford using the rank and score and highlights the indicators and data sources behind these measures.
+
+```{r lsoa_map,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.align="center", fig.cap=paste("Contains Ordnance Survey data © Crown copyright and database right 2019<br />", params$ward_name, " ward boundary and best-fit LSOAs")}
+ggplot() +
+  # Add the LSOA boundaries
+  geom_sf(data = sf_lsoas_ward, fill = NA, alpha = 1, colour = "#2C3E50", size = 0.6) +
+  # Add the ward boundary
+  geom_sf(data = sf_ward, fill = "#18BC9E", alpha = 0.5, colour = NA, size = 1.5) +
+  # Add the LSOA names to the centroids
+  geom_label_repel(data = sf_lsoas_ward, aes(x = lon, y = lat, label = area_name), colour = "#000000", fill = "#FFFFFF", alpha = 0.75, size = 3, fontface = "bold") +
+  # Remove all other plot labels
+  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL) +
+  # Set the coordinate reference system
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  # Apply the themes
+  theme_void(base_family = "Open Sans") +
+  theme_map() +
+  theme(legend.position = "none",
+        panel.background = element_blank(),
+        axis.text = element_blank())
+```
 
 ## Key findings
 
@@ -190,26 +211,6 @@ A further 2 supplementary indices of income deprivation are also provided:
 #### Relationship between LSOAs and electoral wards
 Ward boundaries and LSOA boundaries do not always perfectly align and so it is impossible to aggregate from LSOA to ward exactly. Instead a 'best-fit' methodology is used by the [Office for National Statistics (ONS)](http://geoportal.statistics.gov.uk/datasets/500d4283cbe54e3fa7f358399ba3783e_0) to assign LSOAs to the most appropriate ward. This may mean that some parts of the LSOAs discussed within this report fall outside of the ward boundary and some areas within the boundary are not covered as they have been assigned to another ward. Using this method, the ward of `r params$ward_name` encompasses the following `r length(lsoas_ward)` LSOAs:
 
-```{r lsoa_map,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.align="center", fig.cap="Contains Ordnance Survey data © Crown copyright and database right 2019"}
-ggplot() +
-  # Add the LSOA boundaries
-  geom_sf(data = sf_lsoas_ward, fill = "#18BC9E", alpha = 1, colour = "#FFFFFF", size = 0.6) +
-  # Add the ward boundary
-  geom_sf(data = sf_ward, fill = NA, alpha = 0.5, colour = "#2C3E50", size = 1.5) +
-  # Add the LSOA names to the centroids
-  geom_label_repel(data = sf_lsoas_ward, aes(x = lon, y = lat, label = area_name), colour = "#000000", fill = "#FFFFFF", alpha = 0.75, size = 3, fontface = "bold") +
-  # Remove all other plot labels
-  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL) +
-  # Set the coordinate reference system
-  coord_sf(crs = st_crs(4326), datum = NA) +
-  # Apply the themes
-  theme_void(base_family = "Open Sans") +
-  theme_map() +
-  theme(legend.position = "none",
-        panel.background = element_blank(),
-        axis.text = element_blank())
-```
-
 ```{r lsoa_table, echo=FALSE, message=FALSE, warning=FALSE}
 
 # Create a table showing the LSOAs within the ward
@@ -222,6 +223,26 @@ df_trafford_lsoa_codes_and_names %>%
   kable() %>%
   kable_styling(font_size = 12, bootstrap_options = c("striped", "condensed"), full_width = F) %>%
   row_spec(0, bold = T, color = "#757575")
+```
+
+## Interactive map
+You can use the interactive map below to explore `r params$ward_name` ward and the areas covered by each of the LSOAs.
+
+```{r interactive_map, echo=FALSE, message=FALSE, warning=FALSE}
+leaflet(height = 500, width = "100%", options = leafletOptions(zoomControl = TRUE)) %>% 
+  setView(-3, 54.3, zoom = 6) %>% 
+  addTiles(urlTemplate = "", attribution = '<a href="https://www.ons.gov.uk/methodology/geography/licences">Contains OS data © Crown copyright and database right (2019)</a>') %>%
+  # Base map tiles
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  # Ward boundary
+  addPolygons(data = sf_ward, fillOpacity = 0.2, opacity = 0, weight = 5, fillColor = "#18BC9E") %>%
+  # LSOA boundaries
+  addPolygons(data = sf_lsoas_ward, fillOpacity = 0, opacity = 1, weight = 2, color = "#2C3E50",
+              label = ~sf_lsoas_ward$lsoa11nm,
+              labelOptions = labelOptions(textsize = "10px", direction = "auto", opacity = 0.6)) %>%
+  addResetMapButton() %>%
+  clearBounds() %>%
+  onRender(paste0("function(el, x) {$('head').append(","\'<meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0\">\'",");}"))
 ```
 
 ## Index of Multiple Deprivation
