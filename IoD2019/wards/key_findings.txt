@@ -1,0 +1,178 @@
+KEY FINDINGS:
+
+Altrincham
+<ul>
+    <li>Altrincham ranks 16<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 025A is the most deprived LSOA within the ward on the 2019 IMD and is within the 50% most deprived nationally. The least deprived LSOA in Altrincham ward is Trafford 025D which is within the 10% least deprived LSOAs in the country.</li>
+    <li>Altrincham's most deprived (Trafford 025A) and least deprived (Trafford 025D) LSOAs lie side-by-side.</li>
+    <li>Trafford 025A has a much higher level of deprivation relative to the other LSOAs within the ward on the Income, Employment and Education domains as well as on the overall Index of Multiple Deprivation.</li>
+    <li>Due to alignment issues between LSOAs and wards (see explanation below) the area to the East of the metrolink line is not included in this report. See Timperley and Hale Central reports for data regarding this area.</li>
+</ul>
+
+Ashton upon Mersey
+<ul>
+    <li>Ashton upon Mersey ranks 14<sup>th</sup> (with Broadheath) out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Income deprivation affecting older people is more varied amongst the 7 LSOAs than for children, with an LSOA represented in each of the deciles from 4 (40% most deprived nationally) to 9 (20% least deprived nationally) inclusive.</li>
+    <li>Trafford 012B has 18.7% of older people affected by income deprivation compared to 3.6% of children.</li>
+    <li>The LSOA which includes Ashton upon Mersey village, Trafford 013C, is affected by crime deprivation to a greater degree than the other areas.</li>
+</ul>
+
+Bowdon
+<ul>
+    <li>Bowdon ranks 19<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 027C and Trafford 027D within the ward are the least deprived LSOAs in Trafford for the overall measure and are ranked 32,296 and 32,534 respectively out of 32,844 nationally.</li>
+    <li>Trafford 025E is affected by deprivation to a greater extent than the other LSOAs in the ward on the Crime and the Living Environment domains. It is within the 30% and 40% respectively most deprived areas nationally.</li>
+    <li>Trafford 027E is affected by deprivation to a greater extent than the other LSOAs on the Income and Employment domains.</li>
+    <li>10.6% of children and 10.4% of adults aged 60 and over are living within income deprived households within LSOA Trafford 027E. This ranks the LSOA within the 50% least deprived nationally for both the Income Deprivation Affecting Children Index (IDACI) and Income Deprivation Affecting Older People Index (IDAOPI) sub-domains of Income. In contrast all other LSOAs within the ward are ranked in the 10% least deprived on IDACI and in the 20% least deprived on IDAOPI.</li>
+    <li>The Barriers to Housing and Services domain shows the greatest disparity across the 5 LSOAs. Trafford 025E is the lowest in Trafford overall and within the 10% most deprived LSOAs nationally whereas Trafford 027D is within the 10% least deprived nationally.</li>
+</ul>
+
+Broadheath
+<ul>
+    <li>Broadheath ranks 14<sup>th</sup> (with Ashton upon Mersey) out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 019B is affected by deprivation to a greater extent than the other LSOAs in the ward, sitting within the 30% most deprived areas nationally on the Index of Multiple Deprivation 2019, and 20% most deprived on the Income, Employment, Education and Health domains.</li>
+    <li>22.7% of children and 29.3% of older people in Trafford 019B live within income deprived households compared to 2.4% and 5.5% respectively in Trafford 020C</li>
+    <li>Trafford 020C LSOA is the 3<sup>rd</sup> most deprived LSOA within Trafford on the Living Environment domain, sitting within the 10% most deprived nationally.</li>
+</ul>
+
+Brooklands
+<ul>
+    <li>Brooklands ranks 18<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 014B on the eastern side of the ward sits within the 10% most deprived small areas nationally on the Living Environment domain.</li>
+    <li>Rates of recorded personal and material crime are also higher in Trafford 014B relative to the other 6 LSOAs within the ward.</li>
+    <li>15.5% of older people are affected by income deprivation compared with 4.9% of children in Trafford 018A.</li>
+    <li>There is greater variance between the LSOAs in the percentage of older people living within income deprived households than for children.</li>
+</ul>
+
+Bucklow-St Martins
+<ul>
+    <li>Bucklow-St Martins ranks 1<sup>st</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 017E in Bucklow-St Martins ward is the most deprived LSOA in Trafford ranking 490 out of 32,844 LSOAs in England. It sits within the 5% most deprived LSOAs nationally for Income, Employment, Education, Health and Income Deprivation Affecting Children.</li>
+    <li>39.1% of the population in Trafford 017E (44.1% of children aged 0 to 15 and 33.8% of adults aged 60 or over) are living in income deprived households.</li>
+    <li>All LSOAs are in the bottom 30% most deprived nationally on the Index of Multiple Deprivation.</li>
+</ul>
+
+Clifford
+<ul>
+    <li>Clifford ranks 2<sup>nd</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>There are a higher percentage of older people living in income deprived households relative to the other wards in Trafford with 4 of the ward's 7 LSOAs within the bottom 5 in the borough.</li>
+    <li>For the Income Deprivation Affecting Older People sub-domain, 6 of Clifford's 7 LSOAs sit within the 10% most deprived nationally. Trafford 001D ranks 298 out of 32,844 LSOAs nationally with 56.8% of all those aged 60 or over experiencing deprivation.</li>
+    <li>All of the LSOAs within the ward sit within the 40% most deprived nationally on the Health and Disability domain, making Clifford the 2<sup>nd</sup> most deprived ward within Trafford for this measure.</li>
+</ul>
+
+Davyhulme East
+<ul>
+    <li>Davyhulme East ranks 11<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 002C and Trafford 002E LSOAs are relatively more deprived on the Income, Employment and Health and Disability domains compared to the other 4 LSOAs within the ward.</li>
+    <li>Trafford 002E LSOA is also relatively more deprived compared to the others on the Barriers to Housing and Services domain.</li>
+    <li>Trafford 002A is the 5<sup>th</sup> least deprived LSOA in Trafford and within the 20% least deprived nationally on the Crime domain.</li>
+    <li>Income deprivation affects a greater percentage of older people than children in LSOA Trafford 002C with 22.9% of adults aged 60 and over living in income deprived households compared to 14.9% of children.</li>
+    <li>Due to alignment issues between LSOAs and wards (see explanation below) the Trafford Park area is included in this report despite it being within the boundary of Gorse Hill ward.</li>
+</ul>
+
+Davyhulme West
+<ul>
+    <li>Davyhulme West ranks 10<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 007B is relatively more deprived compared to the other LSOAs within the ward on all domains of deprivation with the exception of Barriers to Housing and Services and Living Environment.</li>
+    <li>Trafford 007B is within the 20% most deprived areas nationally on the Income, Employment and Health domains.</li>
+    <li>With the exception of Trafford 007B, the other 5 LSOAs are evenly distributed throughout the 5<sup>th</sup> (50% most deprived nationally) to the 10<sup>th</sup> (10% least deprived nationally) deciles on the Education domain.</li>
+    <li>Income deprivation affects similar percentages of children and older people within LSOA Trafford 007B with 24.7% and 23.2% respectively living within income deprived households.</li>
+</ul>
+
+Flixton
+<ul>
+    <li>Flixton ranks 13<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 010C and Trafford 010E are in the top 3 least deprived small areas in Trafford and within the 10% least deprived nationally on the Crime domain.</li>
+    <li>The most deprived LSOA in Flixton on the Index of Multiple Deprivation 2019 is Trafford 010B which sits within the 50% most deprived nationally. However it is within the 30% most deprived nationally for the Employment and Health and Disability domains.</li>
+    <li>Income deprivation affects a greater percentage of older people than children within each of the LSOAs in Flixton ward. The greatest difference is within Trafford 007D where 15.6% of adults aged 60 or over live in income deprived households compared to 5.1% of children.</li>
+</ul>
+
+Gorse Hill
+<ul>
+    <li>Gorse Hill ranks 4<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Gorse Hill is also in the bottom 4 most deprived wards for each of the domains of deprivation with the exception of Crime and Barriers to Housing and Services.</li>
+    <li>Trafford 003C is the 2<sup>nd</sup> most deprived LSOA within Trafford on the Living Environment domain and sits within the 10% most deprived nationally.</li>
+    <li>The range in the percentage of older people living in income deprived households between the LSOAs within the ward covers 5 deciles, from 27.8% in Trafford 003B which sits within the 20% most deprived nationally compared to 8.5% in Trafford 006B which sits within the 40% least deprived nationally.</li>
+    <li>Due to alignment issues between LSOAs and wards (see explanation below) the Trafford Park area is not included within this report. See the report for Davyhulme East for data regarding this area.</li>
+</ul>
+
+Hale Barns
+<ul>
+    <li>Hale Barns ranks 20<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>All LSOAs within the ward are within the 10% least deprived nationally on the Education domain.</li>
+    <li>Trafford 028E is much more deprived compared to the other LSOAs within the ward on the Index of Multiple Deprivation 2019 as well as the Income, Employment, Health and Disability and Crime domains.</li>
+    <li>The Income and Employment domains show the greatest range (3 deciles) between Trafford 028E compared with the other LSOAs within the ward.</li>
+</ul>
+
+Hale Central
+<ul>
+    <li>Hale Central ranks 17<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>All LSOAs within the ward are within the 10% least deprived nationally on the Education domain.</li>
+    <li>Despite 4 of the 7 LSOAs being in the 10<sup>th</sup> decile (10% least deprived nationally) on the Income domain, the other 3 LSOAs sit within the 6<sup>th</sup> to the 8<sup>th</sup> deciles (50% to 30% least deprived nationally).</li>
+    <li>The proportion of older people living in income deprived households is greater than for children in each of the LSOAs within the ward.</li>
+</ul>
+
+Longford
+<ul>
+    <li>Longford ranks 5<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Over half of the LSOAs within the ward are in the 30% most deprived nationally on the Income and Employment domains.</li>
+    <li>Trafford 001F has the 4<sup>th</sup> highest proportion of older people experiencing income deprivation within Trafford with 44.1% living in income deprived households.</li>
+    <li>Levels of deprivation vary considerably between the LSOAs within the ward on many domains, with 7 deciles difference on the Education domain between Trafford 004D (within 30% most deprived nationally) and Trafford 011B (within 10% least deprived nationally).</li>
+</ul>
+
+Priory
+<ul>
+    <li>Priory ranks 12<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>The proportion of older people living in income deprived households is greater than for children in each of the LSOAs within the ward.</li>
+    <li>The Crime domain shows that half of the LSOAs sit within the 40% most deprived nationally whilst the other half sit within the 40% least deprived nationally.</li>
+    <li>Trafford 015B is more deprived compared to the other 5 LSOAs within the ward on the overall Index of Multiple Deprivation 2019 as well as the Income, Employment and Health domains.</li>
+</ul>
+
+Sale Moor
+<ul>
+    <li>Sale Moor ranks 8<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>The difference in relative deprivation between the least deprived and most deprived LSOA for many of the domains is considerable, particularly on the Income, Employment and Education domains.</li>
+    <li>On most domains Trafford 018C and Trafford 018E show much higher relative deprivation compared to the other 4 LSOAs within the ward.</li>
+    <li>35.7% of children live in income deprived households within LSOA Trafford 018C compared to 1.8% in Trafford 018B</li>
+</ul>
+
+St Mary's
+<ul>
+    <li>St Mary's ranks 6<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>The difference in relative deprivation between the least deprived and most deprived LSOA for many of the domains is considerable, including the overall Index of Multiple Deprivation, with 2 LSOAs within the 10% most deprived nationally and 2 LSOAs within the 10% least deprived nationally.</li>
+    <li>Trafford 019E is the most deprived LSOA in the ward on every domain except Living Environment where it is the least deprived.</li>
+    <li>33.9% of the population in Trafford 019E (37.8% of children aged 0 to 15 and 37.6% of adults aged 60 or over) are living in income deprived households, the 2<sup>nd</sup> most income deprived LSOA in Trafford.</li>
+</ul>
+
+Stretford
+<ul>
+    <li>Stretford ranks 3<sup>rd</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 011C is the most deprived LSOA in Trafford on the Crime domain ranking 1,561 out of 32,844 and sitting within the 10% most deprived nationally.</li>
+    <li>The proportion of older people living in income deprived households is greater than for children in each of the LSOAs within the ward.</li>
+    <li>There is quite a range in the levels of deprivation between the LSOAs within the ward on many domains. Trafford 011C sits within the 10% most deprived nationally on the Index of Multiple Deprivation whilst Trafford 006D and 006E sit within the 40% least deprived nationally.</li>
+    <li>Due to alignment issues between LSOAs and wards (see explanation below) a large area in the West and South of the ward is not included within this report. See the Urmston ward report for data regarding this area.</li>
+</ul>
+
+Timperley
+<ul>
+    <li>Timperley ranks 21<sup>st</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Of the 6 LSOAs within the ward, 5 are in the 10<sup>th</sup> decile (10% least deprived nationally) with the other ranking highly in the 9<sup>th</sup> decile (20% least deprived nationally) on the Index of Multiple Deprivation.</li>
+    <li>Most domains show little variation in relative deprivation between the LSOAs within the ward, with the exception of the Crime domain.</li>
+    <li>The Living Environment domain shows the highest relative levels of deprivation within the ward on any of the domains, ranking the ward 10<sup>th</sup> least deprived within Trafford.</li>
+</ul>
+
+Urmston
+<ul>
+    <li>Urmston ranks 7<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>Trafford 009E is the most deprived in Trafford on the Living Environment domain sitting within the 10% most deprived nationally.</li>
+    <li>Half of the LSOAs within the ward are within the 30% most deprived nationally and three-quarters are within the 40% most deprived nationally on the Health domain.</li>
+    <li>Trafford 008D, which crosses the border into Stretford ward, is the most deprived LSOA in the ward on the Index of Multiple Deprivation as well as on the Income, Employment, Education and Crime domains.</li>
+</ul>
+
+Village
+<ul>
+    <li>Village ranks 9<sup>th</sup> out of 21 wards in Trafford where 1 is the most deprived and 21 is the least deprived on the Index of Multiple Deprivation 2019.</li>
+    <li>The difference in relative deprivation between the least deprived and most deprived LSOA for many of the domains is considerable, including the overall Index of Multiple Deprivation, with 1 LSOA within the 10% most deprived nationally and 2 LSOAs within the 10% least deprived nationally.</li>
+    <li>Trafford 022C is the most deprived LSOA in the ward for 6 of the 7 domains and sits within the 20% most deprived nationally on the Income, Employment, Education, Health and Crime domains.</li>
+    <li>32.9% of children within LSOA Trafford 022C live within income deprived households compared with 0.7% in Trafford 023E.</li>
+</ul>

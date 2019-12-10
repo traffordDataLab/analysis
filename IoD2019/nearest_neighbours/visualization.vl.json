@@ -8,10 +8,11 @@
   },
   "title": {
     "text": "2019 Indices of Deprivation for Trafford and its CIPFA Nearest Neighbours ",
-    "fontSize": 18,
+    "fontSize": 20,
+    "color" :"#757575",
     "fontWeight": "normal",
     "anchor": "end",
-    "offset": 20
+    "offset": 0
   },
   "data": {
     "url": "nearest_neighbours.csv"
@@ -68,7 +69,7 @@
         "title": "Rank of average score",
         "titleFontSize": 14,
         "titlePadding": 10,
-        "orient": "top"
+        "orient": "bottom"
       }
     },
     "y": {
@@ -76,7 +77,8 @@
       "type": "nominal",
       "sort": "-x",
       "axis": {
-        "title": null
+        "title": null,
+        "labelLimit":0
       }
     },
     "color": {

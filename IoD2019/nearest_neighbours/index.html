@@ -1,16 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta charset="utf-8">
     <script src="https://cdn.jsdelivr.net/npm/vega@5.7.2"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.0.0-beta.10"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@5.1.3"></script>
+    <style>
+    .header
+    {
+      font-size: 20px;
+      color: #757575;
+      cursor: pointer;
+    }
+    #frame {
+      text-align: center;
+      padding-top: 30px;
+    }
+    #main {
+      padding-top: 30px;
+      border-top: 1px solid #ccc;
+      font-family: 'Roboto', sans-serif;
+    }
+    #vis {
+      text-align: left;
+    }
+    .source {
+      text-align: right;
+      font-size: 10px;
+      color: #757575;
+      padding-right: 2px;
+    }
+    a {
+      color: #fc6721;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    </style>
 </head>
 <body>
-
-  <div id="vis"></div>
+  <div class="header">
+  <div onclick="initialPage()">
+    <div id="labLogo"><a href="https://www.trafforddatalab.io/index.html" target="_blank"><img src="https://www.trafforddatalab.io/assets/logo/trafforddatalab_logo.svg" alt="Trafford Data Lab" width="93" height="31" class="traffordDataLabLogo"/></a></div>
+  </div>
+</div>
+<div id="main">
+<div>This barcode plot shows the Indices of Deprivation for Trafford and its Cipfa (Chartered Institute of Public Finance and Accountancy) nearest neighbours and is a companion to the report <a href="https://www.trafforddatalab.io/analysis/IoD2019/report/">Relative deprivation on Trafford</a>. The lowest rank is for the most deprived local authority.
+</div>
+  <div id="frame">
+    <div id="vis"></div>
+  </div>
 
   <script type="text/javascript">
-    vegaEmbed('#vis', "visualization.vl.json", {defaultStyle: true}).catch(console.warn);
+    vegaEmbed('#vis', "visualization.vl.json", {defaultStyle: true}).then(function(result) {
+      var divs = document.createElement('div');
+      divs.classList.add("source");
+      divs.innerHTML = "Source: English Indices of Deprivation, MHCLG";
+      document.getElementById("vis").appendChild(divs);
+  }).catch(console.warn);
   </script>
 </body>
 </html>
