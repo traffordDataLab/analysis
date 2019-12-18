@@ -5,6 +5,8 @@ editor_options:
   chunk_output_type: console
 ---
 
+Last updated: `r format(Sys.time(), '%d %B %Y')`
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width = 8, fig.height = 4)
 
@@ -56,11 +58,9 @@ likes <- read_csv("data/likes.csv") %>%
   mutate(created_at = as.Date(as.POSIXct(created_at)))
 ```
 
-This report is a brief exploratory Twitter analysis. [Part one](#part1) explores tweets mentioning @TraffordCouncil or the phrase "Trafford Council". [Part two](#part2) examines the last 1,000 tweets sent by @TraffordCouncil.
+This report is a brief exploratory Twitter analysis. [Part 1](#part1) explores tweets mentioning @TraffordCouncil or the phrase "Trafford Council". [Part 2](#part2) examines the last 1,000 tweets sent by @TraffordCouncil.
 
-<br>
-
-### Part one: tweets mentioning @TraffordCouncil or "Trafford Council" {#part1}
+### Part 1: tweets mentioning @TraffordCouncil or "Trafford Council" {#part1}
 
 There were `r nrow(mentions) ` tweets - excluding retweets and replies - that mention <a href="https://twitter.com/traffordcouncil" target="_blank">@TraffordCouncil</a> or include the phrase <a href="https://twitter.com/search?q=%22trafford%20council%22" target="_blank">"Trafford Council"</a> between `r paste(format(min(mentions$created_at), "%d"), format(max(mentions$created_at), "%d %B %Y"), sep = " and " )`. You can explore these tweets in an <a href="mentions.html" target="_blank">interactive table</a>.
 
@@ -192,9 +192,7 @@ ggraph(bigram_graph, layout = "fr") +
 
 ***
 
-<br>
-
-### Part two: tweets by @TraffordCouncil {#part2}
+### Part 2: tweets by @TraffordCouncil {#part2}
 
 This section explores the last 1,000 tweets of <a href="https://twitter.com/traffordcouncil" target="_blank">@TraffordCouncil</a> which cover the period between `r paste(format(min(tweets$created_at), "%d %B"), format(max(tweets$created_at), "%d %B %Y"), sep = " and " )`. You can explore these tweets in an <a href="tweets.html" target="_blank">interactive table</a>.
 
