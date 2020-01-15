@@ -1,0 +1,37 @@
+---
+title: "Violence and sexual offences"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse) ; library(sf) ; library(leaflet) ; library(classInt) ; library(htmltools) 
+
+wards <- st_read("crime_rate_by_ward.geojson", quiet = TRUE)
+```
+
+There were `r sum(wards$crimes, na.rm = TRUE)` Violence and sexual offences in `r unique(wards$district_name)` during `r unique(format(as.Date(wards$period), "%B %Y"))`.
+
+```{r map}
+# calculate class intervals
+breaks <- classIntervals(wards$rate, n = 5, style = "jenks")$brks
+pal <- colorBin(palette = "Oranges", domain = NULL, bins = breaks, na.color = "#FFFFFF")
+
+# create label text
+wards <- wards %>% 
+  mutate(popup = str_c("<strong>", ward_name, "</strong><br/>",
+                       rate, " crimes per 1,000 residents") %>%
+           map(HTML))
+
+# layer up map
+leaflet(wards) %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addPolygons(fillColor = ~pal(rate), fillOpacity = 0.8, smoothFactor = 0.5, 
+              stroke = TRUE, weight = 2, color = "#212121", opacity = 1, 
+              label = ~popup, 
+              labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "15px", direction = "auto"),
+              highlightOptions = highlightOptions(color = "white", weight = 2, bringToFront = TRUE)) %>% 
+  addLegend(pal = pal, values = ~rate, opacity = 0.7, title = "Crimes rate", position = "bottomright") %>% 
+  addControl(paste0("<strong>Violence and sexual offences</strong><br /><em>", unique(format(as.Date(wards$period), "%B %Y")), "</em>"), position = 'topright')
+```
+
