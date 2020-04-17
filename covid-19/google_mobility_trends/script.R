@@ -2,7 +2,7 @@
 # Source: Google COVID-19 Community Mobility Trends
 # URL: https://www.google.com/covid19/mobility/
 
-library(tidyverse) ; library(ggsci) ; library(scales) ; library(ggrepel)
+library(tidyverse) ; library(scales) ; library(ggrepel)
 
 df <- read_csv("https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv") %>% 
   filter(country_region == "United Kingdom",
