@@ -60,7 +60,7 @@ vehicle_plot <- function (x) {
        subtitle = paste(min(temp$year), "-", max(temp$year)),
        caption = "Source: Department for Transport") +
   facet_wrap(~mode, nrow = 1) +
-  theme_minimal(base_size = 14) +
+  theme_minimal(base_size = 12) +
   theme(plot.margin = unit(rep(0.5, 4), "cm"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
@@ -76,4 +76,4 @@ vehicle_plot <- function (x) {
 }
 
 # "7760", "74005"
-vehicle_plot("7760")
+vehicle_plot("74005")
