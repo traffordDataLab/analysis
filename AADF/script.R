@@ -13,16 +13,19 @@ sf <- read_csv("https://dft-statistics.s3.amazonaws.com/road-traffic/downloads/a
 
 # find nearest count point(s)
 temp <- filter(sf, year == "2018") %>% 
-  mutate(popup = str_c("<strong>Count point ID: </strong>", count_point_id, "<br/>",
-                       "<strong>Road name: </strong>", road_name) %>%
+  mutate(popup = str_c("<strong>Site number: </strong>", count_point_id, "<br/>",
+                       "<strong>Road name: </strong>", road_name, "<br/>",
+                       "<a href='", paste0('https://roadtraffic.dft.gov.uk/manualcountpoints/', count_point_id), "' target='_blank'>Further information</a>") %>% 
            map(HTML))
 
 leaflet() %>% 
   addProviderTiles(providers$CartoDB.Positron,
                    options = tileOptions(minZoom = 9, maxZoom = 17)) %>%
   setView(lng = -2.398630, lat= 53.432013, zoom = 14) %>% 
-  addMarkers(data = temp, popup = ~popup) %>% 
-  addControl("<strong>Road traffic count points in Trafford (2018)</strong><br /><em>Source: Department for Transport</em>",
+  addAwesomeMarkers(data = temp, popup = ~popup,
+                    icon = ~makeAwesomeIcon(icon = "map-marker", library = "fa", iconColor = "#000000", 
+                                            markerColor = ifelse(temp$count_point_id %in% c("7760", "74005"), "red", "blue"))) %>% 
+  addControl("<strong>Count point locations in Trafford (2018)</strong><br /><em>Source: Department for Transport</em>",
              position = "topright")
 
 # filter and recode 
