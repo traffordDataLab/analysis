@@ -69,8 +69,8 @@ vehicle_plot <- function (x) {
         axis.text.x = element_text(angle = 90),
         strip.text = element_text(face = "bold", hjust = 0))
   
-  ggsave(paste(unique(temp$count_point_id), ".png"), dpi = 300, scale = 1)
+  ggsave(paste0(unique(temp$count_point_id), ".png"), dpi = 300, scale = 1)
 }
 
 # "7760", "74005"
-vehicle_plot("74005")
+vehicle_plot("7760")
