@@ -11,8 +11,6 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, dev = 'svg
 library(tidyverse) ;  library(sf) ; library(httr) ; library(readxl); library(fingertipsR) ; library(scales) ; library(ggtext) ; library(ggrepel)
 
 boundary <- st_read("https://github.com/traffordDataLab/spatial_data/raw/master/local_authority/2016/trafford_local_authority_generalised.geojson")
-
-#ggsave("plot.png", dpi = 300, scale = 1)
 ```
 
 <br />
@@ -48,6 +46,8 @@ ggplot(council_tax_bands, aes(x = fct_rev(band), y = value, fill = area_name)) +
         axis.text.y = element_text(face = "bold", size = 10)) +
   coord_flip() +
   expand_limits(y = c(0, 0.28))
+
+ggsave("outputs/council_tax_bands.eps", device = "eps")
 ```
 </div>
 
@@ -81,6 +81,8 @@ ggplot(healthy_life_expectancy_at_birth,
         legend.direction = "horizontal",
         legend.text = element_text(size = 8),
         axis.text.x = element_text(angle = 90))
+
+ggsave("outputs/healthy_life_expectancy_at_birth.eps", device = "eps")
 ```
 </div>
 </div>
@@ -127,6 +129,8 @@ ggplot(data = filter(smoking_adults, area_name != "England"), aes(x = period, y 
         legend.title = element_text(size = 9),
         legend.text = element_text(size = 8),
         axis.text.x = element_text(angle = 90))
+
+ggsave("outputs/smoking_adults.eps", device = "eps")
 ```
 </div>
   
@@ -154,6 +158,8 @@ ggplot(filter(apprenticeships, area_name == "Trafford"),
         plot.title = element_text(size = 14, face = "bold"),
         plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
         plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10)))
+
+ggsave("outputs/apprenticeships.eps", device = "eps")
 ```
 </div>
 </div>
@@ -196,6 +202,8 @@ ggplot(child_poverty, aes(x = period, y = value)) +
         plot.title = element_text(size = 14, face = "bold"),
         plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
         plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10)))
+
+ggsave("outputs/child_poverty.eps", device = "eps")
 ```
 </div>
   
@@ -245,6 +253,7 @@ ggplot(children_in_care,
         legend.text = element_text(size = 8),
         axis.text.x = element_text(angle = 90))
 
+ggsave("outputs/children_in_care.eps", device = "eps")
 ```
 </div>
 </div>
@@ -281,6 +290,8 @@ ggplot(neets, aes(x = period, y = value)) +
         axis.text.y = element_text(face = "bold", size = 10, margin = margin(r = -13))) +
   coord_flip() +
   expand_limits(y = c(0, 0.07))
+
+ggsave("outputs/neets.eps", device = "eps")
 ```
 </div>
   
@@ -308,6 +319,8 @@ ggplot(recycling, aes(x = period, y = value, group = area_name)) +
         plot.title = element_text(size = 14, face = "bold"),
         plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
         plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10))) 
+
+ggsave("outputs/recycling.eps", device = "eps")
 ```
 </div>
 </div>
@@ -328,7 +341,7 @@ ggplot(potholes, aes(x = period, y = value, group = area_name)) +
   labs(x = NULL, y = NULL,
        title = "Potholes",
        subtitle = paste0("<span style = 'color:#757575;'>Trafford, number of reports</span>"),
-       caption = "Source: FixMyStreet.com.") +
+       caption = "Source: fixmystreet.com") +
   theme_minimal(base_size = 14) +
   theme(plot.margin = unit(rep(0.5, 4), "cm"),
         panel.grid.major.x = element_blank(),
@@ -337,6 +350,8 @@ ggplot(potholes, aes(x = period, y = value, group = area_name)) +
         plot.title = element_text(size = 14, face = "bold"),
         plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
         plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10))) 
+
+ggsave("outputs/potholes.eps", device = "eps")
 ```
 </div>
   
@@ -347,7 +362,6 @@ ggplot(potholes, aes(x = period, y = value, group = area_name)) +
 green_flags <- read_csv("https://github.com/traffordDataLab/dashboard/raw/master/data/green/green_flags.csv") %>% 
   filter(area_name == "Trafford") %>% 
   mutate(name = str_replace(name, " \\(.*\\)", ""))
-
 
 ggplot(data = green_flags, aes(x = lon, y = lat)) +
   geom_sf(data = boundary, fill = "#E7E7E7", color = "#C4C4C4") +
@@ -366,6 +380,8 @@ ggplot(data = green_flags, aes(x = lon, y = lat)) +
         plot.title = element_text(size = 14, face = "bold"),
         plot.subtitle = element_markdown(size = 12, lineheight = 1.2),
         plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10))) 
+
+ggsave("outputs/green_flags.eps", device = "eps")
 ```
 </div>
 </div>
@@ -397,6 +413,8 @@ ggplot(data = filter(co2_emissions, group == "Total"),
         plot.title = element_text(size = 14, face = "bold"),
         plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
         plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10))) 
+
+ggsave("outputs/co2_emissions.eps", device = "eps")
 ```
 </div>
 
@@ -425,6 +443,8 @@ ggplot(residential_home_admissions, aes(x = period, y = value)) +
         plot.title = element_text(size = 14, face = "bold"),
         plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
         plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10))) 
+
+ggsave("outputs/residential_home_admissions.eps", device = "eps")
 ```
 </div>
 </div>
@@ -456,6 +476,8 @@ ggplot(dtoc, aes(x = period, y = value, group = area_name)) +
         plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
         plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10)),
         axis.text.x = element_text(angle = 90)) 
+
+ggsave("outputs/dtoc.eps", device = "eps")
 ```
 </div>
   
@@ -501,6 +523,8 @@ ggplot() +
         legend.direction = "horizontal",
         axis.text.y = element_text(face = "bold", hjust = 0)) +
   expand_limits(x = c(0, 35))
+
+ggsave("outputs/crime_rate.eps", device = "eps")
 ```
 </div>
 </div>
