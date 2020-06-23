@@ -464,8 +464,8 @@ ggplot(dtoc, aes(x = period, y = value, group = area_name)) +
   scale_x_date(expand = c(0.005, 0.005), date_labels = "%d-%b", breaks = "3 months") +
   scale_y_continuous(expand = c(0.005, 0.005), limits = c(0, 40), label = comma, position = "right") +
   labs(x = NULL, y = NULL,
-       title = "DTOC beds attributable to social care",
-       subtitle = paste0("<span style = 'color:#757575;'>Trafford, daily DTOC beds</span>"),
+       title = "Delayed Transfers of care",
+       subtitle = paste0("<span style = 'color:#757575;'>Trafford, daily beds attributable to social care</span>"),
        caption = "Source: NHS England") +
   theme_minimal(base_size = 14) +
   theme(plot.margin = unit(rep(0.5, 4), "cm"),
