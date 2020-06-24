@@ -15,8 +15,9 @@ boundary <- st_read("https://github.com/traffordDataLab/spatial_data/raw/master/
 
 <br />
 
+<div class="container-fluid">
 <div class="row">
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### New properties by Council tax band
 council_tax_bands <- read_csv("https://github.com/traffordDataLab/dashboard/raw/master/data/housing/council_tax_bands.csv") %>% 
@@ -51,7 +52,7 @@ ggsave("outputs/council_tax_bands.eps", device = "eps")
 ```
 </div>
 
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Healthy life expectancy at birth
 healthy_life_expectancy_at_birth <- read_csv("https://github.com/traffordDataLab/dashboard/raw/master/data/health/healthy_life_expectancy_at_birth.csv") %>% 
@@ -88,7 +89,7 @@ ggsave("outputs/healthy_life_expectancy_at_birth.eps", device = "eps")
 </div>
 
 <div class="row">
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Adult smoking prevalence
 smoking_adults <- read_csv("https://github.com/traffordDataLab/dashboard/raw/master/data/health/smoking_adults.csv") %>% 
@@ -134,7 +135,7 @@ ggsave("outputs/smoking_adults.eps", device = "eps")
 ```
 </div>
   
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Apprenticeship starts
 apprenticeships <- read_csv("https://github.com/traffordDataLab/dashboard/raw/master/data/places/apprenticeships.csv")
@@ -165,7 +166,7 @@ ggsave("outputs/apprenticeships.eps", device = "eps")
 </div>
 
 <div class="row">
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Children living in poverty
 
@@ -207,7 +208,7 @@ ggsave("outputs/child_poverty.eps", device = "eps")
 ```
 </div>
   
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Children in care
 # Source: Department for Education
@@ -259,7 +260,7 @@ ggsave("outputs/children_in_care.eps", device = "eps")
 </div>
 
 <div class="row">
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### NEETS
 
@@ -295,7 +296,7 @@ ggsave("outputs/neets.eps", device = "eps")
 ```
 </div>
   
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Recycled household waste
 
@@ -326,7 +327,7 @@ ggsave("outputs/recycling.eps", device = "eps")
 </div>
 
 <div class="row">
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Potholes
 
@@ -355,7 +356,7 @@ ggsave("outputs/potholes.eps", device = "eps")
 ```
 </div>
   
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Green flag awards
 
@@ -387,7 +388,7 @@ ggsave("outputs/green_flags.eps", device = "eps")
 </div>
 
 <div class="row">
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### CO2 emissions
 
@@ -419,7 +420,7 @@ ggsave("outputs/co2_emissions.eps", device = "eps")
 </div>
 
   
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Admissions to residential and nursing care
 
@@ -450,7 +451,7 @@ ggsave("outputs/residential_home_admissions.eps", device = "eps")
 </div>
 
 <div class="row">
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Delayed transfers of care
 
@@ -481,7 +482,7 @@ ggsave("outputs/dtoc.eps", device = "eps")
 ```
 </div>
   
-<div class="col-md-6">
+<div class="col-sm-6">
 ```{r}
 ### Police recorded crime
 crime_rate <- read_csv("https://github.com/traffordDataLab/dashboard/raw/master/data/pride/crime_rate.csv") %>% 
@@ -526,6 +527,7 @@ ggplot() +
 
 ggsave("outputs/crime_rate.eps", device = "eps")
 ```
+</div>
 </div>
 </div>
 
