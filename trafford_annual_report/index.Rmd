@@ -8,7 +8,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, dev = 'svg')
 
-library(tidyverse) ;  library(sf) ; library(httr) ; library(readxl); library(fingertipsR) ; library(scales) ; library(ggtext) ; library(ggrepel)
+library(tidyverse) ;  library(sf) ; library(httr) ; library(readxl); library(fingertipsR) ; library(scales) ; library(ggtext) ; library(ggrepel) ; library(zoo) ; library(lubridate)
 
 boundary <- st_read("https://github.com/traffordDataLab/spatial_data/raw/master/local_authority/2016/trafford_local_authority_generalised.geojson")
 ```
@@ -526,6 +526,51 @@ ggplot() +
   expand_limits(x = c(0, 35))
 
 ggsave("outputs/crime_rate.eps", device = "eps")
+```
+</div>
+
+<div class="row">
+<div class="col-sm-6">
+```{r}
+# Roadside air pollution
+roadside_air_pollution <- bind_rows(read_csv("data/no2_readings_2019.csv", skip = 5),
+                read_csv("data/no2_readings_2020.csv", skip = 5)) %>% 
+  mutate(date = as.Date(`End Date`, format = "%d/%m/%Y"),
+         value = as.double(NO2)) %>% 
+  filter(!is.na(value)) %>% 
+  group_by(date) %>% 
+  summarise(value = mean(value)) %>% 
+  ungroup() %>% 
+  mutate(ma = rollmean(value, 7, align = "right", fill = NA),
+         days = as.Date(format(date, "%d-%m-2020"), format = "%d-%m-%y"))
+
+ggplot(roadside_air_pollution, aes(x = days, y = ma, colour = factor(year(date))))  +
+  geom_line(size = 1) +
+  geom_hline(yintercept = 0, size = 0.3, colour = "#333333") +
+  scale_colour_manual(values = c("2019" = "#bdbdbd", "2020" = "#8e0152")) +
+  scale_x_date(labels = date_format("%b"), date_breaks = "1 month") +
+  scale_y_continuous(limits = c(0, 80), expand = c(0.005, 0.005), position = "right") +
+  labs(x = NULL, y = "µg/m³",
+       title = expression(bold(paste("Daily mean ", NO[2], " concentrations at Trafford A56 site"))),
+       subtitle = paste0("<span style = 'color:#757575;'>Seven-day moving average</span>"),
+       caption = "Source: Trafford Council / Ricardo EE",
+       colour = NULL
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(plot.margin = unit(rep(0.5, 4), "cm"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.title.position = "plot",
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
+        plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10)),
+        legend.position = c(0.85, 1.05),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 8),
+        axis.text.x = element_text(angle = 90),
+        axis.title.y.right = element_text(size = 12, angle = 0, vjust = 1, margin = margin(l = 5)))
+        
+ggsave("outputs/roadside_air_pollution.eps", device = "eps")
 ```
 </div>
 </div>
