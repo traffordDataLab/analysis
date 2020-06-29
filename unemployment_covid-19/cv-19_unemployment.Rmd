@@ -18,7 +18,7 @@ library(zoo) ;library(sf) ; library(jsonlite) ; library(zoo) ; library(scales)
 
 # Claimant Count by age
 
-The [Claimant Count](https://www.nomisweb.co.uk/sources/cc) indicates the number of people claiming benefits principally for the reason of being unemployed. From March 2020 to May 2020 the largest percentage of change  occurred on the band age 25 to 29 years with 146% change and the lowest percentage of change occurred on the band age 60 to 64. When considering the number of additional claims the band age 18 to 24 years with 785 new claims.
+The [Claimant Count](https://www.nomisweb.co.uk/sources/cc) indicates the number of people claiming benefits principally for the reason of being unemployed. In Trafford from March 2020 to May 2020 the largest percentage of change  occurred on the band age 25 to 29 years with 146% change and the lowest percentage of change occurred on the band age 60 to 64. When considering the number of additional claims the band age 18 to 24 years had the highest with 785 new claims.
 
 
 
@@ -96,11 +96,11 @@ ggplot(quinary, aes(x = Age, y = `Additional claims`)) +
 
 # Claimant Count by Ward
 
-The ward with the largest percentage of change from March 2020 to May 2020 is Timperley with 236% of change and the ward with the lowest percentage of change is Bucklow-St Martins with 64% of change. However, the ward with more additional claims is Clifford with 420, followed by Longford (340), Gorse Hill(320), Stretford(275) and Bucklow-St Martins(235).
+In Trafford, the ward with the largest percentage of change from March 2020 to May 2020 is Timperley with 236% of change and the ward with the lowest percentage of change is Bucklow-St Martins with 64% of change. However, the ward with more additional claims is Clifford with 420, followed by Longford (340), Gorse Hill(320), Stretford(275) and Bucklow-St Martins(235).
 
 ```{r claimantWard, echo=FALSE, fig.show="hold", out.width="50%", fig.width=4}
 
-claimant_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latestMINUS2-latest&gender=0&age=0&measure=1,2&measures=20100")
+claimant_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025,1811939363&date=latestMINUS2-latest&gender=0&age=0&measure=1&measures=20100")
 
 claimant_area <- claimant_ward %>%
   select(period = DATE_NAME,
@@ -116,13 +116,13 @@ claimant_area <- claimant_ward %>%
 count <- claimant_area %>%
   filter(measure=="Claimant count")
 
-knitr::kable(count %>% select(Ward=area_name,`Mar 2020`:`% change`), caption = "Change on the Claimant Count from March 2020 to May 2020 by broad age wards")
+knitr::kable(claimant_area %>% select(Name=area_name,`Mar 2020`:`% change`), caption = "Change on the Claimant Count from March 2020 to May 2020 by Ward")
 
 wards <- st_read("https://www.traffordDataLab.io/spatial_data/ward/2017/trafford_ward_generalised.geojson", quiet = TRUE) %>% 
-  left_join(., select(count,`% change`,area_code)  , by = "area_code") 
+  left_join(., select(claimant_area,`% change`,area_code)  , by = "area_code") 
 
 wards2 <- st_read("https://www.traffordDataLab.io/spatial_data/ward/2017/trafford_ward_generalised.geojson", quiet = TRUE) %>% 
-  left_join(., select(count,`Additional claims`,area_code)  , by = "area_code") 
+  left_join(., select(claimant_area,`Additional claims`,area_code)  , by = "area_code") 
 
 ggplot() +
   geom_sf(data = wards, aes(fill = `% change`), alpha = 1, colour = "#FFFFFF",  size = 0.5) +
@@ -184,7 +184,7 @@ ggplot() +
 
 
 
-The largest percentage of change on claims of [Universal Credit](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html) during March 2020 to May 2020 occured on the age band of over 65 years with 333% of change with the claims raising from 9 on March to 39 on May. The age band with more additional claims is the 25 to 29 years with an increase of 982 claims.
+The largest percentage of change on claims of [Universal Credit](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html) in Trafford during March 2020 to May 2020 occured on the age band of over 65 years with 333% of change with the claims raising from 9 on March to 39 on May. The age band with more additional claims is the 25 to 29 years with an increase of 982 claims.
 
 &nbsp;
 
@@ -307,6 +307,41 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                              "str:field:UC_Monthly:F_UC_DATE:DATE_NAME") %>% matrix(),
               recodes = list(
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
+                  map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
+                `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202003,202004,202005))))
+              )) %>% toJSON()
+
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+trafford_uc <- values %>%
+  as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>% 
+  set_names(c(response$fields$label,"value")) %>%
+mutate(period=format(as.yearmon(`Month`, "%B %Y"),"%b %y")) %>%
+  select(area_name = "National - Regional - LA - OAs",period,value) %>%
+  spread(period,value) %>%
+  mutate(`Additional claims`= `May 20`-`Mar 20`,
+         `% change` = round(`Additional claims`/`Mar 20` *100,0))
+
+
+query <- list(database = unbox("str:database:UC_Monthly"),
+              measures = "str:count:UC_Monthly:V_F_UC_CASELOAD_FULL",
+              dimensions = c("str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE",
+                             "str:field:UC_Monthly:F_UC_DATE:DATE_NAME") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
                   map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202003,202004,202005))))
@@ -336,7 +371,12 @@ uc <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
   mutate(`Additional claims`= `May 20`-`Mar 20`,
          `% change` = round(`Additional claims`/`Mar 20` *100,0))
 
-knitr::kable(select(uc, MSOA=area_name, `Mar 20`,`Apr 20`,`May 20`,`Additional claims`,`% change`),caption = "Change on Universal Credit claims from March 2020 to May 2020 by age MSOA")
+uc_tbl <- select(uc, area_name, `Mar 20`,`Apr 20`,`May 20`,`Additional claims`,`% change`) %>%
+  bind_rows(trafford_uc) %>%
+  rename(Area = area_name)
+
+knitr::kable(uc_tbl,caption = "Change on Universal Credit claims from March 2020 to May 2020 by age MSOA")
+
 
 msoa_uc <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2011/trafford_msoa_generalised.geojson", quiet = TRUE) %>% 
   left_join(., select(uc,`Additional claims`,`% change`,area_code)  , by = "area_code")
