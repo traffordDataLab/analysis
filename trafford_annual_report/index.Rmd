@@ -26,7 +26,7 @@ council_tax_bands <- read_csv("https://github.com/traffordDataLab/dashboard/raw/
 ggplot(council_tax_bands, aes(x = fct_rev(band), y = value, fill = area_name)) +
   geom_col(fill = "#007C9E") +
   geom_hline(yintercept = 0, size = 0.3, colour = "#333333") +
-  geom_label(aes(label = percent(value, accuracy = 1)),
+  geom_label(aes(label = percent(value, accuracy = 0.1)),
              colour = "#000000", fill = NA, label.size = NA, 
              size = 4, hjust = 0, vjust = 0.5) +
   scale_x_discrete(expand = c(0.005, 0.005)) +
