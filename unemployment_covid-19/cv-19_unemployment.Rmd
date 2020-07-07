@@ -176,7 +176,67 @@ ggplot() +
 
 ```
 
-&nbsp;
+# Claimant Count by ward and age band
+
+Around 50% of the claimants in Trafford are under 34 years. In May 2020 within the age band of 18 to 24 Clifford had the largest number of claimants with 175, followed by Longford with 130, and Bucklow-St Martin, Gorse Hill and Stretford each with 115 claimants.
+
+```{r ccAgeWard, echo=FALSE, fig.height=4}
+
+cc_ward_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latest&gender=0&age=10...20&measure=1&measures=20100")%>%
+  select(period = DATE_NAME, area_code = GEOGRAPHY_CODE, area_name = GEOGRAPHY_NAME, ageband = AGE_NAME, n = OBS_VALUE) %>%
+  mutate(period = as.Date(paste("01", period), format = "%d %b %Y"),
+         ageband=gsub("Aged ", "", ageband)) %>%
+  mutate(ageband = case_when(
+    ageband == "16-17" ~ "16-17",
+    ageband == "18-24" ~ "18-24",
+    ageband %in% c("25-29","30-34") ~ "25-34",
+    ageband %in% c("35-39", "40-44") ~ "35-44",
+    ageband %in% c("45-49", "50-54") ~ "45-54",
+    ageband %in% c("55-59", "60-64") ~ "55-64",
+    TRUE ~ "65+"
+  )) %>%
+  group_by(period, ageband, area_code, area_name) %>% 
+  summarise(n = sum(n)) %>%
+  ungroup()
+
+cc_ward_aget<- cc_ward_age %>%
+  select(Ward=area_name,ageband,n) %>%
+  spread(ageband,n)
+
+knitr::kable(cc_ward_aget, caption = "Claimant Count by ward and age band on May 2020")
+
+cc_ward_agep<- cc_ward_age %>%
+  spread(ageband,n) %>%
+  mutate("16-24" = `16-17`+`18-24`) %>%
+  select(period:area_name,`16-24`,`25-34`:`65+`) %>%
+  gather(ageband,n,`16-24`:`65+`) %>%
+  group_by(period, area_code, area_name) %>%
+  mutate(ageband = fct_rev(ageband),
+         total = sum(n), percent = n/total) 
+
+# plot data ---------------------------
+ggplot(cc_ward_agep, aes(x = area_name, y = percent, width = total, fill = ageband)) +
+  geom_col(position = "stack", colour = NA) +
+  facet_grid(~fct_reorder(area_name,total, .desc = T), scales = "free_x", space = "free_x") +
+  scale_y_continuous(expand = c(0.005, 0.005), breaks = c(0, 0.5, 1), labels = percent) +
+  scale_fill_brewer(palette = "Set3") +
+  labs(x = NULL, y = NULL, 
+       title = "Claimant Count by Trafford's Ward and age band",
+       subtitle = as.yearmon(unique(cc_ward_agep$period)),
+       caption = "The width of the columns is proportional to the number of claimants. Source: DWP.",
+       fill = NULL) +
+  theme(
+    plot.title = element_text(size=10,face = "bold"),
+    plot.subtitle = element_text(size=9),
+    panel.spacing.x = unit(0.01, "npc"),
+    panel.grid.major = element_blank(),
+    strip.text.x = element_blank(),
+    legend.position = "right",
+    axis.text.x = element_text(size=8, angle = 90, hjust = 1, vjust=0.5),
+    panel.background = element_blank(),
+    axis.ticks = element_blank())
+
+```
 
 
 # Universal Credit change by age
