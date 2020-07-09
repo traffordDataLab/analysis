@@ -83,4 +83,37 @@ ggplot(five_year, aes(x = ageband, y = n, fill = gender)) +
 
 ggsave("five_year.png", scale = 1, dpi = 300)
   
-  
+# bespoke
+ten_year <- df %>% 
+  mutate(gender = factor(gender, levels = c("Female", "Male"), ordered = T ),
+         ageband = cut(age,
+                       breaks = c(0,10,20,30,40,50,60,70,80,120),
+                       labels = c("0-9","10-19","20-29","30-39","40-49","50-59","60-69","70-79","80+"),
+                       right = FALSE)) %>% 
+  group_by(gender, ageband) %>% 
+  summarise(n = sum(n)) %>% 
+  mutate(n = case_when(gender == "Female" ~ n * -1, TRUE ~ n))
+
+ggplot(ten_year, aes(x = ageband, y = n, fill = gender)) +
+  geom_col() + 
+  scale_fill_manual(values = c("#301934", "#00ffef"), labels = c("Female", "Male")) +
+  facet_share(~gender, dir = "h", scales = "free", reverse_num = TRUE) +
+  coord_flip() +
+  labs(x = NULL, y = NULL, 
+       title = "Age profile of Trafford residents in mid-2019",
+       subtitle = paste0("<span style = 'color:#757575;'>Number of residents by 10-year age band</span>"),
+       caption = "Source: Office for National Statistics") +
+  theme(plot.margin = unit(rep(0.5, 4), "cm"),
+        panel.spacing = unit(-0.8, "lines"),
+        panel.background = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        axis.ticks = element_line(colour = NA),
+        plot.title.position = "plot",
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_markdown(size = 12, margin = margin(b = 20)),
+        plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10)),
+        strip.text = element_text(size = 11, face = "bold"),
+        axis.text = element_text(size = 10),
+        legend.position = "none")
