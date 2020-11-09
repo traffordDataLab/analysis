@@ -38,5 +38,5 @@ iod_wards <- left_join(iod, lookup, by = "lsoa11cd") %>%
   arrange(desc(average_score)) %>% 
   mutate(rank_average_score = rank(desc(average_score), ties.method = "min"))
 
-write_csv (iod_wards, "iod_wards.csv")
+write_csv (iod_wards, "index_of_multiple_deprivation.csv")
 
