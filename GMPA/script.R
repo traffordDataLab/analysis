@@ -28,11 +28,11 @@ iod <- read_csv("https://assets.publishing.service.gov.uk/government/uploads/sys
 lookup <- read_csv("https://opendata.arcgis.com/datasets/8c05b84af48f4d25a2be35f1d984b883_0.csv") %>% 
   setNames(tolower(names(.)))  %>%
   filter(lad18nm %in% gm) %>%
-  select(lsoa11cd, wd18cd, wd18nm)
+  select(lsoa11cd, wd18cd, wd18nm, lad18cd, lad18nm)
 
 # IoD LSOA to electoral ward
 iod_wards <- left_join(iod, lookup, by = "lsoa11cd") %>%
-  group_by(wd18cd, wd18nm, indicator) %>%
+  group_by(wd18cd, wd18nm, lad18cd, lad18nm, indicator) %>%
   summarise(average_score = round(sum(score*population)/sum(population), 1)) %>%
   ungroup %>%
   arrange(desc(average_score)) %>% 
