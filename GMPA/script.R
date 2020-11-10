@@ -86,5 +86,5 @@ iod_wards <- bind_rows(imd, income, employment, education, health, crime, housin
   arrange(desc(`Index of Multiple Deprivation`))
 
 # write results
-write_csv(iod_wards, "indices_of_multiple_deprivation_GM.csv")
-openxlsx::write.xlsx(iod_wards, "indices_of_multiple_deprivation_GM.xlsx")
+write_csv(iod_wards, "indices_of_deprivation_GM.csv")
+openxlsx::write.xlsx(iod_wards, "indices_of_deprivation_GM.xlsx")
