@@ -43,22 +43,56 @@ deprivation <- read_csv("https://github.com/traffordDataLab/imd19/raw/master/dat
          index_domain == "Health Deprivation and Disability",
          lsoa11cd %in% pull(lsoa, area_code))
 
-# Green spaces
-# Source: OS Open Greenspace
-# URL: https://www.ordnancesurvey.co.uk/business-and-government/products/os-open-greenspace.html
-greenspace <- st_read("https://github.com/traffordDataLab/climate_emergency/raw/master/data/greenspaces.geojson") %>% 
-  # Publicly accessible green space defined by ONS
-  # https://www.ons.gov.uk/economy/environmentalaccounts/bulletins/uknaturalcapital/urbanaccounts
-  filter(site_type %in% c("Religious Ground and Cemetries",
-                          "Playing Field", "Public Park Or Garden"))
-
-# Waterways
+# Features
 # Source: OpenStreetMap
+# URL: https://wiki.openstreetmap.org/wiki/Map_features
+
+# Rivers and canals
 waterways <- opq(bbox = c(-2.457434, 53.361808, -2.268022, 53.474435)) %>%
   add_osm_feature(key = "waterway", value = c("river", "canal")) %>%
   osmdata_sf() %>% 
   magrittr::extract2("osm_lines") %>% 
   st_intersection(lad)
+
+# Sale Water Park 
+sale_water_park <- opq(bbox = c(-2.457434, 53.361808, -2.268022, 53.474435)) %>%
+  add_osm_feature(key = "natural", value = "water") %>%
+  osmdata_sf() %>% 
+  magrittr::extract2("osm_multipolygons") %>% 
+  st_intersection(lad) %>% 
+  filter(name == "Sale Water Park")
+  
+# Parks (including Dunham Massey)
+parks <- opq(bbox = c(-2.457434, 53.361808, -2.268022, 53.474435)) %>%
+  add_osm_feature(key = "leisure", value = "park") %>%
+  osmdata_sf() %>% 
+  magrittr::extract2("osm_polygons") %>% 
+  st_intersection(lad) %>% 
+  filter(!is.na(name))
+
+# Woods and heath
+woods <- opq(bbox = c(-2.457434, 53.361808, -2.268022, 53.474435)) %>%
+  add_osm_feature(key = "natural", value = c("wood", "heath")) %>%
+  osmdata_sf() %>% 
+  magrittr::extract2("osm_polygons") %>% 
+  st_intersection(lad) %>% 
+  filter(!is.na(name))
+
+# Allotments
+allotments <- opq(bbox = c(-2.457434, 53.361808, -2.268022, 53.474435)) %>%
+  add_osm_feature(key = "landuse", value = "allotments") %>%
+  osmdata_sf() %>% 
+  magrittr::extract2("osm_polygons") %>% 
+  st_intersection(lad) %>% 
+  filter(!is.na(name))
+
+# Recreation ground
+recreation_ground <- opq(bbox = c(-2.457434, 53.361808, -2.268022, 53.474435)) %>%
+  add_osm_feature(key = "landuse", value = "recreation_ground") %>%
+  osmdata_sf() %>% 
+  magrittr::extract2("osm_polygons") %>% 
+  st_intersection(lad) %>% 
+  filter(!is.na(name))
 
 # Tidy data --------------------------------------------------------------------
 lsoa_deprivation <- left_join(lsoa, deprivation, by = c("area_code" = "lsoa11cd")) %>% 
@@ -66,6 +100,8 @@ lsoa_deprivation <- left_join(lsoa, deprivation, by = c("area_code" = "lsoa11cd"
 
 buildings_lsoa <- st_intersection(buildings, st_transform(lsoa_deprivation, 27700)) %>% 
   st_transform(4326)
+
+greenspace <- bind_rows(parks, woods, allotments, recreation_ground)
 
 # Plot data --------------------------------------------------------------------
 map <- leaflet(data = greenspace) %>% 
@@ -78,7 +114,8 @@ map <- leaflet(data = greenspace) %>%
               labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "15px", direction = "auto")) %>%
   addPolylines(data = buildings_lsoa, color = "#FA8B01", weight = 1, opacity = 0.7) %>% 
   addPolylines(data = waterways, color = "#94C1E1", weight = 2, opacity = 1) %>% 
-  addPolygons(fillColor = "#BBD897", fillOpacity = 0.7, weight = 1, opacity = 1, color = "#FFFFFF", label = ~site_type,
+  addPolygons(data = sale_water_park, fillColor = "#94C1E1", fillOpacity = 1, stroke = FALSE) %>% 
+  addPolygons(fillColor = "#BBD897", fillOpacity = 0.7, weight = 1, opacity = 1, color = "#FFFFFF", label = ~name,
               highlight = highlightOptions(weight = 1, color = "#000000", fillOpacity = 0.7, bringToFront = FALSE),
               labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "15px", direction = "auto")) %>% 
   addLabelOnlyMarkers(data = town_centres, label = ~as.character(name), 
@@ -88,10 +125,10 @@ map <- leaflet(data = greenspace) %>%
                                                     "text-shadow" = "-1px -1px 10px #757575, 1px -1px 10px #757575, 1px 1px 10px #757575, -1px 1px 10px #757575"))) %>%
   addControl("
              <p><strong>Areas of highest health inequality and publicly accessible green space</strong></p>
-<p>Most deprived 20% of neighbourhoods on Health Deprivation and Disability Index<br/>overlaid with parks, public gardens, playing fields, cemetries and religious grounds</p>
-<p><em>Source: Index of Multiple Deprivation 2019; OS Open Greenspace; OpenStreetMap</em></p>
+<p>Most deprived 20% of neighbourhoods on Health Deprivation and Disability Index<br/>overlaid with parks, woods, allotments and recreation grounds</p>
+<p><em>Source: Index of Multiple Deprivation 2019; OpenStreetMap</em></p>
              ",
-             position = 'topright') %>% 
+             position = 'topright') %>%
   onRender("function(el, t) {var myMap = this;myMap._container.style['background'] = '#ffffff';}")
 map
 
