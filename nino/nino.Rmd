@@ -1,0 +1,313 @@
+---
+title: "National Insurance Number to overseas people"
+output: html_document
+---
+
+```{r setup, include=FALSE, results="hide"}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse) ; library(httr) ; library(jsonlite) ; library(zoo)
+library(networkD3)
+library(htmlwidgets)
+library(crosstalk)
+library(plotly)
+
+```
+
+According to the Census 2011 there were 25401 residents that reported their Country of Birth as outside the UK, which represented 11% of residents. Country of Birth is different to Nationality because people born overseas could subsequently acquire UK nationality, or UK nationals could have been born outside the UK for example, those born to parents working overseas in the armed forces. 
+
+The chart below shows the estimated number of residents by Country of Birth and MSOAs in Trafford according to the Census 2011. The Countries are organised by world region.
+
+The most reported countries of birth are Ireland (3620), India (2817), Pakistan (2681), Poland (1864) and Jamaica (1120); and the MSOAs with more residents born overseas are Old Trafford (3572), Firswood (2314), Gorse Hill (1262), Stretford East (1242), Sale Central (1175), Hale Barns (1020) and Altrincham East (1013).
+
+
+```{r census, echo=FALSE, fig.width=12, fig.height=10}
+
+#QS203EW - Country of birth (detailed), Census 2011, ONS
+# URL: https://www.nomisweb.co.uk
+# Licence: Open Government Licence
+
+df <- read_csv("data/cob2011_msoa.csv")
+
+cob2011 <- df %>%
+  mutate(country_of_birth = ifelse( country_of_birth=="Europe: United Kingdom: Total", "United Kingdom", country_of_birth)) %>%
+  mutate(country_of_birth = gsub('.*\\: ', '', country_of_birth)) %>%
+  mutate(country_of_birth = gsub("\\s*\\([^\\)]+\\)","", country_of_birth)) %>%
+  filter(value>=5) %>%
+  filter(country_of_birth != "United Kingdom") %>%
+  arrange(order) %>% 
+  mutate(country_of_birth = ordered(country_of_birth,unique(country_of_birth)))
+
+#library(randomcoloR)
+#palette <- distinctColorPalette(51)
+palette <-read_csv("finalpalette.csv") 
+
+
+ggplot(cob2011, aes(country_of_birth, area_name)) +
+  geom_point(aes(size = value, color=country_of_birth)) +
+  geom_text(aes(label=value), size = 2, nudge_y = -0.4 ) +
+  scale_x_discrete(position = "top") +
+  scale_colour_manual(values = palette$color) +
+    labs(title = "Country of Birth",
+       subtitle = "Trafford MSOAs, 2011",
+       caption = "Source: Census 2011, ONS") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 14),
+        plot.caption = element_text(colour = "grey60"),
+        axis.title = element_blank(),
+        legend.position = "none",
+        axis.text.x = element_text(angle = 90, hjust = 0))
+
+```
+
+### National Insurance Number Registrations to Adult Overseas Nationals Entering the UK
+
+The DWP record data covering adult overseas nationals allocated with a National Insurance Number (NINo) which is required in order to work or claim benefits in the UK. The record is based on registration date and place regardless of length of stay therefore including those who may have subsequently returned abroad or migrate to other parts of the country.
+
+The plots below show the accumulative NINos from 2011 to September 2020 by Nationality and Trafford's MSOA ordered by largest counts of NINo allocated to overseas nationals. The countries with the largest number of NINo allocations correspond to the countries of birth most reported on the Census 2011 in some cases such as India, Pakistan and Poland. However, there are also notable number of NINo allocations to European countries such as Spain, Italy, Czech Republic and Romania that have lower representation on the 2011 Census, therefore indicating a more recent trend on migration.
+
+The MSOAs with more NINo allocations are Old Trafford (2119), Sale Central (779), Firswood (680), Gorse Hill (529), Altrincham West, Dunham & Warburton (511), Altrincham East (506) and Stretford East (423).
+
+
+```{r ninoData}
+
+#NINO 
+
+# Source: DWP, Stat-Explore
+# URL: https://stat-xplore.dwp.gov.uk/webapi/metadata/NINO/NINO.html
+# Licence: Open Government Licence
+
+#House of Commons Library MSOA Names
+# URL: https://visual.parliament.uk/msoanames
+
+lookup <- read_csv("https://visual.parliament.uk/msoanames/static/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford")
+
+df <- read_csv("data/nino_msoa.csv") %>%
+  filter(!value==0)
+
+topMSOA <- df %>% group_by(area_name) %>% summarise(value=sum(value)) %>% filter(value>300)
+
+orderMsoa <- df %>% group_by(area_name) %>% summarise(value=sum(value)) %>% arrange(value) %>% mutate(area_name=ordered(area_name,area_name))
+
+topNationality <- df %>%
+  filter(area_name %in% topMSOA$area_name)%>% 
+  group_by(nationality) %>% summarise(value=sum(value)) %>% 
+  filter(value>400)
+
+orderNationality <- df %>%
+  group_by(nationality) %>% summarise(value=sum(value)) %>% 
+  arrange(desc(value)) %>% mutate(nationality=ordered(nationality,nationality))
+
+byMsoa <- df %>%
+  group_by(area_name,nationality) %>%
+  summarise(value=sum(value)) 
+
+byMsoaOrder <- byMsoa %>%
+  mutate(area_name = ordered(area_name,levels =  orderMsoa$area_name),
+         nationality = ordered(nationality,levels =  orderNationality$nationality),)
+
+```
+
+```{r ninoDot, echo=FALSE, fig.width=12, fig.height=10}
+
+ggplot(byMsoaOrder, aes(nationality, area_name)) +
+  geom_point(aes(size = value, color=nationality)) +
+  geom_text(aes(label=value), size = 2, nudge_y = -0.4 ) +
+  scale_x_discrete(position = "top") +
+  scale_colour_manual(values = palette$color) +
+      labs(title = "NINo allocations by Nationality and Msoa of registration",
+       subtitle = "Trafford MSOAs, 2011 to 2020",
+       caption = "Source: DWP") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 14),
+        plot.caption = element_text(colour = "grey60"),
+        axis.title = element_blank(),
+        legend.position = "none",
+        axis.text.x = element_text(angle = 90, hjust = 0))
+```
+
+
+<p class = "PlotTitle">NINo allocations by Nationality and Msoa of registration</p>
+<p class = "PlotSubtitle">Trafford MSOAs, 2011 to 2020</p>
+*Interactive plot
+
+```{r ninoSankey}
+
+msoaSankey <- byMsoa %>%
+  filter(value>=5)
+
+arrNationality <- df %>%
+  group_by(nationality) %>% summarise(value=sum(value)) %>% 
+  arrange(desc(value))
+
+nodes <- data.frame(name = c(unique(msoaSankey$area_name), unique(arrNationality$nationality))) %>%
+  rowid_to_column("ID") %>%
+  mutate(ID=ID-1) %>%
+  mutate(key = ifelse(name %in% arrNationality$nationality,TRUE,FALSE))
+
+links <- msoaSankey %>%
+  left_join(nodes,by=c("nationality"="name")) %>%
+  left_join(nodes,by=c("area_name"="name")) %>%
+  select(source=ID.x, target=ID.y, value)
+
+sd <- sankeyNetwork(Links = links, Nodes = nodes, Source = "source",
+              Target = "target", Value = "value", NodeID = "name",
+              units = "NINo", fontSize = 12, nodeWidth = 30, height = 800, width = 1200, iterations = 0, sinksRight = FALSE)
+
+sd$x$nodes$key <- nodes$key
+
+onRender(sd,
+               '
+  function(el) {
+  var links = d3.selectAll(".link");
+    d3.select(el)
+      .selectAll(".node text")
+      .filter(d => d.key)
+      .attr("x", -6)
+      .attr("text-anchor", "end");
+      
+    d3.selectAll(".link")
+      .on("mouseover", function(d) {
+                d3.select(this)
+                .style("stroke-opacity", function(d){return 0.6});
+            })
+            
+                d3.selectAll(".node")
+                .on("mouseover", function(d) {
+                links.filter(function(d1, i) { return d.targetLinks.includes(d1) | d.sourceLinks.includes(d1); })
+                 .style("stroke-opacity", function(d){return 0.6});
+            })
+
+  }
+  '
+)
+
+```
+<p class="PlotCaption">Source: DWP</p>
+
+
+The plot below represent yearly allocations of NINo to overseas adults from 2002 by world area to Trafford. In the case of the number on NINos allocated to EU adults the influence of changes on EU country membership through time is evident with increased allocations after the accession of EU8 countries in 2004 including Poland and Czech Republic and EU2 countries during 2014 including Romania and Bulgaria. There is a clear decrease on allocations to EU nationals after the 2016 EU referendum.
+
+The NINo allocations to Asian nationals has been more steady with a peak in 2019. The NINo allocations to the rest of the world has decreased steadily rising slightly in 2019. The rises in 2019 are likely due to registration for a NINo of adult dependents as part of certain VISA approvals after September 2018.
+
+The figures for 2020 may not be representative of NINo demand because of the disruption to NINo allocation services due to the COVID-19 pandemic. Services were suspended in March 2020 and were only available to EU nationals applying for NINo for benefits purposes. The service was reestablished for non-EU nationals with a valid visa on June 2020 but has not been reestablished for EU nationals applying for NINo for working purposes.
+
+It is likely that the patterns of migration will change as a result of the end of the freedom of movement between the UK and the EU. From 2021 the UK's new Points-Based Immigration System will apply to economic migration globally and all the other migration routes such as family reunion will remain the same and apply globally as well.
+
+
+
+```{r ninoLine, fig.width=10}
+
+
+worldArea <- read_csv("data/worldAreaYear.csv") 
+
+
+ggplot(worldArea,aes(registration_year,value,color=nationality,group=nationality)) +
+  geom_line(size = 1) +
+  geom_hline(aes(yintercept = 0), colour = "#212121", linetype = "solid") +
+      labs(title = "NINo allocations by Region of the World",
+       subtitle = "Trafford, 2002 to 2021",
+       caption = "Source: DWP") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12),
+        plot.caption = element_text(colour = "grey60"),
+        axis.title = element_blank())
+
+```
+Select an MSOA in Trafford and a nationality for local allocations through time.
+
+```{r}
+
+
+ninoTotals <- bind_rows(read_csv("data/nino_msoa.csv"),
+                        read_csv("data/nino_trafford_countries.csv"))
+
+nino_totals <- ninoTotals %>%
+  group_by(area_code, area_name, registration_year) %>%
+  summarise(nationality = " All nationalities",
+            value = sum(value)) %>%
+  bind_rows(ninoTotals, .)  
+
+
+shareddf <- SharedData$new(nino_totals)
+
+p <- shareddf %>% 
+  plot_ly(x = ~registration_year, y = ~value) %>% 
+  add_lines(line = list(color = 'rgb(205, 12, 24)')) %>%
+  layout(title = list(text = "NINo allocations", x = 0, xanchor = 'left'),
+            xaxis = list(title = "registration year"),
+            yaxis = list(title = "count", rangemode="tozero")
+) 
+
+bscols(widths = c(3,9),
+       list(
+    filter_select("area_name", "Area", shareddf, ~area_name, multiple = FALSE),
+    filter_select("nationality", "Nationality", shareddf, ~nationality, multiple = FALSE)
+       ),
+  p)
+```
+
+
+
+```{js}
+function filter_default() {
+    document.getElementsByClassName("selectized")[0].selectize.setValue("Trafford", false);
+    document.getElementsByClassName("selectized")[1].selectize.setValue(" All nationalities", false);
+}
+window.onload = filter_default;
+```
+
+```{css}
+
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body 
+{
+    font-family: 'Roboto', sans-serif;
+    color: #212121;
+}
+
+h1, h2, h3, h4, h5, h6, strong
+{
+    color: #757575;
+}
+
+h1,h3
+{
+  margin: 40px 0 20px 0;
+}
+
+
+.main-container {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.PlotTitle
+{
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 0 0;
+}
+
+.PlotSubtitle
+{
+  font-size: 16px;
+}
+
+.PlotCaption
+{
+  font-size: 10px;
+  color: grey60;
+  text-align: right;
+}
+
+.modebar {
+display: none !important;
+}
+```
