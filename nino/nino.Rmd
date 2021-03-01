@@ -6,6 +6,7 @@ output: html_document
 ```{r setup, include=FALSE, results="hide"}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 
+library(randomcoloR)
 library(tidyverse) ; library(httr) ; library(jsonlite) ; library(zoo)
 library(networkD3)
 library(htmlwidgets)
@@ -23,10 +24,6 @@ The most reported countries of birth are Ireland (3620), India (2817), Pakistan 
 
 ```{r census, echo=FALSE, fig.width=12, fig.height=10}
 
-#QS203EW - Country of birth (detailed), Census 2011, ONS
-# URL: https://www.nomisweb.co.uk
-# Licence: Open Government Licence
-
 df <- read_csv("data/cob2011_msoa.csv")
 
 cob2011 <- df %>%
@@ -38,10 +35,10 @@ cob2011 <- df %>%
   arrange(order) %>% 
   mutate(country_of_birth = ordered(country_of_birth,unique(country_of_birth)))
 
-#library(randomcoloR)
 #palette <- distinctColorPalette(51)
 palette <-read_csv("finalpalette.csv") 
 
+#write_csv(tibble(color=palette),"palette.csv")
 
 ggplot(cob2011, aes(country_of_birth, area_name)) +
   geom_point(aes(size = value, color=country_of_birth)) +
@@ -101,6 +98,9 @@ orderNationality <- df %>%
   arrange(desc(value)) %>% mutate(nationality=ordered(nationality,nationality))
 
 byMsoa <- df %>%
+  #filter(area_name %in% topMSOA$area_name) %>%
+  #filter(area_name=="Stretford East") %>%
+  #filter(nationality %in% topNationality$nationality) %>%
   group_by(area_name,nationality) %>%
   summarise(value=sum(value)) 
 
@@ -189,7 +189,7 @@ onRender(sd,
 <p class="PlotCaption">Source: DWP</p>
 
 
-The plot below represent yearly allocations of NINo to overseas adults from 2002 by world area to Trafford. In the case of the number on NINos allocated to EU adults the influence of changes on EU country membership through time is evident with increased allocations after the accession of EU8 countries in 2004 including Poland and Czech Republic and EU2 countries during 2014 including Romania and Bulgaria. There is a clear decrease on allocations to EU nationals after the 2016 EU referendum.
+The plot below represents yearly allocations of NINo to overseas adults from 2002 by world area to Trafford. In the case of the number on NINos allocated to EU adults the influence of changes on EU country membership through time is evident with increased allocations after the accession of EU8 countries in 2004 including Poland and Czech Republic and EU2 countries during 2014 including Romania and Bulgaria. There is a clear decrease on allocations to EU nationals after the 2016 EU referendum.
 
 The NINo allocations to Asian nationals has been more steady with a peak in 2019. The NINo allocations to the rest of the world has decreased steadily rising slightly in 2019. The rises in 2019 are likely due to registration for a NINo of adult dependents as part of certain VISA approvals after September 2018.
 
@@ -286,6 +286,7 @@ h1,h3
   max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
+  overflow-x: hidden;
 }
 
 .PlotTitle
