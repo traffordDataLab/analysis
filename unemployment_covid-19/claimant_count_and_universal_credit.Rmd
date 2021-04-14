@@ -1,0 +1,1336 @@
+---
+title: "Claimant Count and Universal Credit in Trafford"
+output: html_document
+---
+
+```{r setup, include=FALSE, results="hide"}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(tidyverse) ; library(httr) ; library(readxl) ; library(lubridate)
+library(zoo) ;library(sf) ; library(jsonlite) ; library(scales) ; library(kableExtra)
+library(reactable) ; library(htmltools)
+
+```
+
+
+```{r CCdata}
+
+base <- "Jan 2020"
+
+cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS13-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
+    select(period = DATE_NAME,
+         area_code = GEOGRAPHY_CODE,
+         area_name = GEOGRAPHY_NAME,
+         measure = MEASURE_NAME,
+         value = OBS_VALUE)
+
+latest <- as.character(max(as.yearmon(cc_trafford$period)))
+latestm12 <- as.character(max(as.yearmon(cc_trafford$period))-1)
+
+cc_traf <- cc_trafford %>%
+  mutate(period=as.yearmon(period, "%b %Y"),
+         measure=ifelse(measure=="Claimant count","count","rate")) %>%
+  select(-area_code) %>%
+  spread(measure,value) %>%
+  mutate(change=round((count*100/count[1])-100,1))
+
+```
+
+# Claimant Count in Trafford
+
+
+The [Claimant Count](https://www.nomisweb.co.uk/sources/cc) indicates the number of people claiming benefits principally for the reason of being unemployed. From `r base` to `r latest` the Claimant Count in Trafford has increased a `r filter(cc_traf,period==as.yearmon(latest, "%b %Y"))$change`%.
+The rate of claimants to residents aged 16 to 64 reached `r filter(cc_traf,period==as.yearmon(latest, "%b %Y"))$rate`% in `r latest` representing an increment of `r filter(cc_traf,period==as.yearmon(latest, "%b %Y"))$rate-cc_traf$rate[1]`% from `r base`.
+
+
+<div class="container-fluid">
+ <div class="row">
+  <div class = "col-sm-6">
+
+```{r CCTraffPCHTable}
+
+table1 <- cc_traf %>% 
+  mutate(period = as.Date(period,frac=0)) %>%
+  select(-area_name)
+
+tbl1 <- reactable(
+  table1,
+  pagination = FALSE,
+  defaultSorted = "period",
+  defaultSortOrder = "asc",
+  fullWidth = FALSE,
+  defaultColDef = colDef(headerClass = "header", align = "right"),
+  columns = list(
+    period = colDef(name = "Date", align = "left", cell = function(value) date_format("%b %Y")(value)),
+   # area_name = colDef(name = "Area", align = "left"),
+    change = colDef(name = "Change %",
+                    format = colFormat(digits = 1))
+    ),
+  compact = TRUE,
+  class = "table"
+)
+
+div(class = "div",
+div(class= "tableTitle", "Change in the Claimant Count for Trafford"),
+tbl1
+)
+
+```
+
+  </div>
+  
+  <div class = "col-sm-6">
+   <div class = "div">
+```{r CCTrafPCHPLineP}
+
+cc_traffordp <- cc_traf %>% mutate(date=as.Date(period,frac=0))
+
+ggplot(cc_traffordp,aes(x = date, y = round(change,0))) + 
+  geom_line(aes(group=1), size = 2, alpha = 0.8, color="#66c2a4") + 
+  geom_point(size = 5, alpha = 0.8, color="#66c2a4") + 
+    geom_text(data=cc_traffordp %>% filter(!period==base),
+            aes(  
+                label = paste0(round(change,0), "%")), 
+            color = "#66c2a4", size = 4, hjust = 0, vjust = 2) +
+  scale_x_date(date_breaks="1 month", date_labels="%b %y") +
+  labs(title = "Claimant Count percentage change",
+       subtitle = paste("Trafford, ", base, " - ", latest),
+       caption = "Source: ONS",
+       x = NULL,
+       y = NULL,
+       colour = NULL) +
+  #theme_lab() +
+  theme_minimal() +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+        panel.grid.major = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+
+```
+
+   </div>
+  </div>
+ </div>
+ 
+```{r CCWardData}
+claimant_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latestMINUS12,latest&gender=0&age=0&measure=1,2&measures=20100")
+
+claimant_area <- claimant_ward %>%
+  select(period = DATE_NAME,
+         area_code = GEOGRAPHY_CODE,
+         area_name = GEOGRAPHY_NAME,
+         measure = MEASURE_NAME,
+         value = OBS_VALUE) %>%
+  mutate(period = as.yearmon(period, "%b %Y"))
+
+c_count <- claimant_area %>%
+  filter(measure=="Claimant count") %>%
+  spread(period,value) %>%
+  mutate(additional_claims= get(latest) - get(latestm12),
+         `Share` = round(get(latest)/sum(get(latest)) *100,1),
+         percentage_change = round(additional_claims/get(latestm12) *100,0))
+
+c_rate <- claimant_area %>%
+  filter(measure=="Claimants as a proportion of residents aged 16-64") %>%
+  spread(period,value) %>%
+  mutate(`Change`= get(latest)-get(latestm12))
+
+```
+ 
+The Trafford ward with the largest share of claims in `r latest` was `r filter(c_count, Share == max(Share)) %>% pull(area_name)` with `r filter(c_count, Share == max(Share))$Share`% of all claimants within Trafford. The ward with the highest percentage change from `r latestm12` to `r latest` is `r filter(c_count, percentage_change == max(percentage_change)) %>% pull(area_name)` with `r filter(c_count, percentage_change == max(percentage_change)) %>% pull(percentage_change)`% change. However, the ward with more additional claims in this period is `r filter(c_count, additional_claims == max(additional_claims)) %>% pull(area_name)` with `r filter(c_count, additional_claims == max(additional_claims)) %>% pull(additional_claims)`, followed by `r arrange(c_count, desc(additional_claims))$area_name[2]` (`r arrange(c_count, desc(additional_claims))$additional_claims[2]`), `r arrange(c_count, desc(additional_claims))$area_name[3]`(`r arrange(c_count, desc(additional_claims))$additional_claims[3]`), `r arrange(c_count, desc(additional_claims))$area_name[4]`(`r arrange(c_count, desc(additional_claims))$additional_claims[4]`) and `r arrange(c_count, desc(additional_claims))$area_name[5]`(`r arrange(c_count, desc(additional_claims))$additional_claims[5]`).
+
+```{r CCWardTable}
+
+table2 <- c_count %>% select(area_name, latestm12_c=latestm12, latest_c=latest,additional_claims, percentage_change, Share) %>% left_join(c_rate %>% select(area_name, latestm12_r=latestm12, latest_r=latest, `Change`), by="area_name") 
+
+tbl2 <- reactable(
+  table2,
+  pagination = FALSE,
+  defaultSorted = "area_name",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(headerClass = "header", align = "left"),
+  columns = list(
+    area_name = colDef(name = "Wards", align = "left"),
+    latestm12_c = colDef(name = latestm12, maxWidth = 60, align = "right"),
+    latest_c = colDef(name = latest, maxWidth = 60, align = "right"),
+    additional_claims = colDef(
+      name = "Additional claims",
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table2$additional_claims), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 9, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    ),
+    Share = colDef(name = "Share Feb 21", maxWidth = 80, align = "left"),
+    percentage_change = colDef(name = "% Change", maxWidth = 80, align = "right"),
+    latestm12_r = colDef(name = latestm12, maxWidth = 60, align = "left"),
+    latest_r = colDef(name = latest, maxWidth = 60, align = "left"),
+    `Change` = colDef(
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table2$`Change`), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 9, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    )
+    ),
+  columnGroups = list(
+    colGroup(name = "Count", columns = c("latestm12_c", "latest_c", "additional_claims", "Share", "percentage_change")),
+    colGroup(name = "Rate", columns = c("latestm12_r", "latest_r", "Change"))
+  ),
+  compact = TRUE,
+  class = "large-table"
+)
+
+div(class = "div",
+div(class= "large-table tableTitle", "Change in the Claimant Count for Trafford's wards"),
+tbl2
+)
+
+
+```
+
+The wards with higher claimant rate in `r latest` were `r filter(table2, latest_r == max(latest_r)) %>% pull(area_name)` with `r filter(table2, latest_r == max(latest_r))$latest_r`% and `r arrange(table2, desc(latest_r))$area_name[2]` with `r arrange(table2, desc(latest_r))$latest_r[2]`%. The wards where the claimant rate has grown more from `r latestm12` to `r latest` are also `r filter(table2, Change == max(Change)) %>% pull(area_name)` and `r arrange(table2, desc(Change))$area_name[3]` with an increase in rate of `r arrange(table2, desc(Change))$Change[1]`% and `r arrange(table2, desc(Change))$Change[3]`% respectively along with `r arrange(table2, desc(Change))$area_name[2]` with `r arrange(table2, desc(Change))$Change[2]`%.
+
+ <div class="row">
+  <div class = "col-sm-6">
+
+```{r CCWardDot, fig.height=6}
+
+df_traff <-  cc_trafford %>%
+  mutate(period = as.yearmon(period, format="%B %Y")) %>%
+  filter(period %in% c(as.yearmon(latest),as.yearmon(latestm12))) 
+
+df_traff_plot<- claimant_area %>%
+   mutate(period = as.yearmon(period, format="%b %Y")) %>%
+   bind_rows(df_traff) %>%
+  filter(measure=="Claimants as a proportion of residents aged 16-64") %>%
+   mutate(period = factor(period, levels = c(latestm12,latest)),
+         area_name = fct_reorder(factor(area_name), ifelse(period == latest, value, NA), na.rm = TRUE),
+         area_name = fct_relevel(factor(area_name), "Trafford"))
+
+ggplot(df_traff_plot, aes(value,area_name)) +
+  geom_line(color = "grey", size=1) +
+  geom_point(aes(color = period), size = 4) +
+  scale_x_continuous(labels = function(x){ paste0(x, "%") }, limits = c(0, 12)) +
+  scale_colour_manual(values = c( "#66c2a4", "#006d2c")) +
+  labs(x = "percentage of residents aged 16 to 64", y = NULL,
+       title = "Claimant Rate", 
+       subtitle = paste0("Trafford Wards,", latestm12, " and ", latest), 
+       caption = "Source: ONS")+
+  theme_minimal() +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1),
+        legend.position = "bottom", 
+        legend.title = element_blank())
+
+```
+
+  </div>
+  
+  <div class = "col-sm-6">
+
+```{r CCWardMap, fig.height=6}
+
+c_rate_ward <- st_read("https://www.traffordDataLab.io/spatial_data/ward/2017/trafford_ward_generalised.geojson", quiet = TRUE) %>% 
+  left_join(., select(c_rate,latest,area_code)  , by = "area_code") 
+
+ggplot() +
+  geom_sf(data = c_rate_ward, aes(fill = get(latest)), alpha = 1, colour = "#FFFFFF",  size = 0.5) +
+  scale_fill_gradientn(colours = c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), 
+                       na.value = "#f0f0f0",
+                       guide = guide_legend(keyheight = unit(3, units = "mm"), 
+                                            keywidth=unit(12, units = "mm"), 
+                                            label.position = "bottom", 
+                                            title = "Rate",
+                                            title.position = 'top', 
+                                            nrow = 1)) +
+  labs(x = NULL, y = NULL, title = "Claimant Rate",
+       subtitle = paste("Trafford, ", latest),
+       caption = "Source: ONS\nContains OS data © Crown copyright and database right 2020") +
+  theme(plot.margin = unit(c(0.5,0,1,0), "cm"),
+        plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+        axis.text = element_blank(),
+        plot.caption = element_text(size=6,margin = margin(t = 55)),
+        legend.position = c(0.3,-0.05),
+        legend.title = element_text(size = 9),
+        legend.text = element_text(size = 8),
+        plot.background = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        axis.ticks = element_blank())
+
+``` 
+
+  </div>
+ </div> 
+ 
+```{r CCbyAgeTableData}
+
+#Claimant Count
+# Source: ONS
+# URL: https://www.nomisweb.co.uk/sources/cc
+# Licence: Open Government Licence
+
+raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS13-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
+
+
+cc_age <- raw_cc_age %>%
+  select(period = DATE_NAME,
+         area_code = GEOGRAPHY_CODE,
+         area_name = GEOGRAPHY_NAME,
+         age = AGE_NAME,
+         age_type = AGE_TYPE,
+         value = OBS_VALUE) %>%
+  mutate(period = as.yearmon(period, "%b %Y"),
+         Age =  gsub("Aged |All categories: Age ", "", age)) %>%
+    select(period, age_type, Age, value) %>%
+  spread(period,value) %>%
+  mutate(additional_claims= get(latest)-get(latestm12),
+         percentage_change = round(additional_claims/get(latestm12) *100,0))
+
+age_bands <- cc_age %>%
+  filter(age_type=="Ageband") %>%
+  mutate(Age=factor(Age, levels=c("16-24", "25-49", "50+", "16+"))) %>%
+  arrange(Age) %>%
+  select(-age_type)
+
+quinary <- cc_age %>%
+  filter(age_type=="Quinary") %>%
+  mutate_if(is.numeric, list(~na_if(., Inf)))
+
+table3 <- quinary %>% select(Age, `latestm12`= latestm12, `latest` = latest, additional_claims, percentage_change)
+table4 <- age_bands %>% select(Age, `latestm12`= latestm12, `latest` = latest, additional_claims, percentage_change)
+
+```
+
+
+In Trafford from  `r latestm12` to `r latest` almost all age bands have at least doubled their claimant count. When considering the number of additional claims the age band `r filter(table3, latest == max(latest)) %>% pull(Age)` years had the highest with `r filter(table3, latest == max(latest)) %>% pull(latest)` more claims.
+
+ <div class="row">
+  <div class = "col-sm-6">
+
+```{r CCbyAgeTable}
+
+
+tbl3 <- reactable(
+  table3,
+  pagination = FALSE,
+  defaultSorted = "Age",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(headerClass = "header", align = "right"),
+  columns = list(
+    Age = colDef(maxWidth = 50, align = "left"),
+    latestm12 = colDef(name = latestm12, maxWidth = 60),
+    latest = colDef(name = latest, maxWidth = 60),
+    additional_claims = colDef(
+      name = "Additional claims",
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table3$additional_claims), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 9, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    ),
+    percentage_change = colDef(
+      name = "% Change",
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table3$percentage_change), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 9, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    )
+    ),
+  compact = TRUE,
+  class = "table"
+)
+
+div(class = "div",
+div(class= "large-table tableTitle", "Change in the Claimant Count by age bands in Trafford"),
+tbl3
+)
+
+```
+
+  </div>
+  
+  <div class = "col-sm-6">
+
+```{r CCbyAgeTable2}
+
+tbl4 <- reactable(
+  table4,
+  pagination = FALSE,
+  defaultSorted = "Age",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(headerClass = "header", align = "right"),
+  columns = list(
+    Age = colDef(name = "Age", maxWidth = 60, align = "left"),
+    latestm12 = colDef(name = latestm12, maxWidth = 60),
+    latest = colDef(name = latest, maxWidth = 60),
+    additional_claims = colDef(
+      name = "Additional claims",
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table2$additional_claims), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 9, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    ),
+    percentage_change = colDef(
+      name = "% Change",
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table4$percentage_change), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 9, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    )
+    ),
+  compact = TRUE,
+  class = "table"
+)
+
+div(class = "div",
+div(class= "large-table tableTitle", "Change in the Claimant Count by broad age bands in Trafford"),
+tbl4
+)
+
+
+```
+
+  </div>
+ </div>
+ 
+At the start of 2020 the age band 25-34 already had the highest number of claims however after the effects of the Covid-19 pandemic that started in Mar 2020 this figure increased more compared to the other age bands. The claimant rate as a proportion of the Traford's population of each age band shows a higher increase in the age bands of 25-34 and 16-24 compared to the others.
+
+ <div class="row">
+  <div class = "col-sm-6">
+
+```{r CCAgeMLine}
+
+plotdf <- quinary %>%
+  select(-c(age_type, additional_claims, percentage_change)) %>%
+  mutate(Age=fct_collapse(Age, `16-24` = c("16-17", "18-24"),
+                       `25-34` = c("25-29", "30-34"),
+                       `35-44` = c("35-39", "40-44"),
+                       `45-54` = c("45-49", "50-54"),
+                       `55+` = c("55-59", "60-64","65+"))) %>%
+  group_by(Age) %>%
+  summarise_all(sum) %>%
+  gather(date,value, base:latest) %>%
+  mutate(date=as.Date(as.yearmon(date), format="%b %Y")) %>%
+  mutate(label = if_else(date == max(date), Age, factor(NA)))
+  
+
+ ggplot(plotdf, aes(x = date, y = value, colour = Age)) +
+  geom_hline(yintercept = 0, size = 0.3, colour = "#333333") +
+  geom_line(size = 1, show.legend = FALSE) +
+  geom_text(aes(x = max(date), label = label, fontface = "bold", hjust = 0), show.legend = FALSE) +
+  scale_x_date(breaks = c(min(plotdf$date), as.Date(as.yearmon("Mar 2020"),format="%b %Y"), max(plotdf$date)), date_labels = "%b %Y") +
+  scale_y_continuous(expand = c(0.005, 0.005)) +
+  labs(title = "Claimant Count by age band",
+       subtitle = paste("Trafford, ", latestm12, " - ",latest),
+       caption = "Source: ONS",
+       x = NULL,
+       y = NULL,
+       colour = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+    plot.margin = unit(rep(0.5,4), "cm"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks.x = element_line(colour = "#333333", size = 0.5))  +
+  coord_cartesian(clip = "off") 
+
+
+```
+
+  </div>
+  
+  <div class = "col-sm-6">
+
+```{r CCAgeRate}
+
+pop_trafford_age_raw <- read_csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1811939363&date=latest&gender=0&c_age=101...191&measures=20100&select=date_name,geography_name,geography_code,gender_name,c_age_name,measures_name,obs_value,obs_status_name")
+
+pop_trafford_age <- pop_trafford_age_raw %>%
+    select(age = C_AGE_NAME, n = OBS_VALUE) %>%
+    mutate(age = parse_number(age),
+          ageband = cut(age,
+                        breaks = c(0,15,24,34,44,54,64,120),
+                        labels = c("0-15","16-24","25-34","35-44","45-54","55-64","65+"),
+                        right = TRUE,
+                        include.lowest = TRUE)) %>%
+   group_by(ageband) %>%
+   summarise(population = sum(n))
+
+#write_csv(pop_trafford_age_raw, "pop_trafford_age_raw.csv")
+
+plotdf2 <- quinary %>%
+  select(-c(age_type, additional_claims, percentage_change)) %>%
+  mutate(Age=fct_collapse(Age, `16-24` = c("16-17", "18-24"),
+                       `25-34` = c("25-29", "30-34"),
+                       `35-44` = c("35-39", "40-44"),
+                       `45-54` = c("45-49", "50-54"),
+                       `55-64` = c("55-59", "60-64"),
+                       `65+` = "65+")) %>%
+  filter(!Age == "65+") %>%
+  group_by(Age) %>%
+  summarise_all(sum) %>%
+  gather(date,value, base:latest) %>%
+  left_join(pop_trafford_age, by = c("Age" = "ageband")) %>%
+  mutate(rate = round((value/population)*100,1),
+         date=as.Date(as.yearmon(date), format="%b %Y")) %>%
+  mutate(label = if_else(date == "2021-02-01", Age, factor(NA)))
+
+ ggplot(plotdf2, aes(x = date, y = rate, colour = Age)) +
+  geom_hline(yintercept = 0, size = 0.3, colour = "#333333") +
+  geom_line(size = 1, show.legend = FALSE) +
+  geom_text(aes(x = max(date), label = label, fontface = "bold", hjust = 0), show.legend = FALSE) +
+  #scale_color_startrek() +
+  scale_x_date(breaks = c(min(plotdf$date), as.Date(as.yearmon("Mar 2020"),format="%b %Y"), max(plotdf$date)), date_labels = "%b %Y") +
+  scale_y_continuous(expand = c(0.005, 0.005)) +
+  labs(title = "Claimant rate by age band",
+       subtitle = paste("Trafford, ", latestm12, " - ",latest),
+       caption = "Source: ONS",
+       x = NULL,
+       y = NULL,
+       colour = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+    plot.margin = unit(rep(0.5,4), "cm"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks.x = element_line(colour = "#333333", size = 0.5))  +
+  coord_cartesian(clip = "off") 
+
+```
+
+  </div>
+ </div>
+
+Almost half of Trafford's claimants are residents of five of the 21 Trafford's wards. Almost half of the claimants are under 34 years.
+
+ <div class="row">
+  <div class = "col-sm-6">
+
+```{r CCWardAgeTable}
+
+cc_ward_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latest&gender=0&age=10...20&measure=1&measures=20100")%>%
+  select(period = DATE_NAME, area_code = GEOGRAPHY_CODE, area_name = GEOGRAPHY_NAME, ageband = AGE_NAME, n = OBS_VALUE) %>%
+  mutate(period = as.Date(paste("01", period), format = "%d %b %Y"),
+         ageband=gsub("Aged ", "", ageband)) %>%
+  mutate(ageband = case_when(
+    ageband == "16-17" ~ "16-17",
+    ageband == "18-24" ~ "18-24",
+    ageband %in% c("25-29","30-34") ~ "25-34",
+    ageband %in% c("35-39", "40-44") ~ "35-44",
+    ageband %in% c("45-49", "50-54") ~ "45-54",
+    ageband %in% c("55-59", "60-64") ~ "55-64",
+    TRUE ~ "65+"
+  )) %>%
+  group_by(period, ageband, area_code, area_name) %>%
+  summarise(n = sum(n)) %>%
+  ungroup()
+
+
+cc_ward_aget<- cc_ward_age %>%
+  select(Ward=area_name,ageband,n) %>%
+  spread(ageband,n)
+
+tbl5 <- reactable(
+  cc_ward_aget,
+  pagination = FALSE,
+  defaultSorted = "Ward",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(headerClass = "header", align = "left", maxWidth = 45),
+  columns = list(
+    Ward = colDef(maxWidth = 200, align = "left")
+    ),
+  class = "small-table"
+)
+
+div(class = "div",
+div(class= "large-table tableTitle", "Claimant Count for Trafford's wards by age band"),
+tbl5
+)
+
+```
+
+  </div>
+  
+  <div class = "col-sm-6">
+   <div class = "div">
+
+```{r CCWardAgeMMK}
+
+cc_ward_agep<- cc_ward_age %>%
+  spread(ageband,n) %>%
+  mutate("16-24" = `16-17`+`18-24`) %>%
+  select(period:area_name,`16-24`,`25-34`:`65+`) %>%
+  gather(ageband,n,`16-24`:`65+`) %>%
+  group_by(period, area_code, area_name) %>%
+  mutate(ageband = fct_rev(ageband),
+         total = sum(n), percent = n/total) 
+
+ggplot(cc_ward_agep, aes(x = area_name, y = percent, width = total, fill = ageband)) +
+  geom_col(position = "stack", colour = NA) +
+  facet_grid(~fct_reorder(area_name,total, .desc = T), scales = "free_x", space = "free_x") +
+  scale_y_continuous(expand = c(0.005, 0.005), breaks = c(0, 0.5, 1), labels = percent) +
+  scale_fill_brewer(palette = "Set3") +
+  labs(x = NULL, y = NULL, 
+       title = "Claimant Count by Trafford's Wards and age band",
+       subtitle = as.yearmon(unique(cc_ward_agep$period)),
+       caption = "The width of the columns is proportional to the number of claimants. Source: DWP.",
+       fill = NULL) +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+    panel.spacing.x = unit(0.01, "npc"),
+    panel.grid.major = element_blank(),
+    strip.text.x = element_blank(),
+    legend.position = "right",
+    axis.text.x = element_text(size=8, angle = 90, hjust = 1, vjust=0.5),
+    panel.background = element_blank(),
+    axis.ticks = element_blank())
+
+```
+
+   </div>
+  </div>
+ </div>
+ 
+## Universal Credit claims in Trafford
+
+```{r UCTraffPCHData}
+
+# add your API key
+api_key <- ""
+# API endpoint
+path <- "https://stat-xplore.dwp.gov.uk/webapi/rest/v1/table"
+
+pop_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1811939363&date=latest&gender=0&c_age=203&measures=20100") %>%
+    select(area_code = GEOGRAPHY_CODE,
+         pop16_64 = OBS_VALUE)
+
+query <- list(database = unbox("str:database:UC_Monthly"),
+              measures = "str:count:UC_Monthly:V_F_UC_CASELOAD_FULL",
+              dimensions = c("str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE",
+                             "str:field:UC_Monthly:F_UC_DATE:DATE_NAME") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
+                  map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
+                `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102))))
+              )) %>% toJSON()
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+trafford_uc <- values %>%
+  as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value")) %>%
+mutate(period=as.yearmon(`Month`, "%B %Y")) %>%
+  select(area_name = "National - Regional - LA - OAs",period,value) %>%
+  mutate(rate= round(value*100/pop_trafford$pop16_64,1),
+         change=round((value*100/value[1])-100,1))
+
+
+```
+
+The [Universal Credit](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html) claims in Trafford have increased `r filter(trafford_uc, change == max(change)) %>% pull(change)`% from `r base` to `r latest`. The rate of claims as a proportion of people age 16 to 64 increased form `r filter(trafford_uc, period == base) %>% pull(rate)`% to `r filter(trafford_uc, period == latest) %>% pull(rate)`%. Therefore the number of Universal Credit claimants has doubled in that period.
+
+
+ <div class="row">
+  <div class = "col-sm-6">
+
+```{r UCTrafPCHTable}
+
+table6 <-  trafford_uc %>% 
+  mutate(period = as.Date(period,frac=0)) %>%
+  select(-area_name)
+
+ tbl6 <- reactable(
+  table6,
+  pagination = FALSE,
+  defaultSorted = "period",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(headerClass = "header", align = "right"),
+  columns = list(
+    period = colDef(name = "Date", align = "left", cell = function(value) date_format("%b %Y")(value))
+    #area_name = colDef(name = "Area", maxWidth = 100, align = "left")
+    ),
+  compact = TRUE,
+  class = "table"
+)
+
+div(class = "div",
+div(class= "tableTitle", "Change in the Universal Credit claims for Trafford"),
+tbl6
+)
+
+```
+
+  </div>
+  
+  <div class = "col-sm-6">
+   <div class = "div">
+
+```{r UCTrafPCHPlot}
+
+uc_plot_ch <- trafford_uc %>% mutate(date=as.Date(period,frac=0))
+
+ggplot(uc_plot_ch,aes(x = date, y = change)) + 
+  geom_line(aes(group=1), size = 2, alpha = 0.8, color="#66c2a4") + 
+  geom_point(size = 5, alpha = 0.8, color="#66c2a4") + 
+    geom_text(data=uc_plot_ch %>% filter(!period==base),
+            aes(  
+                label = paste0(round(change,0), "%")), 
+            color = "#66c2a4", size = 4, hjust = 0, vjust = 2) +
+  scale_x_date(date_breaks="1 month", date_labels="%b %y") +
+  labs(title = "Universal Credit claims percentage change",
+       subtitle = paste0("Trafford, ", base, " - ", latest),
+       caption = "Source: DWP",
+       x = NULL,
+       y = NULL,
+       colour = NULL) +
+  #theme_lab() +
+  theme_minimal() +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+        panel.grid.major = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+
+```
+
+   </div>
+  </div>
+ </div>
+ 
+```{r UCMSOATableData}
+ 
+ #House of Commons Library MSOA Names
+# URL: https://visual.parliament.uk/msoanames
+lookup <- read_csv("https://visual.parliament.uk/msoanames/static/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford")
+
+#Universal Credit
+# Source: DWP
+# URL: https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html
+# Licence: Open Government Licence
+
+msoa_pop <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=1245709510...1245709537&date=latest&gender=0&c_age=203&measures=20100") %>%
+    select(area_code = GEOGRAPHY_CODE,
+         pop16_64 = OBS_VALUE)
+
+query <- list(database = unbox("str:database:UC_Monthly"),
+              measures = "str:count:UC_Monthly:V_F_UC_CASELOAD_FULL",
+              dimensions = c("str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE",
+                             "str:field:UC_Monthly:F_UC_DATE:DATE_NAME") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
+                `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202002,202102))))
+              )) %>% toJSON()
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+uc <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value")) %>%
+  left_join(lookup%>%select(msoa11cd,msoa11nm,msoa11hclnm), by = c("National - Regional - LA - OAs" = "msoa11nm")) %>%
+  mutate(period=format(as.yearmon(`Month`, "%B %Y"),"%b %Y")) %>%
+  select(area_code=msoa11cd, area_name = msoa11hclnm, period, value) %>%
+  filter(period %in% c(latestm12,latest)) %>%
+  spread(period,value) %>%
+  mutate(additional_claims= get(latest)-get(latestm12),
+        percentage_change = round(additional_claims/get(latestm12) *100,0),
+        `Share` = round(get(latest)/sum(get(latest)) *100,1)) %>%
+  left_join(msoa_pop, by="area_code") %>%
+  mutate(latestm12_rate = round(get(latestm12)*100/pop16_64,1), latest_rate=round(get(latest)*100/pop16_64,1),Change=round(latest_rate-latestm12_rate,1))
+
+
+table7 <- uc %>%
+  select(-c(area_code,pop16_64))
+ 
+```
+ 
+The Trafford MSOA with the largest share of claims in `r latest` was `r filter(table7, Share == max(Share)) %>% pull(area_name)` with `r filter(table7, Share == max(Share))$Share`% of all Universal Credit claims in Trafford. The MSOA with the highest percentage change from `r latestm12` to `r latest` is `r filter(table7, percentage_change == max(percentage_change)) %>% pull(area_name)` with `r filter(table7, percentage_change == max(percentage_change)) %>% pull(percentage_change)`% change. However, the MSOA with more additional claims in this period is `r filter(table7, additional_claims == max(additional_claims)) %>% pull(area_name)` with `r filter(table7, additional_claims == max(additional_claims)) %>% pull(additional_claims)`, followed by `r arrange(table7, desc(additional_claims))$area_name[2]` (`r arrange(table7, desc(additional_claims))$additional_claims[2]`), `r arrange(table7, desc(additional_claims))$area_name[3]`(`r arrange(table7, desc(additional_claims))$additional_claims[3]`), `r arrange(table7, desc(additional_claims))$area_name[4]`(`r arrange(table7, desc(additional_claims))$additional_claims[4]`) and `r arrange(table7, desc(additional_claims))$area_name[5]`(`r arrange(table7, desc(additional_claims))$additional_claims[5]`).
+
+
+```{r UCMSOATable}
+
+tbl7 <- reactable(
+  table7,
+  pagination = FALSE,
+  defaultSorted = "area_name",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(headerClass = "header", align = "right", maxWidth = 60),
+  columns = list(
+    area_name = colDef(name = "MSOA", maxWidth = 220, align = "left"),
+    additional_claims = colDef(
+      name = "Additional claims",
+      maxWidth = 175,
+      align = "left",
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table7$additional_claims), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 5, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    ),
+    percentage_change = colDef(name = "% Change", maxWidth = 80),
+    Share = colDef(name = "Share Feb 21", maxWidth = 80, align = "left"),
+    latestm12_rate = colDef(name = latestm12, maxWidth = 60, align = "left"),
+    latest_rate = colDef(name = latest, maxWidth = 60, align = "left"),
+    `Change` = colDef(
+      maxWidth = 175,
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table7$`Change`), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 5, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    )
+    ),
+  columnGroups = list(
+    colGroup(name = "Count", columns = c(latestm12, latest, "additional_claims", "percentage_change", "Share")),
+    colGroup(name = "Rate", columns = c("latestm12_rate", "latest_rate", "Change"))
+  ),
+  compact = TRUE,
+  class = "large-table"
+)
+
+div(class = "div",
+div(class= "large-table tableTitle", "Change on the Universal Credit claims for Trafford's MSOAs"),
+tbl7
+)
+
+```
+
+The MSOAs with higher rates of Universal Credit claims in `r latest` were `r filter(table7, latest_rate == max(latest_rate)) %>% pull(area_name)` with `r filter(table7, latest_rate == max(latest_rate))$latest_rate`% and `r arrange(table7, desc(latest_rate))$area_name[2]` with `r arrange(table7, desc(latest_rate))$latest_rate[2]`%. The MSOAs where the rate of Universal Credit claims has grown more from `r latestm12` to `r latest` were also `r filter(table7, Change == max(Change)) %>% pull(area_name)` and `r arrange(table7, desc(Change))$area_name[2]` with `r arrange(table7, desc(Change))$Change[1]`% and `r arrange(table7, desc(Change))$Change[2]`% respectively along with `r arrange(table7, desc(Change))$area_name[3]` with `r arrange(table7, desc(Change))$Change[3]`%.
+
+ <div class="row">
+  <div class = "col-sm-6">
+
+```{r UCMSOADotPlot, fig.height=6}
+
+uc_plot_dot <- table7 %>% 
+  select (area_name,{{latestm12}}:=latestm12_rate, {{latest}}:=latest_rate) %>%
+  gather(period,value,-one_of("area_name")) %>%
+  mutate(period=as.yearmon(period, format="%B %Y")) %>%
+  bind_rows(trafford_uc %>% select(area_name,period,value=rate) %>% filter(period %in% c(as.yearmon(latest),as.yearmon(latestm12))) )%>%
+   mutate(period = factor(period, levels = c(latestm12,latest)),
+         area_name = fct_reorder(factor(area_name), ifelse(period == latest, value, NA), na.rm = TRUE),
+         area_name = fct_relevel(factor(area_name), "Trafford"))
+
+ggplot(uc_plot_dot, aes(value,area_name)) +
+  geom_line(color = "grey", size=0.5) +
+  geom_point(aes(color = period), size = 3) +
+  scale_x_continuous(labels = function(x){ paste0(x, "%") }, limits = c(0, 30)) +
+  scale_colour_manual(values = c( "#66c2a4", "#006d2c")) +
+  labs(x = "percentage of residents aged 16 to 64", y = NULL,
+       title = "Universal Credit claims rate", 
+       subtitle = paste0("Trafford MSOAs, ", latestm12, " and ", latest), 
+       caption = "Source: DWP")+
+  theme_minimal() +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1),
+        legend.position = "bottom", 
+        legend.title = element_blank())
+
+```
+
+  </div>
+  
+  <div class = "col-sm-6">
+
+```{r UCMSOAMap, fig.height=6}
+
+msoa_uc <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2011/trafford_msoa_generalised.geojson", quiet = TRUE) %>% 
+  left_join(., select(uc,latest_rate,area_code), by = "area_code")
+
+ggplot() +
+  geom_sf(data = msoa_uc, aes(fill = latest_rate), alpha = 1, colour = "#FFFFFF",  size = 0.5) +
+  scale_fill_gradientn(colours = c("#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"), 
+                       na.value = "#f0f0f0",
+                       guide = guide_legend(keyheight = unit(3, units = "mm"), 
+                                            keywidth=unit(12, units = "mm"), 
+                                            label.position = "bottom", 
+                                            title = "Rate",
+                                            title.position = 'top', 
+                                            nrow = 1)) +
+  labs(x = NULL, y = NULL, title = "Universal Credit claims rate",
+       subtitle = paste0("Trafford MSOAs, ", latest),
+       caption = "Source: DWP\nContains OS data © Crown copyright and database right 2020") +
+  theme(plot.margin = unit(c(0.5,0,1,0), "cm"),
+        plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+        axis.text = element_blank(),
+        plot.caption = element_text(size=6,margin = margin(t = 55)),
+        legend.position = c(0.3,-0.05),
+        legend.title = element_text(size = 9),
+        legend.text = element_text(size = 8),
+        plot.background = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        axis.ticks = element_blank())
+
+
+```
+
+  </div>
+ </div> 
+
+```{r UCAgeData}
+#Universal Credit
+# Source: DWP
+# URL: https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html
+# Licence: Open Government Licence
+
+
+query <- list(database = unbox("str:database:UC_Monthly"),
+              measures = "str:count:UC_Monthly:V_F_UC_CASELOAD_FULL",
+              dimensions = c("str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE",
+                             "str:field:UC_Monthly:F_UC_DATE:DATE_NAME",
+                             "str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
+                  map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
+                `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102)))),
+                `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE:C_UC_AGE_BAND:",c(1,2,3,4,5,6,7,8,9,10,999))))
+
+              )) %>% toJSON()
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+traf_uc <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value")) %>%
+  mutate(indicator="People on Universal Credit",
+         period=format(as.yearmon(`Month`, "%B %Y"),"%b %Y")) %>%
+  select(area_name = `National - Regional - LA - OAs`, indicator, Age="Age (bands and single year)", period, value)
+
+
+table8 <- traf_uc %>%
+  select(-c(area_name,indicator)) %>%
+  filter(period %in% c(latestm12,latest)) %>%
+  spread(period,value) %>%
+  mutate(additional_claims= get(latest)- get(latestm12),
+         percentage_change = round(additional_claims/get(latestm12) *100,0)) %>%
+  select(Age, `latestm12`= latestm12, `latest` = latest, additional_claims, percentage_change)
+```
+ 
+In Trafford from  `r latestm12` to `r latest` almost all 5-year age bands have increased at least an 80% in the number of Universal Credit claims. When considering the number of additional claims the 5-year age band `r filter(table8, latest == max(latest)) %>% pull(Age)` years had the highest with `r filter(table8, latest == max(latest)) %>% pull(latest)` more claims.
+ 
+```{r UCAgeTable}
+
+
+tbl8 <- reactable(
+  table8,
+  pagination = FALSE,
+  defaultSorted = "Age",
+  defaultSortOrder = "asc",
+  defaultColDef = colDef(headerClass = "header", align = "right", maxWidth = 60),
+  columns = list(
+    Age = colDef(name = "Age", maxWidth = 60, align = "left"),
+    latestm12 = colDef(name = latestm12, maxWidth = 60),
+    latest = colDef(name = latest, maxWidth = 60),
+    additional_claims = colDef(
+      name = "Additional claims",
+      maxWidth = 175,
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table8$additional_claims), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 9, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    ),
+    percentage_change = colDef(
+      name = "% Change",
+      maxWidth = 175,
+      cell = function(value) {
+        width <- paste0(value * 100 / max(table8$percentage_change), "%")
+        value <- format(value, big.mark = ",")
+        value <- format(value, width = 9, justify = "right")
+        bar <- div(
+          class = "bar-chart",
+          style = list(marginRight = "6px"),
+          div(class = "bar", style = list(width = width, backgroundColor = "#66c2a4"))
+        )
+        div(class = "bar-cell", span(class = "number", value), bar)
+      }
+    )
+    ),
+  compact = TRUE,
+  class = "large-table"
+)
+
+div(class = "div",
+div(class= "large-table tableTitle", "Change in the Universal Credit claims by age nabd for Trafford"),
+tbl8
+)
+
+```
+
+
+Following the start of the Covid-19 pandemic in Mar 2020 the number of claims for all ages suddenly rose from the pre-pandemic levels at a similar proportion for all age bands with the age band 16-24 rising faster in May 2020. All age bands claims are still slowly rising. At the start of 2020 the age band 25-34 had the highest number of claims and also the highest rate maintaining that position after the rise from Mar 2020.
+
+ <div class="row">
+  <div class = "col-sm-6">
+  
+```{r UCAgeMline}
+
+uc_plot_age_c <- traf_uc %>%
+  select(-c(area_name, indicator)) %>%
+  mutate(Age=fct_collapse(Age, `16-24` = c("16-19", "20-24"),
+                       `25-34` = c("25-29", "30-34"),
+                       `35-44` = c("35-39", "40-44"),
+                       `45-54` = c("45-49", "50-54"),
+                       `55+` = c("55-59", "60-65","Over 65"))) %>%
+  group_by(Age,period) %>%
+  summarise_all(sum) %>%
+  mutate(date=as.Date(as.yearmon(period), format="%b %Y")) %>%
+  mutate(label = if_else(date == max(date), Age, factor(NA)))
+  
+
+ ggplot(uc_plot_age_c, aes(x = date, y = value, colour = Age)) +
+  geom_hline(yintercept = 0, size = 0.3, colour = "#333333") +
+  geom_line(size = 1, show.legend = FALSE) +
+  geom_text(aes(x = max(date), label = label, fontface = "bold", hjust = 0), show.legend = FALSE) +
+  #scale_color_startrek() +
+  scale_x_date(breaks = c(min(uc_plot_age_c$date), as.Date(as.yearmon("Mar 2020"),format="%b %Y"), max(uc_plot_age_c$date)), date_labels = "%b %Y") +
+  scale_y_continuous(expand = c(0.005, 0.005)) +
+  labs(title = "Univeral Credit claims by age band",
+       subtitle = paste("Trafford, ", latestm12, " - ",latest),
+       caption = "Source: DWP",
+       x = NULL,
+       y = NULL,
+       colour = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+    plot.margin = unit(rep(0.5,4), "cm"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks.x = element_line(colour = "#333333", size = 0.5))  +
+  coord_cartesian(clip = "off") 
+
+
+```
+
+  </div>
+  
+  <div class = "col-sm-6">
+  
+```{r UCAgeMlineRate}
+pop_trafford_age2 <- pop_trafford_age_raw %>%
+    select(age = C_AGE_NAME, n = OBS_VALUE) %>%
+    mutate(age = parse_number(age),
+          ageband = cut(age,
+                        breaks = c(0,15,24,34,44,54,64,120),
+                        labels = c("0-15","16-24","25-34","35-44","45-54","55-65","65+"),
+                        right = TRUE,
+                        include.lowest = TRUE)) %>%
+   group_by(ageband) %>%
+   summarise(population = sum(n))
+
+uc_plot_age_r <- traf_uc %>%
+  select(-c(area_name, indicator)) %>%
+  mutate(Age=fct_collapse(Age, `16-24` = c("16-19", "20-24"),
+                       `25-34` = c("25-29", "30-34"),
+                       `35-44` = c("35-39", "40-44"),
+                       `45-54` = c("45-49", "50-54"),
+                       `55-65` = c("55-59", "60-65"),
+                       `Over 65` = "Over 65")) %>%
+  filter(!Age == "Over 65") %>%
+  group_by(Age,period) %>%
+  summarise_all(sum) %>%
+  left_join(pop_trafford_age2, by = c("Age" = "ageband")) %>%
+  mutate(rate = round((value/population)*100,1),
+         date=as.Date(as.yearmon(period), format="%b %Y")) %>%
+  mutate(label = if_else(date == max(date), Age, factor(NA)))
+  
+
+ ggplot(uc_plot_age_r, aes(x = date, y = rate, colour = Age)) +
+  geom_hline(yintercept = 0, size = 0.3, colour = "#333333") +
+  geom_line(size = 1, show.legend = FALSE) +
+  geom_text(aes(x = max(date), label = label, fontface = "bold", hjust = 0), show.legend = FALSE) +
+  #scale_color_startrek() +
+  scale_x_date(breaks = c(min(uc_plot_age_r$date), as.Date(as.yearmon("Mar 2020"),format="%b %Y"), max(uc_plot_age_r$date)), date_labels = "%b %Y") +
+  scale_y_continuous(expand = c(0.005, 0.005)) +
+  labs(title = "Univeral Credit claims rate by age band",
+       subtitle = paste("Trafford, ", latestm12, " - ",latest),
+       caption = "Source: DWP",
+       x = NULL,
+       y = NULL,
+       colour = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(size=16,face = "bold"),
+        plot.subtitle = element_text(size=14),
+    plot.margin = unit(rep(0.5,4), "cm"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks.x = element_line(colour = "#333333", size = 0.5))  +
+  coord_cartesian(clip = "off") 
+
+```
+
+  </div>
+ </div>
+ 
+```{r UCConditionData}
+
+query <- list(database = unbox("str:database:UC_Monthly"),
+              measures = "str:count:UC_Monthly:V_F_UC_CASELOAD_FULL",
+              dimensions = c("str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE",
+                             "str:field:UC_Monthly:F_UC_DATE:DATE_NAME",
+                             "str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
+                `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202102)))),
+                `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME` = list(
+                  map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME:C_UC_CONDITIONALITY_REGIME:",c("AA","AB","BC","BD","DF","CE"))))
+
+              )) %>% toJSON()
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+uc_condition <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value")) %>%
+  left_join(lookup%>%select(msoa11cd,msoa11nm,msoa11hclnm), by = c("National - Regional - LA - OAs" = "msoa11nm")) %>%
+  mutate(period=format(as.yearmon(`Month`, "%B %Y"),"%b %Y")) %>%
+  select(area_code=msoa11cd, area_name = msoa11hclnm, condition = `Conditionality Regime`, period, value)
+
+```
+
+The [Conditionality](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/Conditionality%20Regime.html)  regimen for entitlement to Universal Credit is associated to work-related things that claimants will have to do to maintain elegibility. In Trafford the largest proportion of Universal Credit claims are in the "Searching for Work" category however there is also a significant proportion of claims under "No work requirements".
+
+```{r UCConditionMMK, fig.height=5.5,fig.width=7}
+uc_msoa_cond<- uc_condition %>%
+  group_by(period, area_code, area_name) %>%
+  mutate(condition = fct_rev(condition),
+         total = sum(value), percent = value/total) 
+# plot data ---------------------------
+
+ggplot(uc_msoa_cond, aes(x = area_name, y = percent, width = total, fill = condition)) +
+  geom_col(position = "stack", colour = NA) +
+  facet_grid(~fct_reorder(area_name,total, .desc = T), scales = "free_x", space = "free_x") +
+  scale_y_continuous(expand = c(0.005, 0.005), breaks = c(0, 0.5, 1), labels = percent) +
+  scale_fill_brewer(palette = "Set3") +
+  labs(x = NULL, y = NULL, 
+       title = "Universal Credit Claims by Trafford's MSOAs and Conditionality regimen",
+       subtitle = unique(uc_msoa_cond$period),
+       caption = "The width of the columns is proportional to the number of claims. Source: DWP.",
+       fill = NULL) +
+  theme(plot.title = element_text(size=12,face = "bold"),
+        plot.subtitle = element_text(size=10),
+    panel.spacing.x = unit(0.007, "npc"),
+    panel.grid.major = element_blank(),
+    strip.text.x = element_blank(),
+    legend.position = "right",
+    axis.text.x = element_text(size=8, angle = 90, hjust = 1, vjust=0.5),
+    panel.background = element_blank(),
+    axis.ticks = element_blank())
+
+```
+
+
+</div>
+
+
+
+```{css}
+
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+html, body
+{
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    font-family: 'Open Sans', sans-serif;
+    color: #212121;
+}
+
+h1, h2, h3, h4, h5, h6, header
+{
+    font-family: 'Roboto', sans-serif;
+    color: #707070;
+}
+
+a
+{
+    color: #046dc3;
+    text-decoration: none;
+}
+
+a:hover
+{
+    text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5, h6, .header
+{
+    font-family: 'Roboto', sans-serif;
+    color: #757575;
+}
+
+p {
+  line-height: 1.8em;
+}
+
+.main-container {
+  max-width: 1000px;
+}
+.header {
+  border-bottom: 2px solid #555;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.header:hover {
+  background-color: #eee;
+}
+
+.bar-cell {
+  display: flex;
+  align-items: center;
+}
+
+.number {
+  width: 30px;
+  text-align: right;
+}
+
+.bar-chart {
+  display: flex;
+  flex-grow: 1;
+  margin-left: 6px;
+  height: 100%;
+}
+
+.bar {
+  height: 12px;
+}
+
+.large-table {
+  font-size: 13px;
+}
+
+.table {
+  font-size: 12px;
+}
+
+.small-table {
+  font-size: 11px;
+}
+
+.small-table .rt-td {
+  padding: 3px 3px;
+}
+
+.large-table .rt-td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tableTitle {
+  font-weight: bold;
+  margin: 0px;
+}
+
+```
