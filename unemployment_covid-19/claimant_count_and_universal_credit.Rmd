@@ -16,6 +16,11 @@ library(reactable) ; library(htmltools)
 
 base <- "Jan 2020"
 
+#Claimant Count
+# Source: ONS
+# URL: https://www.nomisweb.co.uk/sources/cc
+# Licence: Open Government Licence
+
 cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS13-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
     select(period = DATE_NAME,
          area_code = GEOGRAPHY_CODE,
@@ -113,6 +118,11 @@ ggplot(cc_traffordp,aes(x = date, y = round(change,0))) +
  </div>
  
 ```{r CCWardData}
+#Claimant Count
+# Source: ONS
+# URL: https://www.nomisweb.co.uk/sources/cc
+# Licence: Open Government Licence
+
 claimant_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latestMINUS12,latest&gender=0&age=0&measure=1,2&measures=20100")
 
 claimant_area <- claimant_ward %>%
@@ -137,7 +147,7 @@ c_rate <- claimant_area %>%
 
 ```
  
-The Trafford ward with the largest share of claims in `r latest` was `r filter(c_count, Share == max(Share)) %>% pull(area_name)` with `r filter(c_count, Share == max(Share))$Share`% of all claimants within Trafford. The ward with the highest percentage change from `r latestm12` to `r latest` is `r filter(c_count, percentage_change == max(percentage_change)) %>% pull(area_name)` with `r filter(c_count, percentage_change == max(percentage_change)) %>% pull(percentage_change)`% change. However, the ward with more additional claims in this period is `r filter(c_count, additional_claims == max(additional_claims)) %>% pull(area_name)` with `r filter(c_count, additional_claims == max(additional_claims)) %>% pull(additional_claims)`, followed by `r arrange(c_count, desc(additional_claims))$area_name[2]` (`r arrange(c_count, desc(additional_claims))$additional_claims[2]`), `r arrange(c_count, desc(additional_claims))$area_name[3]`(`r arrange(c_count, desc(additional_claims))$additional_claims[3]`), `r arrange(c_count, desc(additional_claims))$area_name[4]`(`r arrange(c_count, desc(additional_claims))$additional_claims[4]`) and `r arrange(c_count, desc(additional_claims))$area_name[5]`(`r arrange(c_count, desc(additional_claims))$additional_claims[5]`).
+The Trafford ward with the largest share of claims in `r latest` was `r filter(c_count, Share == max(Share)) %>% pull(area_name)` with `r filter(c_count, Share == max(Share))$Share`% of all claimants within Trafford. The ward with the highest percentage change from `r latestm12` to `r latest` is `r filter(c_count, percentage_change == max(percentage_change)) %>% pull(area_name)` with `r filter(c_count, percentage_change == max(percentage_change)) %>% pull(percentage_change)`% change. However, the ward with more additional claims in this period is `r filter(c_count, additional_claims == max(additional_claims)) %>% pull(area_name)` with `r filter(c_count, additional_claims == max(additional_claims)) %>% pull(additional_claims)`, followed by `r arrange(c_count, desc(additional_claims))$area_name[2]` (`r arrange(c_count, desc(additional_claims))$additional_claims[2]`), `r arrange(c_count, desc(additional_claims))$area_name[3]` (`r arrange(c_count, desc(additional_claims))$additional_claims[3]`), `r arrange(c_count, desc(additional_claims))$area_name[4]` (`r arrange(c_count, desc(additional_claims))$additional_claims[4]`) and `r arrange(c_count, desc(additional_claims))$area_name[5]` (`r arrange(c_count, desc(additional_claims))$additional_claims[5]`).
 
 ```{r CCWardTable}
 
@@ -396,7 +406,7 @@ tbl4 <- reactable(
     additional_claims = colDef(
       name = "Additional claims",
       cell = function(value) {
-        width <- paste0(value * 100 / max(table2$additional_claims), "%")
+        width <- paste0(value * 100 / max(table4$additional_claims), "%")
         value <- format(value, big.mark = ",")
         value <- format(value, width = 9, justify = "right")
         bar <- div(
@@ -437,7 +447,7 @@ tbl4
   </div>
  </div>
  
-At the start of 2020 the age band 25-34 already had the highest number of claims however after the effects of the Covid-19 pandemic that started in Mar 2020 this figure increased more compared to the other age bands. The claimant rate as a proportion of the Traford's population of each age band shows a higher increase in the age bands of 25-34 and 16-24 compared to the others.
+At the start of 2020 the age band 25-34 already had the highest number of claims, however after the effects of the Covid-19 pandemic which started in March 2020 this figure increased more sharply compared to the other age bands. The claimant rate as a proportion of Trafford's population within each age band shows a higher increase in the age bands of 16-24 and 25-34 compared to the others.
 
  <div class="row">
   <div class = "col-sm-6">
@@ -465,7 +475,7 @@ plotdf <- quinary %>%
   scale_x_date(breaks = c(min(plotdf$date), as.Date(as.yearmon("Mar 2020"),format="%b %Y"), max(plotdf$date)), date_labels = "%b %Y") +
   scale_y_continuous(expand = c(0.005, 0.005)) +
   labs(title = "Claimant Count by age band",
-       subtitle = paste("Trafford, ", latestm12, " - ",latest),
+       subtitle = paste("Trafford, ", base, " - ",latest),
        caption = "Source: ONS",
        x = NULL,
        y = NULL,
@@ -487,6 +497,11 @@ plotdf <- quinary %>%
   <div class = "col-sm-6">
 
 ```{r CCAgeRate}
+
+# Source:Mid-2019 population estimates for local authorities in England
+# URL: https://www.nomisweb.co.uk/datasets/pestsyoala
+# Licence: Open Government Licence v3.0
+
 
 pop_trafford_age_raw <- read_csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1811939363&date=latest&gender=0&c_age=101...191&measures=20100&select=date_name,geography_name,geography_code,gender_name,c_age_name,measures_name,obs_value,obs_status_name")
 
@@ -528,7 +543,7 @@ plotdf2 <- quinary %>%
   scale_x_date(breaks = c(min(plotdf$date), as.Date(as.yearmon("Mar 2020"),format="%b %Y"), max(plotdf$date)), date_labels = "%b %Y") +
   scale_y_continuous(expand = c(0.005, 0.005)) +
   labs(title = "Claimant rate by age band",
-       subtitle = paste("Trafford, ", latestm12, " - ",latest),
+       subtitle = paste("Trafford, ", base, " - ",latest),
        caption = "Source: ONS",
        x = NULL,
        y = NULL,
@@ -547,12 +562,17 @@ plotdf2 <- quinary %>%
   </div>
  </div>
 
-Almost half of Trafford's claimants are residents of five of the 21 Trafford's wards. Almost half of the claimants are under 34 years.
+Almost half of Trafford's claimants are residents of five of the 21 wards. Almost half of the claimants are under 34 years.
 
  <div class="row">
   <div class = "col-sm-6">
 
 ```{r CCWardAgeTable}
+#Claimant Count
+# Source: ONS
+# URL: https://www.nomisweb.co.uk/sources/cc
+# Licence: Open Government Licence
+
 
 cc_ward_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latest&gender=0&age=10...20&measure=1&measures=20100")%>%
   select(period = DATE_NAME, area_code = GEOGRAPHY_CODE, area_name = GEOGRAPHY_NAME, ageband = AGE_NAME, n = OBS_VALUE) %>%
@@ -646,9 +666,18 @@ api_key <- ""
 # API endpoint
 path <- "https://stat-xplore.dwp.gov.uk/webapi/rest/v1/table"
 
+# Source:Mid-2019 population estimates for local authorities in England
+# URL: https://www.nomisweb.co.uk/datasets/pestsyoala
+# Licence: Open Government Licence v3.0
+
 pop_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1811939363&date=latest&gender=0&c_age=203&measures=20100") %>%
     select(area_code = GEOGRAPHY_CODE,
          pop16_64 = OBS_VALUE)
+
+#Universal Credit
+# Source: DWP
+# URL: https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html
+# Licence: Open Government Licence
 
 query <- list(database = unbox("str:database:UC_Monthly"),
               measures = "str:count:UC_Monthly:V_F_UC_CASELOAD_FULL",
@@ -760,14 +789,20 @@ ggplot(uc_plot_ch,aes(x = date, y = change)) +
 lookup <- read_csv("https://visual.parliament.uk/msoanames/static/MSOA-Names-Latest.csv") %>%
   filter(Laname=="Trafford")
 
+# Mid-2019 population estimates by ward
+# Source: Nomis / ONS
+# URL: https://www.nomisweb.co.uk/datasets/pestsyoaoa
+# Licence: Open Government Licence 3.0
+
+msoa_pop <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=1245709510...1245709537&date=latest&gender=0&c_age=203&measures=20100") %>%
+    select(area_code = GEOGRAPHY_CODE,
+         pop16_64 = OBS_VALUE)
+
 #Universal Credit
 # Source: DWP
 # URL: https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html
 # Licence: Open Government Licence
 
-msoa_pop <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=1245709510...1245709537&date=latest&gender=0&c_age=203&measures=20100") %>%
-    select(area_code = GEOGRAPHY_CODE,
-         pop16_64 = OBS_VALUE)
 
 query <- list(database = unbox("str:database:UC_Monthly"),
               measures = "str:count:UC_Monthly:V_F_UC_CASELOAD_FULL",
@@ -810,7 +845,7 @@ table7 <- uc %>%
  
 ```
  
-The Trafford MSOA with the largest share of claims in `r latest` was `r filter(table7, Share == max(Share)) %>% pull(area_name)` with `r filter(table7, Share == max(Share))$Share`% of all Universal Credit claims in Trafford. The MSOA with the highest percentage change from `r latestm12` to `r latest` is `r filter(table7, percentage_change == max(percentage_change)) %>% pull(area_name)` with `r filter(table7, percentage_change == max(percentage_change)) %>% pull(percentage_change)`% change. However, the MSOA with more additional claims in this period is `r filter(table7, additional_claims == max(additional_claims)) %>% pull(area_name)` with `r filter(table7, additional_claims == max(additional_claims)) %>% pull(additional_claims)`, followed by `r arrange(table7, desc(additional_claims))$area_name[2]` (`r arrange(table7, desc(additional_claims))$additional_claims[2]`), `r arrange(table7, desc(additional_claims))$area_name[3]`(`r arrange(table7, desc(additional_claims))$additional_claims[3]`), `r arrange(table7, desc(additional_claims))$area_name[4]`(`r arrange(table7, desc(additional_claims))$additional_claims[4]`) and `r arrange(table7, desc(additional_claims))$area_name[5]`(`r arrange(table7, desc(additional_claims))$additional_claims[5]`).
+The Trafford MSOA with the largest share of claims in `r latest` was `r filter(table7, Share == max(Share)) %>% pull(area_name)` with `r filter(table7, Share == max(Share))$Share`% of all Universal Credit claims in Trafford. The MSOA with the highest percentage change from `r latestm12` to `r latest` is `r filter(table7, percentage_change == max(percentage_change)) %>% pull(area_name)` with `r filter(table7, percentage_change == max(percentage_change)) %>% pull(percentage_change)`% change. However, the MSOA with more additional claims in this period is `r filter(table7, additional_claims == max(additional_claims)) %>% pull(area_name)` with `r filter(table7, additional_claims == max(additional_claims)) %>% pull(additional_claims)`, followed by `r arrange(table7, desc(additional_claims))$area_name[2]` (`r arrange(table7, desc(additional_claims))$additional_claims[2]`), `r arrange(table7, desc(additional_claims))$area_name[3]` (`r arrange(table7, desc(additional_claims))$additional_claims[3]`), `r arrange(table7, desc(additional_claims))$area_name[4]` (`r arrange(table7, desc(additional_claims))$additional_claims[4]`) and `r arrange(table7, desc(additional_claims))$area_name[5]` (`r arrange(table7, desc(additional_claims))$additional_claims[5]`).
 
 
 ```{r UCMSOATable}
@@ -1049,14 +1084,14 @@ tbl8 <- reactable(
 )
 
 div(class = "div",
-div(class= "large-table tableTitle", "Change in the Universal Credit claims by age nabd for Trafford"),
+div(class= "large-table tableTitle", "Change in the Universal Credit claims by age band for Trafford"),
 tbl8
 )
 
 ```
 
 
-Following the start of the Covid-19 pandemic in Mar 2020 the number of claims for all ages suddenly rose from the pre-pandemic levels at a similar proportion for all age bands with the age band 16-24 rising faster in May 2020. All age bands claims are still slowly rising. At the start of 2020 the age band 25-34 had the highest number of claims and also the highest rate maintaining that position after the rise from Mar 2020.
+Following the start of the Covid-19 pandemic in March 2020 the number of claims for all ages rose dramatically from pre-pandemic levels at a similar proportion for all age bands with the age band 16-24 rising faster in May 2020. All age bands claims are still slowly rising. At the start of 2020 the age band 25-34 had the highest number of claims and also the highest rate maintaining that position after the rise from Mar 2020, while the 16-24 age band has moved from having the third highest rate to having the second highest claims rate.
 
  <div class="row">
   <div class = "col-sm-6">
@@ -1084,7 +1119,7 @@ uc_plot_age_c <- traf_uc %>%
   scale_x_date(breaks = c(min(uc_plot_age_c$date), as.Date(as.yearmon("Mar 2020"),format="%b %Y"), max(uc_plot_age_c$date)), date_labels = "%b %Y") +
   scale_y_continuous(expand = c(0.005, 0.005)) +
   labs(title = "Univeral Credit claims by age band",
-       subtitle = paste("Trafford, ", latestm12, " - ",latest),
+       subtitle = paste("Trafford, ", base, " - ",latest),
        caption = "Source: DWP",
        x = NULL,
        y = NULL,
@@ -1142,7 +1177,7 @@ uc_plot_age_r <- traf_uc %>%
   scale_x_date(breaks = c(min(uc_plot_age_r$date), as.Date(as.yearmon("Mar 2020"),format="%b %Y"), max(uc_plot_age_r$date)), date_labels = "%b %Y") +
   scale_y_continuous(expand = c(0.005, 0.005)) +
   labs(title = "Univeral Credit claims rate by age band",
-       subtitle = paste("Trafford, ", latestm12, " - ",latest),
+       subtitle = paste("Trafford, ", base, " - ",latest),
        caption = "Source: DWP",
        x = NULL,
        y = NULL,
@@ -1162,6 +1197,11 @@ uc_plot_age_r <- traf_uc %>%
  </div>
  
 ```{r UCConditionData}
+
+#Universal Credit
+# Source: DWP
+# URL: https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html
+# Licence: Open Government Licence
 
 query <- list(database = unbox("str:database:UC_Monthly"),
               measures = "str:count:UC_Monthly:V_F_UC_CASELOAD_FULL",
@@ -1292,7 +1332,7 @@ p {
 }
 
 .number {
-  width: 30px;
+  width: 35px;
   text-align: right;
 }
 
