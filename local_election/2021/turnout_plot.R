@@ -14,7 +14,7 @@ latest_year <- turnout_df %>% filter(election_year == max(election_year))
 ggplot(turnout_df, aes(x = election_year, y = turnout, label = str_c(sprintf("%0.1f", round(turnout, digits = 1)), "%"))) + 
   facet_wrap(ward_name~., nrow = 7, scales = "fixed") + 
   scale_x_continuous(breaks = c(2016, 2018, 2019, 2021), labels = c("2016", "2018", "2019", "2021")) +
-  scale_y_continuous(labels = function(y){ paste0(y, "%") }) +
+  scale_y_continuous(limits = c(0, 60), labels = function(y){ paste0(y, "%") }) +
   geom_line(col = "#dddddd") +
   geom_point(size = 0.5, col = "#999999") +
   geom_point(data = max_turnout, size = 1, col = '#212121') +
