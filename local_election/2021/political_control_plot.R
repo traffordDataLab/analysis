@@ -1,7 +1,7 @@
 # Parliament chart visualisation showing the political control of Trafford
 
 # Required packages
-library(tidyverse) ; library(ggpol)
+library(tidyverse) ; library(ggpol) ; library(svglite)
 
 # Load the source data
 political_control <- read_csv("data/political_control_2021.csv")
@@ -36,3 +36,4 @@ ggplot(parliament_chart) +
         legend.position = "bottom")
 
 ggsave("images/seats_by_party_parliament_chart_2021.png", dpi = 320, scale = 1, width = 5.35, height = 4)
+ggsave("images/seats_by_party_parliament_chart_2021.svg", dpi = 320, scale = 1, width = 5.35, height = 4)
