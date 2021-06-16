@@ -1,7 +1,7 @@
 # Visualisation of local election turnout by ward
 
 # Required packages
-library(tidyverse) ; library(ggrepel)
+library(tidyverse) ; library(ggrepel) ; library(svglite)
 
 # Load in the data
 turnout_df <- read_csv("data/local_election_turnout.csv")
@@ -30,8 +30,10 @@ ggplot(turnout_df, aes(x = election_year, y = turnout, label = str_c(sprintf("%0
         plot.margin = unit(c(0.5, 0.75, 0.5, 0.75), "cm"),
         panel.spacing.x = unit(3, "lines"),
         panel.spacing.y = unit(1, "lines"),
-        plot.title = element_text(size = 20, face = "bold"),
-        plot.subtitle = element_text(size = 10, face = "italic"),
+        plot.title = element_text(size = 20, face = "bold", color = "#707070"),
+        plot.subtitle = element_text(size = 10, face = "italic", color = "#707070"),
+        plot.caption = element_text(color = "#707070"),
         plot.title.position = "plot")
 
 ggsave("images/ward_turnout_2016-2021.png", dpi = 320, scale = 1, width = 8.81, height = 8.17)
+ggsave("images/ward_turnout_2016-2021.svg", dpi = 320, scale = 1, width = 7.81, height = 7.17)
