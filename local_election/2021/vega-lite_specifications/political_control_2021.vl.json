@@ -5,12 +5,12 @@
   "width": 475,
   "height": 500,
   "title": {
-    "text": "Political control of Trafford 2021",
+    "text": "Political control of Trafford's Wards 2021",
     "offset": 10,
     "font": "sans-serif",
     "fontWeight": 400,
     "fontSize": 18,
-    "color": "#212121"
+    "color": "#707070"
   },
   "data": {
     "url": "https://www.trafforddatalab.io/analysis/local_election/2021/data/political_control_2021.csv"
@@ -21,11 +21,12 @@
       "type": "ordinal",
       "axis": {
         "labels": false,
+        "description": "Source: trafford.gov.uk | @traffordDataLab",
         "title": "Source: trafford.gov.uk | @traffordDataLab",
         "titleX": 272,
         "titleY": 10,
         "titleFont": "sans-serif",
-        "titleFontWeight": 400,
+        "titleFontWeight": 300,
         "titleColor": "#707070"
       }
     },
@@ -65,7 +66,10 @@
           {"field": "councillor_name", "type": "nominal", "title": "Councillor"},
           {"field": "councillor_party_label", "type": "nominal", "title": "Party"},
           {"field": "elected_year", "type": "nominal", "title": "Elected"}
-        ]
+        ],
+        "description": {
+          "field": "ward"
+        }
       }
     }
   ],

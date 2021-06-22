@@ -1,4 +1,4 @@
-# Script for creating the datasets required for visualising the election results data etc.
+# Script for creating the datasets required for visualising the election results data.
 
 # Required packages
 library(tidyverse) ; library(lubridate)
@@ -66,7 +66,9 @@ current_councillors <- elected_candidates %>%
   slice(tail(row_number(), 3))
 
 #----------------------------------
-# Amend the current_councillors dataset to produce the data for the political control visualisation
+# Political Control dataset
+
+# Amend the current_councillors dataset to produce the data
 political_control <- current_councillors %>%
   group_by(ward) %>%
   mutate(elected_ordinal = row_number()) %>%
@@ -81,4 +83,18 @@ political_control <- current_councillors %>%
          elected_ordinal)
   
 write_csv(political_control, "data/political_control_2021.csv")
+
 #----------------------------------
+# Turnout dataset for all local elections we have data for
+
+turnout <- election_results %>%
+  filter(TypeofElection == "DistrictAndBorough") %>%
+  mutate(ward_code = str_extract(ElectoralAreaURI, "E050008[0-9]{2}"),
+         election_year = year(ElectionDate)) %>%
+  select(election_year,
+         ward_code,
+         ward_name = ElectoralAreaLabel,
+         turnout = PercentageTurnout) %>%
+  distinct() # remove the multiple rows which are due to there being one row per candidate
+
+write_csv(turnout, "data/local_election_turnout.csv")
