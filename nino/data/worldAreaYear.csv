@@ -1,4 +1,4 @@
-area_name,registration_year,nationality,value
+area_name,registration_period,nationality,value
 Trafford,2002,European Union,211
 Trafford,2003,European Union,250
 Trafford,2004,European Union,443
@@ -18,6 +18,7 @@ Trafford,2017,European Union,622
 Trafford,2018,European Union,560
 Trafford,2019,European Union,637
 Trafford,2020,European Union,110
+Trafford,2021,European Union,110
 Trafford,2002,Non-European Union (Other Europe),40
 Trafford,2003,Non-European Union (Other Europe),34
 Trafford,2004,Non-European Union (Other Europe),19
@@ -37,6 +38,7 @@ Trafford,2017,Non-European Union (Other Europe),19
 Trafford,2018,Non-European Union (Other Europe),27
 Trafford,2019,Non-European Union (Other Europe),48
 Trafford,2020,Non-European Union (Other Europe),32
+Trafford,2021,Non-European Union (Other Europe),24
 Trafford,2002,Asia,374
 Trafford,2003,Asia,301
 Trafford,2004,Asia,317
@@ -56,6 +58,7 @@ Trafford,2017,Asia,318
 Trafford,2018,Asia,325
 Trafford,2019,Asia,479
 Trafford,2020,Asia,322
+Trafford,2021,Asia,126
 Trafford,2002,Rest of the World,248
 Trafford,2003,Rest of the World,266
 Trafford,2004,Rest of the World,222
@@ -75,3 +78,4 @@ Trafford,2017,Rest of the World,115
 Trafford,2018,Rest of the World,138
 Trafford,2019,Rest of the World,183
 Trafford,2020,Rest of the World,101
+Trafford,2021,Rest of the World,72
