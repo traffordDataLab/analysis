@@ -81,7 +81,7 @@ political_control <- current_councillors %>%
          councillor_party_label,
          elected_year,
          elected_ordinal)
-  
+
 write_csv(political_control, "data/political_control_2021.csv")
 
 #----------------------------------
@@ -98,3 +98,27 @@ turnout <- election_results %>%
   distinct() # remove the multiple rows which are due to there being one row per candidate
 
 write_csv(turnout, "data/local_election_turnout.csv")
+
+#----------------------------------
+# Share of the vote from the latest and previous election for the parties who have elected members
+
+vote_share <- election_results %>%
+  mutate(ward_code = str_extract(ElectoralAreaURI, "E050008[0-9]{2}"),
+         election_year = year(ElectionDate),
+         party = case_when(
+           # Normalise the party names for ease of grouping
+           grepl("Conservative", PoliticalPartyLabel) ~ "Conservative Party",
+           PoliticalPartyLabel == "Green Party" ~ "Green Party",
+           grepl("Labour", PoliticalPartyLabel) ~ "Labour Party",
+           PoliticalPartyLabel == "Liberal Democrats" ~ "Liberal Democrats",
+           TRUE ~ "other"
+         )) %>%
+  filter(TypeofElection == "DistrictAndBorough",
+         election_year %in% c(2019, 2021),
+         party != "other") %>%
+  select(election_year,
+         ward_code,
+         ward_name = ElectoralAreaLabel,
+         party,
+         VotesWon,
+         VotesCast)
