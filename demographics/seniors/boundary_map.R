@@ -12,7 +12,7 @@ ggplot() +
   geom_sf(data = wards, fill = "#DDDDCC", alpha = 1, colour = "#ffffff") +
   geom_sf(data = localities, fill = "transparent", colour = "#757575", size = 1) +
   geom_label_repel(data = wards, mapping = aes(x = lon, y = lat, label = area_name), size = 2) +
-  geom_text_repel(data = localities, mapping = aes(x = lon, y = lat, label = area_code), colour = "#757575", fontface = "bold", size = 4) +
+  geom_text_repel(data = localities, mapping = aes(x = lon, y = lat, label = area_name), colour = "#757575", fontface = "bold", size = 4) +
   annotation_scale(location = "bl", style = "ticks") +
   annotation_north_arrow(height = unit(0.8, "cm"), width = unit(0.8, "cm"), location = "tr", which_north = "true") +
   labs(title = "Trafford's localities and wards",

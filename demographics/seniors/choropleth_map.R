@@ -40,7 +40,7 @@ ggplot() +
   geom_sf(data = localities, fill = "transparent", colour = "#757575", size = 1) +
   geom_sf(data = towns, shape = 21, color = "#ffffff", fill = "#de2d26", alpha = 1, size = 2.5) +
   geom_text(data = towns, aes(lon, lat, label = name), color = "#212121", fontface = "bold", size = 3, nudge_y = -0.0025) +
-  geom_text(data = localities, aes(x = lon, y = lat, label = area_code), colour = "#000000", fontface = "bold", size = 4, nudge_y = 0.003) +
+  geom_text(data = localities, aes(x = lon, y = lat, label = area_name), colour = "#000000", fontface = "bold", size = 4, nudge_y = 0.003) +
   scale_fill_brewer(palette = "Blues",
                     name = "Percent aged 65+") +
   labs(x = NULL, y = NULL,
