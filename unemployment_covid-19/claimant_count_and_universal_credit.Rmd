@@ -7,7 +7,7 @@ output: html_document
 ```{r setup, include=FALSE, results="hide"}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 library(tidyverse) ; library(httr) ; library(readxl) ; library(lubridate)
-library(zoo) ;library(sf) ; library(jsonlite) ; library(scales) ; library(kableExtra)
+library(zoo) ;library(sf) ; library(jsonlite) ; library(scales)
 library(reactable) ; library(htmltools)
 
 ```
@@ -23,7 +23,7 @@ basech <- "January 2020"
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS20-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
+cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS21-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
     select(period = DATE_NAME,
          area_code = GEOGRAPHY_CODE,
          area_name = GEOGRAPHY_NAME,
@@ -33,8 +33,8 @@ cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.dat
 latest <- as.character(max(as.yearmon(cc_trafford$period)))
 latestm12 <- as.character(max(as.yearmon(cc_trafford$period))-1)
 
-latestch <- "September 2021"
-latestm12ch <- "September 2020"
+latestch <- "October 2021"
+latestm12ch <- "October 2020"
 
 cc_traf <- cc_trafford %>%
   mutate(period=as.yearmon(period, "%b %Y"),
@@ -52,7 +52,7 @@ cc_traf <- cc_trafford %>%
 
 
 The [Claimant Count](https://www.nomisweb.co.uk/sources/cc) indicates the number of people claiming benefits principally for the reason of being unemployed. From `r basech` to `r latestch` the Claimant Count in Trafford has increased a `r filter(cc_traf,period==as.yearmon(latest, "%b %Y"))$change`%.
-The rate of claimants to residents aged 16 to 64 reached `r filter(cc_traf,period==as.yearmon(latest, "%b %Y"))$rate`% in `r latestch` representing an increment of `r filter(cc_traf,period==as.yearmon(latest, "%b %Y"))$rate-cc_traf$rate[1]`% from `r basech`. The number of claimants has been decreased from April 2021. 
+The rate of claimants to residents aged 16 to 64 reached `r filter(cc_traf,period==as.yearmon(latest, "%b %Y"))$rate`% in `r latestch` representing an increment of `r filter(cc_traf,period==as.yearmon(latest, "%b %Y"))$rate-cc_traf$rate[1]`% from `r basech`. The number of claimants has been decreasing from April 2021. 
 
 
  <div class="container-fluid">
@@ -71,7 +71,7 @@ tbl1 <- reactable(
   defaultSorted = "period",
   defaultSortOrder = "asc",
   fullWidth = FALSE,
-  defaultColDef = colDef(headerClass = "header", align = "right"),
+  defaultColDef = colDef(headerClass = "header", align = "right", format = colFormat(separators = TRUE)),
   columns = list(
     period = colDef(name = "Date", align = "left", cell = function(value) date_format("%b %Y")(value)),
    # area_name = colDef(name = "Area", align = "left"),
@@ -187,7 +187,7 @@ tbl2 <- reactable(
   pagination = FALSE,
   defaultSorted = "area_name",
   defaultSortOrder = "asc",
-  defaultColDef = colDef(headerClass = "header", align = "left"),
+  defaultColDef = colDef(headerClass = "header", align = "left", format = colFormat(separators = TRUE)),
   columns = list(
     area_name = colDef(name = "Wards", align = "left"),
     latestm12_c = colDef(name = latestm12, maxWidth = 60, align = "right"),
@@ -198,7 +198,7 @@ tbl2 <- reactable(
         cell_function(value,table2$additional_claims)
       }
     ),
-    Share = colDef(name = "Share Sep 21", maxWidth = 80, align = "left"),
+    Share = colDef(name = "Share Oct 21", maxWidth = 80, align = "left"),
     percentage_change = colDef(name = "% Change", maxWidth = 80, align = "right"),
     latestm12_r = colDef(name = latestm12, maxWidth = 60, align = "left"),
     latest_r = colDef(name = latest, maxWidth = 60, align = "left"),
@@ -224,7 +224,7 @@ tbl2
 
 ```
 
-The wards with higher claimant rate in `r latestch` were `r arrange(table2, desc(latest_r))$area_name[1]` and `r arrange(table2, desc(latest_r))$area_name[2]` with `r arrange(table2, desc(latest_r))$latest_r[1]`% and `r arrange(table2, desc(latest_r))$latest_r[2]` respectably. The wards where the claimant rate has decreased more from `r latestm12ch` to `r latestch` are `r arrange(table2, Change)$area_name[1]` with a decrease in rate of `r arrange(table2, Change)$Change[1]`% followed by `r arrange(table2, Change)$area_name[2]`(`r arrange(table2, Change)$Change[2]`%), `r arrange(table2, Change)$area_name[3]`(`r arrange(table2, Change)$Change[1]`%) and `r arrange(table2, Change)$area_name[4]`(`r arrange(table2, Change)$Change[4]`%).
+The wards with higher claimant rate in `r latestch` were `r arrange(table2, desc(latest_r))$area_name[1]` and `r arrange(table2, desc(latest_r))$area_name[2]` with `r arrange(table2, desc(latest_r))$latest_r[1]`% and `r arrange(table2, desc(latest_r))$latest_r[2]`% respectively. The wards where the claimant rate has decreased more from `r latestm12ch` to `r latestch` are `r arrange(table2, Change)$area_name[1]` and `r arrange(table2, Change)$area_name[2]` with a decrease in rate of `r arrange(table2, Change)$Change[1]`% followed by `r arrange(table2, Change)$area_name[3]` , `r arrange(table2, Change)$area_name[4]`, `r arrange(table2, Change)$area_name[5]` and `r arrange(table2, Change)$area_name[6]` with `r arrange(table2, Change)$Change[3]`%.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -309,7 +309,7 @@ ggplot() +
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS20-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
+raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS21-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
 
 
 cc_age <- raw_cc_age %>%
@@ -355,7 +355,7 @@ tbl3 <- reactable(
   pagination = FALSE,
   defaultSorted = "Age",
   defaultSortOrder = "asc",
-  defaultColDef = colDef(headerClass = "header", align = "right"),
+  defaultColDef = colDef(headerClass = "header", align = "right", format = colFormat(separators = TRUE)),
   columns = list(
     Age = colDef(maxWidth = 50, align = "left"),
     latestm12 = colDef(name = latestm12, maxWidth = 60),
@@ -395,7 +395,7 @@ tbl4 <- reactable(
   pagination = FALSE,
   defaultSorted = "Age",
   defaultSortOrder = "asc",
-  defaultColDef = colDef(headerClass = "header", align = "right"),
+  defaultColDef = colDef(headerClass = "header", align = "right", format = colFormat(separators = TRUE)),
   columns = list(
     Age = colDef(name = "Age", maxWidth = 60, align = "left"),
     latestm12 = colDef(name = latestm12, maxWidth = 60),
@@ -582,7 +582,7 @@ tbl5 <- reactable(
   pagination = FALSE,
   defaultSorted = "Ward",
   defaultSortOrder = "asc",
-  defaultColDef = colDef(headerClass = "header", align = "left", maxWidth = 45),
+  defaultColDef = colDef(headerClass = "header", align = "left", maxWidth = 45, format = colFormat(separators = TRUE)),
   columns = list(
     Ward = colDef(maxWidth = 200, align = "left")
     ),
@@ -672,7 +672,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109))))
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110))))
               )) %>% toJSON()
 request <- POST(
   url = path,
@@ -714,7 +714,7 @@ table6 <-  trafford_uc %>%
   pagination = FALSE,
   defaultSorted = "period",
   defaultSortOrder = "asc",
-  defaultColDef = colDef(headerClass = "header", align = "right"),
+  defaultColDef = colDef(headerClass = "header", align = "right", format = colFormat(separators = TRUE)),
   columns = list(
     period = colDef(name = "Date", align = "left", cell = function(value) date_format("%b %Y")(value))
     #area_name = colDef(name = "Area", maxWidth = 100, align = "left")
@@ -796,7 +796,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202009,202109))))
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202010,202110))))
               )) %>% toJSON()
 request <- POST(
   url = path,
@@ -829,7 +829,7 @@ table7 <- uc %>%
  
 ```
  
-The Trafford MSOA with the largest share of claims in `r latestch` was `r filter(table7, Share == max(Share)) %>% pull(area_name)` with `r filter(table7, Share == max(Share))$Share`% of all Universal Credit claims in Trafford. The MSOA with the highest percentage change from `r latestm12ch` to `r latestch` were `r arrange(table7, desc(percentage_change))$area_name[1]`, `r arrange(table7, desc(percentage_change))$area_name[2]` and `r arrange(table7, desc(percentage_change))$area_name[3]` with `r arrange(table7, desc(percentage_change))$percentage_change[1]`% change. However, the MSOA with more additional claims in this period was `r arrange(table7, desc(additional_claims))$area_name[1]` and `r arrange(table7, desc(additional_claims))$area_name[2]` with `r arrange(table7, desc(additional_claims))$additional_claims[1]`, followed by `r arrange(table7, desc(additional_claims))$area_name[3]` (`r arrange(table7, desc(additional_claims))$additional_claims[3]`) and `r arrange(table7, desc(additional_claims))$area_name[4]` (`r arrange(table7, desc(additional_claims))$additional_claims[4]`).
+The Trafford MSOA with the largest share of claims in `r latestch` was `r filter(table7, Share == max(Share)) %>% pull(area_name)` with `r filter(table7, Share == max(Share))$Share`% of all Universal Credit claims in Trafford. The MSOA with the highest percentage change from `r latestm12ch` to `r latestch` was `r arrange(table7, desc(percentage_change))$area_name[1]` with `r arrange(table7, desc(percentage_change))$percentage_change[1]`% change. However, the MSOA with more additional claims in this period was `r arrange(table7, desc(additional_claims))$area_name[1]` with `r arrange(table7, desc(additional_claims))$additional_claims[1]`, followed by `r arrange(table7, desc(additional_claims))$area_name[2]` (`r arrange(table7, desc(additional_claims))$additional_claims[2]`), `r arrange(table7, desc(additional_claims))$area_name[3]` (`r arrange(table7, desc(additional_claims))$additional_claims[3]`) and `r arrange(table7, desc(additional_claims))$area_name[4]` (`r arrange(table7, desc(additional_claims))$additional_claims[4]`).
 
 
 ```{r UCMSOATable}
@@ -839,7 +839,7 @@ tbl7 <- reactable(
   pagination = FALSE,
   defaultSorted = "area_name",
   defaultSortOrder = "asc",
-  defaultColDef = colDef(headerClass = "header", align = "right", maxWidth = 60),
+  defaultColDef = colDef(headerClass = "header", align = "right", maxWidth = 60, format = colFormat(separators = TRUE)),
   columns = list(
     area_name = colDef(name = "MSOA", maxWidth = 220, align = "left"),
     additional_claims = colDef(
@@ -851,7 +851,7 @@ tbl7 <- reactable(
       }
     ),
     percentage_change = colDef(name = "% Change", maxWidth = 80),
-    Share = colDef(name = "Share Sep 21", maxWidth = 80, align = "left"),
+    Share = colDef(name = "Share Oct 21", maxWidth = 80, align = "left"),
     latestm12_rate = colDef(name = latestm12, maxWidth = 60, align = "left"),
     latest_rate = colDef(name = latest, maxWidth = 60, align = "left"),
     `Change` = colDef(
@@ -876,7 +876,7 @@ tbl7
 
 ```
 
-The MSOAs with higher rates of Universal Credit claims in `r latestch` were `r filter(table7, latest_rate == max(latest_rate)) %>% pull(area_name)` with `r filter(table7, latest_rate == max(latest_rate))$latest_rate`% and `r arrange(table7, desc(latest_rate))$area_name[2]` with `r arrange(table7, desc(latest_rate))$latest_rate[2]`%. The MSOAs where the rate of Universal Credit claims has grown more from `r latestm12ch` to `r latestch` were `r filter(table7, Change == max(Change)) %>% pull(area_name)` and `r arrange(table7, desc(Change))$area_name[2]` with `r arrange(table7, desc(Change))$Change[1]`% and `r arrange(table7, desc(Change))$Change[2]`% respectively along with `r arrange(table7, desc(Change))$area_name[3]` and `r arrange(table7, desc(Change))$area_name[4]` with `r arrange(table7, desc(Change))$Change[3]`%.
+The MSOAs with higher rates of Universal Credit claims in `r latestch` were `r filter(table7, latest_rate == max(latest_rate)) %>% pull(area_name)` with `r filter(table7, latest_rate == max(latest_rate))$latest_rate`% and `r arrange(table7, desc(latest_rate))$area_name[2]` with `r arrange(table7, desc(latest_rate))$latest_rate[2]`%. The MSOAs where the rate of Universal Credit claims has grown more from `r latestm12ch` to `r latestch` were `r filter(table7, Change == max(Change)) %>% pull(area_name)` and `r arrange(table7, desc(Change))$area_name[2]` with `r arrange(table7, desc(Change))$Change[1]`% and `r arrange(table7, desc(Change))$Change[2]`% respectively along with `r arrange(table7, desc(Change))$area_name[3]` with `r arrange(table7, desc(Change))$Change[3]`%.
 
   <div class="row">
   <div class = "col-sm-6">
@@ -968,7 +968,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE:C_UC_AGE_BAND:",c(1,2,3,4,5,6,7,8,9,10,999))))
 
@@ -1011,7 +1011,7 @@ tbl8 <- reactable(
   pagination = FALSE,
   defaultSorted = "Age",
   defaultSortOrder = "asc",
-  defaultColDef = colDef(headerClass = "header", align = "right", maxWidth = 60),
+  defaultColDef = colDef(headerClass = "header", align = "right", maxWidth = 60, format = colFormat(separators = TRUE)),
   columns = list(
     Age = colDef(name = "Age", maxWidth = 60, align = "left"),
     latestm12 = colDef(name = latestm12, maxWidth = 60),
@@ -1043,7 +1043,7 @@ tbl8
 ```
 
 
-Following the start of the Covid-19 pandemic in March 2020 the number of claims for all ages rose dramatically from pre-pandemic levels at a similar proportion for all age bands with the age band 16-24 rising faster in May 2020. At the start of 2020 the age band 25-34 had the highest number of claims and also the highest rate maintaining that position after the rise from Mar 2020. All the age bands are increasing or maintaining their levels except for age band 16-24 that is decreasing steadily on rate and number of claims from April 2021.
+Following the start of the Covid-19 pandemic in March 2020 the number of claims for all ages rose dramatically from pre-pandemic levels at a similar proportion for all age bands with the age band 16-24 rising faster in May 2020. At the start of 2020 the age band 25-34 had the highest number of claims and also the highest rate maintaining that position after the rise from Mar 2020. All the age bands are increasing or maintaining their levels except for age bands 16-24 and 25-34 that are decreasing steadily on rate and number of claims from April 2021.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -1164,7 +1164,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202109)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202110)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME:C_UC_CONDITIONALITY_REGIME:",c("AA","AB","BC","BD","DF","CE"))))
 
