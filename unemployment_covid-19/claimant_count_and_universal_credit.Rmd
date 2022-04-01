@@ -23,7 +23,7 @@ basech <- "January 2020"
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS24-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
+cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS25-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
     select(period = DATE_NAME,
          area_code = GEOGRAPHY_CODE,
          area_name = GEOGRAPHY_NAME,
@@ -33,8 +33,8 @@ cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.dat
 latest <- as.character(max(as.yearmon(cc_trafford$period)))
 latestm12 <- as.character(max(as.yearmon(cc_trafford$period))-1)
 
-latestch <- "January 2022"
-latestm12ch <- "January 2021"
+latestch <- "February 2022"
+latestm12ch <- "February 2021"
 
 cc_traf <- cc_trafford %>%
   mutate(period=as.yearmon(period, "%b %Y"),
@@ -102,7 +102,7 @@ ggplot(cc_traffordp,aes(x = date, y = round(change,0))) +
             aes(label = paste0(round(change,0), "%"), fontface = 2), 
             color = "#66c2a4", 
             size = 2.5, hjust = 0.3, vjust = -1.3) +
-  scale_x_date(date_breaks="2 month", date_labels="%b %y") +
+  scale_x_date(date_breaks="2 month", date_labels="%b %y", expand = c(0.03,0.03)) +
   scale_y_continuous(limits = c(0,135)) +
   labs(title = "Claimant Count percentage change",
        subtitle = paste("Trafford, ", base, " - ", latest),
@@ -200,7 +200,7 @@ tbl2 <- reactable(
         cell_function(value,table2$additional_claims)
       }
     ),
-    Share = colDef(name = "Share Jan 22", maxWidth = 80, align = "left"),
+    Share = colDef(name = "Share Feb 22", maxWidth = 80, align = "left"),
     percentage_change = colDef(name = "% Change", maxWidth = 80, align = "right"),
     latestm12_r = colDef(name = latestm12, maxWidth = 60, align = "left"),
     latest_r = colDef(name = latest, maxWidth = 60, align = "left"),
@@ -226,7 +226,7 @@ tbl2
 
 ```
 
-The wards with higher claimant rate in `r latestch` were `r arrange(table2, desc(latest_r))$area_name[1]` and `r arrange(table2, desc(latest_r))$area_name[2]` with `r arrange(table2, desc(latest_r))$latest_r[1]`% and `r arrange(table2, desc(latest_r))$latest_r[2]`% respectively. The wards where the claimant rate has decreased more from `r latestm12ch` to `r latestch` are `r arrange(table2, Change)$area_name[1]` and `r arrange(table2, Change)$area_name[2]` with a decrease in rate of `r arrange(table2, Change)$Change[1]`% and `r arrange(table2, Change)$Change[2]`% respectively followed by `r arrange(table2, Change)$area_name[3]` and `r arrange(table2, Change)$area_name[4]` with `r arrange(table2, Change)$Change[3]`%.
+The wards with higher claimant rate in `r latestch` were `r arrange(table2, desc(latest_r))$area_name[1]` and `r arrange(table2, desc(latest_r))$area_name[2]` with `r arrange(table2, desc(latest_r))$latest_r[1]`% and `r arrange(table2, desc(latest_r))$latest_r[2]`% respectively. The wards where the claimant rate has decreased more from `r latestm12ch` to `r latestch` are `r arrange(table2, Change)$area_name[1]` and `r arrange(table2, Change)$area_name[2]` with a decrease in rate of `r arrange(table2, Change)$Change[1]`% and `r arrange(table2, Change)$Change[2]`% respectively followed by `r arrange(table2, Change)$area_name[3]` with `r arrange(table2, Change)$Change[3]`%.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -311,7 +311,7 @@ ggplot() +
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS24-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
+raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS25-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
 
 
 cc_age <- raw_cc_age %>%
@@ -430,7 +430,7 @@ tbl4
    </div>
   </div>
  
-At the start of 2020 the age band 25-34 already had the highest number of claims, however after the effects of the Covid-19 pandemic which started in March 2020 this figure increased more sharply compared to the other age bands. The claimant rate as a proportion of Trafford's population within each age band shows a higher increase in the age bands of 16-24 and 25-34 compared to the others. The rate and count is decreasing for all age bands particularly for the the age bands of 16-24 and 25-34.
+At the start of 2020 the age band 25-34 already had the highest number of claims, however after the effects of the Covid-19 pandemic which started in March 2020 this figure increased more sharply compared to the other age bands. The claimant rate as a proportion of Trafford's population within each age band shows a higher increase in the age bands of 16-24 and 25-34 compared to the others. The rate and count have been decreasing during the last months for all age bands particularly for the the age bands of 16-24 and 25-34 with a slight increase in February 2022.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -674,7 +674,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201))))
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202))))
               )) %>% toJSON()
 request <- POST(
   url = path,
@@ -746,7 +746,7 @@ ggplot(uc_plot_ch,aes(x = date, y = change)) +
     geom_text(data=uc_plot_ch %>% filter(!period==base),
             aes(label = paste0(round(change,0), "%"), fontface = 2), 
             color = "#66c2a4", size = 2.8, hjust = 0.3, vjust = -1.3) +
-  scale_x_date(date_breaks="2 month", date_labels="%b %y") +
+  scale_x_date(date_breaks="2 month", date_labels="%b %y", expand = c(0.03,0.03)) +
   scale_y_continuous(limits = c(0,105)) +
   labs(title = "Universal Credit claims percentage change",
        subtitle = paste0("Trafford, ", base, " - ", latest),
@@ -800,7 +800,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202101,202201))))
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202102,202202))))
               )) %>% toJSON()
 request <- POST(
   url = path,
@@ -855,7 +855,7 @@ tbl7 <- reactable(
       }
     ),
     percentage_change = colDef(name = "% Change", maxWidth = 80),
-    Share = colDef(name = "Share Jan 22", maxWidth = 80, align = "left"),
+    Share = colDef(name = "Share Feb 22", maxWidth = 80, align = "left"),
     latestm12_rate = colDef(name = latestm12, maxWidth = 60, align = "left"),
     latest_rate = colDef(name = latest, maxWidth = 60, align = "left"),
     `Change` = colDef(
@@ -972,7 +972,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE:C_UC_AGE_BAND:",c(1,2,3,4,5,6,7,8,9,10,999))))
 
@@ -1005,7 +1005,7 @@ table8 <- traf_uc %>%
   select(Age, `latestm12`= latestm12, `latest` = latest, additional_claims, percentage_change)
 ```
  
-In Trafford from  `r latestm12ch` to `r latestch` the `r filter(table8, percentage_change == max(percentage_change)) %>% pull(Age)` age bands have the largest increment in the number of Universal Credit claims with `r filter(table8, percentage_change == max(percentage_change)) %>% pull(percentage_change)`%. When considering the number of additional claims from  `r latestm12ch` to `r latestch` the 5-year age band `r filter(table8, additional_claims == max(additional_claims)) %>% pull(Age)` years had the highest with `r filter(table8, additional_claims == max(additional_claims)) %>% pull(additional_claims)` more claims. The age bands `r arrange(table8, additional_claims)$Age[1]` and `r arrange(table8, additional_claims)$Age[2]` have the largest decrease in number of Universal Credit claims.
+In Trafford from  `r latestm12ch` to `r latestch` the `r filter(table8, percentage_change == max(percentage_change)) %>% pull(Age)` age bands have the largest increment in percentage change of Universal Credit claims with `r filter(table8, percentage_change == max(percentage_change)) %>% pull(percentage_change)`%. When considering the number of additional claims from  `r latestm12ch` to `r latestch` the 5-year age band `r filter(table8, additional_claims == max(additional_claims)) %>% pull(Age)` years had the highest with `r filter(table8, additional_claims == max(additional_claims)) %>% pull(additional_claims)` more claims. The age bands `r arrange(table8, additional_claims)$Age[1]` and `r arrange(table8, additional_claims)$Age[2]` have the largest decrease in number of Universal Credit claims.
  
 ```{r UCAgeTable}
 
@@ -1168,7 +1168,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202201)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202202)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME:C_UC_CONDITIONALITY_REGIME:",c("AA","AB","BC","BD","DF","CE"))))
 
