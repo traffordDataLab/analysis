@@ -1,0 +1,92 @@
+election_date,ward_code,ward_name,candidate_surname,candidate_forenames,candidate_commonly_used_surname,candidate_commonly_used_forenames,candidate_description,political_party_uri,political_party_name,election_result,votes_won,votes_cast,eligible_electorate,turnout
+2022-05-05,E05000819,Altrincham,CHINTHALA,Anand Rao,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,947,3883,9057,42.9
+2022-05-05,E05000819,Altrincham,JERROME,Dan,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,ELECTED,2354,3883,9057,42.9
+2022-05-05,E05000819,Altrincham,LOVELL,Christopher John,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,103,3883,9057,42.9
+2022-05-05,E05000819,Altrincham,SLATER,Benjamin Duncan,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,NOT ELECTED,469,3883,9057,42.9
+2022-05-05,E05000820,Ashton upon Mersey,DWYER,Kay Georgette,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,1411,3702,7633,48.5
+2022-05-05,E05000820,Ashton upon Mersey,KIERMAN,David Joseph,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,148,3702,7633,48.5
+2022-05-05,E05000820,Ashton upon Mersey,O'BRIEN,Tony,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1848,3702,7633,48.5
+2022-05-05,E05000820,Ashton upon Mersey,ROBERTSON-BROWN,Caroline Louise,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,292,3702,7633,48.5
+2022-05-05,E05000821,Bowdon,HAGUE,Thomas Robert,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,NOT ELECTED,450,3136,7274,43.1
+2022-05-05,E05000821,Bowdon,TOLHURST-CLEAVER,Ludo,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,221,3136,7274,43.1
+2022-05-05,E05000821,Bowdon,TWOSE,Gareth Adam,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,826,3136,7274,43.1
+2022-05-05,E05000821,Bowdon,ZHI,Shengke,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,ELECTED,1628,3136,7274,43.1
+2022-05-05,E05000822,Broadheath,CHAKRABORTY,Kaushik,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,1649,4220,10073,41.9
+2022-05-05,E05000822,Broadheath,FARNDON,Stephen John,NA,NA,Independent,NA,Independent,NOT ELECTED,140,4220,10073,41.9
+2022-05-05,E05000822,Broadheath,MARRITT,Christopher Paul,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,265,4220,10073,41.9
+2022-05-05,E05000822,Broadheath,WHYTE,Amy Marie,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1894,4220,10073,41.9
+2022-05-05,E05000822,Broadheath,YOUNG,Alexander Philip,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,263,4220,10073,41.9
+2022-05-05,E05000823,Brooklands,ASPDEN,Renate Helga,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,247,3915,7717,50.7
+2022-05-05,E05000823,Brooklands,CLIFF,Pauline Anne,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,202,3915,7717,50.7
+2022-05-05,E05000823,Brooklands,HART,Adrian Scott,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,1501,3915,7717,50.7
+2022-05-05,E05000823,Brooklands,JONES,Will,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1953,3915,7717,50.7
+2022-05-05,E05000824,Bucklow-St Martins,CAPUCHO PAULO,Rodrigo,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,111,1941,7178,27
+2022-05-05,E05000824,Bucklow-St Martins,NEW,Adele Louise,NA,NA,Labour and Co-operative Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1282,1941,7178,27
+2022-05-05,E05000824,Bucklow-St Martins,TOWERS,Gary,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,443,1941,7178,27
+2022-05-05,E05000824,Bucklow-St Martins,WRIGHT,Simon Andrew,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,87,1941,7178,27
+2022-05-05,E05000825,Clifford,LIJO,Limna,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,155,2897,9144,31.7
+2022-05-05,E05000825,Clifford,MAYO,Jess,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,353,2897,9144,31.7
+2022-05-05,E05000825,Clifford,REYES,John Anthony,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,85,2897,9144,31.7
+2022-05-05,E05000825,Clifford,TAYLOR,Sophie Rachel,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,2288,2897,9144,31.7
+2022-05-05,E05000826,Davyhulme East,DILLON,Steve,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,1134,3199,7603,42.1
+2022-05-05,E05000826,Davyhulme East,KINSELLA,Timothy John,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,138,3199,7603,42.1
+2022-05-05,E05000826,Davyhulme East,PROCTER,Shirley Blair,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1732,3199,7603,42.1
+2022-05-05,E05000826,Davyhulme East,TENNANT,Steve,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,180,3199,7603,42.1
+2022-05-05,E05000827,Davyhulme West,CHATTERTON,Kevin Peter,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,185,3209,7668,41.9
+2022-05-05,E05000827,Davyhulme West,HAWORTH,Tracey Beryl,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,1094,3209,7668,41.9
+2022-05-05,E05000827,Davyhulme West,WHITHAM,Graham,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1780,3209,7668,41.9
+2022-05-05,E05000827,Davyhulme West,ZUK,Gerald Alan,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,137,3209,7668,41.9
+2022-05-05,E05000828,Flixton,CAMPION,Mark Michael,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,117,3622,8266,43.8
+2022-05-05,E05000828,Flixton,COTTER,Katrin,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,285,3622,8266,43.8
+2022-05-05,E05000828,Flixton,COUPE,Johnathan Russell,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,1051,3622,8266,43.8
+2022-05-05,E05000828,Flixton,THOMAS,Simon Garfield,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,2152,3622,8266,43.8
+2022-05-05,E05000829,Gorse Hill,ACTON,David,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1871,2768,8733,31.7
+2022-05-05,E05000829,Gorse Hill,BUTLER,Chris,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,141,2768,8733,31.7
+2022-05-05,E05000829,Gorse Hill,CARBERRY-POWER,Dawn Lee,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,124,2768,8733,31.7
+2022-05-05,E05000829,Gorse Hill,CLITHEROE,Laura Jane,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,286,2768,8733,31.7
+2022-05-05,E05000829,Gorse Hill,DONNELLY,Stuart John,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,454,2768,8733,31.7
+2022-05-05,E05000829,Gorse Hill,GIBB,Hazel Joy,NA,NA,Independent,NA,Independent,NOT ELECTED,188,2768,8733,31.7
+2022-05-05,E05000829,Gorse Hill,HORNBY,Fianna Frances Ritchen,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1611,2768,8733,31.7
+2022-05-05,E05000829,Gorse Hill,JOHN,Lijo,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,353,2768,8733,31.7
+2022-05-05,E05000829,Gorse Hill,PATEL,Sanjai,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,182,2768,8733,31.7
+2022-05-05,E05000830,Hale Barns,BUTT,Dylan,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,ELECTED,1676,2846,7421,38.4
+2022-05-05,E05000830,Hale Barns,LEPORI,Simon Edward,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,254,2846,7421,38.4
+2022-05-05,E05000830,Hale Barns,SCHORAH,David,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,247,2846,7421,38.4
+2022-05-05,E05000830,Hale Barns,TWINEY,Barbara Ruth,NA,NA,Labour and Co-operative Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,NOT ELECTED,657,2846,7421,38.4
+2022-05-05,E05000831,Hale Central,BRODIE,John Robert,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,1255,3565,7429,48
+2022-05-05,E05000831,Hale Central,LEICESTER,Jane Frances,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,ELECTED,1776,3565,7429,48
+2022-05-05,E05000831,Hale Central,MAYER,Charles William,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,NOT ELECTED,324,3565,7429,48
+2022-05-05,E05000831,Hale Central,RAMSBOTTOM,Marc Steven,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,200,3565,7429,48
+2022-05-05,E05000832,Longford,FRYER,Anna Corrina,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,224,3470,9466,36.7
+2022-05-05,E05000832,Longford,JARMAN,David Paul,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,2338,3470,9466,36.7
+2022-05-05,E05000832,Longford,MAY,Daniel Richard,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,451,3470,9466,36.7
+2022-05-05,E05000832,Longford,WESTBROOK,Margaret Emily,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,444,3470,9466,36.7
+2022-05-05,E05000833,Priory,DAGNALL,Louise Diane,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,2076,3479,8123,42.8
+2022-05-05,E05000833,Priory,PAUL,Rupali,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,824,3479,8123,42.8
+2022-05-05,E05000833,Priory,STEPHENSON,Briony Ruth,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,222,3479,8123,42.8
+2022-05-05,E05000833,Priory,TURNER,Dave,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,338,3479,8123,42.8
+2022-05-05,E05000835,Sale Moor,HALLIDAY,Christopher James,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,830,2818,7606,37.1
+2022-05-05,E05000835,Sale Moor,HARGREAVES,Chris James,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,264,2818,7606,37.1
+2022-05-05,E05000835,Sale Moor,MINIACI,Mario Emanuele,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,136,2818,7606,37.1
+2022-05-05,E05000835,Sale Moor,PATEL,Liz,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,1577,2818,7606,37.1
+2022-05-05,E05000834,St Mary's,BIRD,Louise Claire,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,183,3177,8607,36.9
+2022-05-05,E05000834,St Mary's,DUNCAN,Rob,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,ELECTED,1513,3177,8607,36.9
+2022-05-05,E05000834,St Mary's,MCGLASHAN,James,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,188,3177,8607,36.9
+2022-05-05,E05000834,St Mary's,PARKER,Eve Rebecca,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,NOT ELECTED,1152,3177,8607,36.9
+2022-05-05,E05000834,St Mary's,WOOD,Lucy Anne,NA,NA,Womens Equality Party,http://search.electoralcommission.org.uk/English/Registrations/PP2755,Women's Equality Party,NOT ELECTED,127,3177,8607,36.9
+2022-05-05,E05000836,Stretford,O'NEILL,Liz,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,281,2841,7882,36
+2022-05-05,E05000836,Stretford,POWER,Stephen Lee,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,104,2841,7882,36
+2022-05-05,E05000836,Stretford,SLATER,Jane Winifred,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,2013,2841,7882,36
+2022-05-05,E05000836,Stretford,TAYLOR,Susan Karen,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,431,2841,7882,36
+2022-05-05,E05000837,Timperley,EVANS,Nathan Morris France,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,1413,4249,8285,51.3
+2022-05-05,E05000837,Timperley,FRASS,Will,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,ELECTED,2182,4249,8285,51.3
+2022-05-05,E05000837,Timperley,KYLE,Dan,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,205,4249,8285,51.3
+2022-05-05,E05000837,Timperley,SAVARY,Ulrich Stephane Betrand,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,NOT ELECTED,438,4249,8285,51.3
+2022-05-05,E05000838,Urmston,FRANKLIN-JOHNSTON,John Robert,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,NOT ELECTED,192,3440,8439,40.8
+2022-05-05,E05000838,Urmston,GORANIA,Veja,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,894,3440,8439,40.8
+2022-05-05,E05000838,Urmston,PROCTER,Kevin Alan,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,ELECTED,2043,3440,8439,40.8
+2022-05-05,E05000838,Urmston,WHYTE,Luciya,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,291,3440,8439,40.8
+2022-05-05,E05000839,Village,ENNIS,Shaun Gavin,NA,NA,Liberal Democrats,http://search.electoralcommission.org.uk/English/Registrations/PP90,Liberal Democrats,ELECTED,1764,3346,7914,42.3
+2022-05-05,E05000839,Village,LEGG,Adam Thomas,NA,NA,Labour Party,http://search.electoralcommission.org.uk/English/Registrations/PP53,Labour Party,NOT ELECTED,512,3346,7914,42.3
+2022-05-05,E05000839,Village,MAXWELL,Thomas Philip Steven,NA,NA,The Conservative Party Candidate,http://search.electoralcommission.org.uk/English/Registrations/PP52,Conservative and Unionist Party,NOT ELECTED,939,3346,7914,42.3
+2022-05-05,E05000839,Village,WADSWORTH,Jennie Patricia,NA,NA,Green Party,http://search.electoralcommission.org.uk/English/Registrations/PP63,Green Party,NOT ELECTED,122,3346,7914,42.3
