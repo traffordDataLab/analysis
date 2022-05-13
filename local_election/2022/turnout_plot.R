@@ -49,4 +49,4 @@ ggplot(df_turnout, aes(x = election_year, y = turnout, label = turnout_label)) +
 
 # Save the plot
 ggsave("images/ward_turnout_2016-2022.png", dpi = 320, scale = 1, width = 7.81, height = 7.17, bg = "#ffffff")
-ggsave("images/ward_turnout_2016-2022.svg", dpi = 320, scale = 1, width = 7.81, height = 7.17)
+ggsave("images/ward_turnout_2016-2022.svg", dpi = 320, scale = 1, width = 7.81, height = 7.17, bg = "#ffffff")

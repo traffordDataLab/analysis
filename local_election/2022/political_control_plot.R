@@ -36,4 +36,4 @@ ggplot(parliament_chart) +
         legend.position = "bottom")
 
 ggsave("images/seats_by_party_parliament_chart_2022.png", dpi = 320, scale = 1, width = 5.35, height = 4, bg = "#ffffff")
-ggsave("images/seats_by_party_parliament_chart_2022.svg", dpi = 320, scale = 1, width = 5.35, height = 4)
+ggsave("images/seats_by_party_parliament_chart_2022.svg", dpi = 320, scale = 1, width = 5.35, height = 4, bg = "#ffffff")
