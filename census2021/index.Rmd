@@ -1,0 +1,581 @@
+---
+title: "CENSUS 2021"
+lang: "en-GB"
+output:
+  html_document:
+    highlight: null
+    mathjax: null
+    theme: flatly
+    css: styles.css
+    self_contained: TRUE
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+    includes:
+      in_header: head_includes.html
+---
+<main>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(RColorBrewer) ;
+library(kableExtra); 
+library(httr) ; library(readxl)
+library(scales) ; 
+library(ggiraph)
+library(ggpol)
+
+source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
+
+
+# ggplot2 theme
+theme_x <- function () { 
+  theme_minimal(base_size = 14, base_family = "Open Sans") %+replace% 
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      plot.title = element_text(size = 16, face = "bold", hjust = 0),
+      plot.subtitle = element_text(hjust = 0, margin = margin(9, 0, 9, 0)),
+      plot.caption = element_text(size = 12, color = "grey50", hjust = 1, margin = margin(t = 15)),
+      axis.title = element_text(size = 10, hjust = 1),
+      axis.text.x = element_text(angle = 90, hjust = 1, margin = margin(t = 0)),
+      legend.position = "top", 
+      legend.justification = "left"
+    )
+}
+
+```
+
+The first results of the [CENSUS 2021](https://census.gov.uk) include the Usual resident population by sex, by five-year age group, by sex and five-year age group, population density and number of households for local authorities, England and Wales, rounded to the nearest hundred.
+
+A usual resident is anyone who on Census Day, 21 March 2021 was in the UK and had stayed or intended to stay in the UK for a period of 12 months or more, or had a permanent UK address and was outside the UK and intended to be outside the UK for less than 12 months.
+
+A household is one person living alone or a group of people (not necessarily related) living at the same address who share cooking facilities and share a living room or sitting room or dining area.
+
+
+<br/>
+
+## Population
+
+
+```{r}
+
+tmp <- tempfile(fileext = ".xlsx")
+m <- GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationandhouseholdestimatesenglandandwalescensus2021/census2021/census2021firstresultsenglandwales1.xlsx",
+    write_disk(tmp))
+
+
+pop_age_21 <- read_xlsx(tmp, sheet = 6, skip = 7) %>%
+ filter(`Area name`== "Trafford") %>%
+  pivot_longer(`All persons`:`Males:\r\nAged 90 years and over\r\n[note 12]`,names_to = "age", values_to = "value") %>%
+  mutate(sex = sub("\\:.*", "", age)) %>%
+  filter(sex != "All persons") %>%
+  mutate(ageband = gsub(".*ed \\s*| y.*", "\\1", age)) %>%
+  mutate(ageband = if_else(ageband == "4","0-4",ageband), ageband = if_else(ageband == "90","90+",ageband)) %>%
+  mutate(ageband = str_replace(ageband," to ", "-")) %>%
+  select(area_name = `Area name`, ageband, sex, `2021` = value)
+  
+
+```
+
+```{r}
+
+trafford_tot <- read_xlsx(tmp, sheet = 4, skip = 6) %>%
+  rename(area_name = `Area name`, all_persons = `All persons`) %>%
+  filter(area_name == "Trafford")
+  
+age_f_m <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_1414_1.data.csv?date=latest&geography=1941962780&c_sex=0...2&c_age=0...39&measures=20100") 
+
+age_f_m_df <- age_f_m %>%
+  select(area_code = GEOGRAPHY_CODE, area_name = GEOGRAPHY_NAME, period = DATE_NAME, sex = C_SEX_NAME, age = C_AGE_NAME, value = OBS_VALUE) %>%
+  filter(sex %in%  c("Females", "Males"), !age == "All categories: Age") %>%
+  mutate(age = str_replace(age,"Age ", ""), age = str_replace(age," to ", "-")) %>%
+  mutate(ageband = case_when(age == "under 1" | age =="1" | age =="2" | age =="3" | age =="4" ~ '0-4',
+                          age == "5" | age =="6" | age =="7" | age =="8" | age =="9" ~ '5-9',
+                          age == "10" | age =="11" | age =="12" | age =="13" | age =="14" ~ '10-14',
+                          age == "15" | age =="16" | age =="17" | age =="18" | age =="19" ~ '15-19',
+                          age == "20" | age =="21" | age =="22" | age =="23" | age =="24" ~ '20-24',
+                          age == "90 and over" ~ '90+',
+                                 TRUE ~ age)) %>%
+    group_by(ageband,area_name, sex) %>%
+  summarise(`2011` = sum(value)) %>%
+  ungroup() %>%
+  left_join(pop_age_21 %>% select(ageband, sex, `2021`), by = c("ageband", "sex")) %>%
+  group_by(sex) %>%
+  mutate(percent_2021 = round(`2021`/sum(`2021`)*100,1),
+         ageband = factor(ageband, levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+")))
+
+          
+```
+The number of usual residents in Trafford according to the CENSUS 2021 is 235,100, representing an increment of 3.7% from the CENSUS 2011 when the number of usual resident was 226,578. 
+
+There are 120,700 females (51.3%) and 114,400 males (48.6%) in Trafford according to the CENSUS 2021. Similarly,there were 115,619 female (51.03%) and 110,959 male (48.97%) on 2011.
+
+
+```{r}
+
+# plot data  ---------------------------
+ggplot() +
+  geom_bar(aes(ageband, `2021`, group = sex, fill = sex), stat = "identity",
+           filter(age_f_m_df, sex == "Females"), alpha = 0.6) +
+  geom_bar(aes(ageband, -`2021`, group = sex, fill = sex), stat = "identity",
+           filter(age_f_m_df, sex == "Males"), alpha = 0.6) +
+  geom_line(aes(ageband, `2011`, group = sex), stat = "identity",
+            filter(age_f_m_df,  sex == "Females"), size = 1, colour = "#8E2681", alpha = 1) +
+  geom_line(aes(ageband, -`2011`, group = sex), stat = "identity",
+            filter(age_f_m_df, sex == "Males"), size = 1, colour = "#5d77a3", alpha = 1) +
+  geom_text(aes(ageband, -`2021`-1100, label = paste0(percent_2021,"%"), group = sex), stat = "identity",
+            filter(age_f_m_df, sex == "Males"), colour = "#212121", size = 3, fontface = "bold", hjust = 0, nudge_y = 0) +
+  geom_text(aes(ageband, `2021` - 10, label = paste0(percent_2021,"%"), group = sex), stat = "identity",
+            filter(age_f_m_df, sex == "Females"), colour = "#212121", size = 3, fontface = "bold", hjust = 0, nudge_y = 0) +
+  scale_x_discrete() +
+  scale_y_continuous(labels = abs, limits = max(age_f_m_df$`2021`) * c(-1.15,1.06), breaks = seq(-10000, 10000, by = 2000)) +
+  scale_fill_manual(values = c("#8E2681", "#5d77a3"), labels = c("Female", "Male")) +
+  coord_flip() +
+  labs(x = NULL, y = NULL,
+       title = "Trafford population by sex and age, 2011 and 2021",
+       subtitle = "   Male  Female",
+       caption = "Census 2011(line), Census 2021(bar)\nSource: ONS  |  @traffordDataLab") +
+  theme_lab() +
+  theme(panel.grid.major.x = element_line(size = 0.3, color = "#cbcbcb"),
+    panel.grid.major.y = element_blank(),
+        axis.text.x = element_text(size = 9, hjust = 0.5),
+        axis.text.y = element_text(size = 9),
+        axis.ticks = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        plot.subtitle = element_text(hjust = 0.5, size = 9),
+        plot.caption = element_text(hjust = 1, size = 9),
+        legend.position = "none")
+
+
+
+
+
+```
+
+```{r}
+
+#Last updated: `r format(Sys.time(), '%d %B %Y')`
+age_data_row_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_1531_1.data.csv?date=latest&geography=1941962780&c_age=0...101&measures=20100,20301")
+
+age_data_2011 <- age_data_row_2011 %>%
+  select(age = C_AGE_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  filter(!age %in% c("All categories: Age") ) %>%
+  mutate(age = str_replace(age,"Age ", ""), age = str_replace(age,"under 1", "0"), age = str_replace(age,"100 and over", "100")) 
+
+age_5_2011 <- age_data_2011 %>%
+    mutate(age = as.integer(age),
+         ageband = cut(age,
+                       breaks = c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,120),
+                       labels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+"),
+                       right = FALSE)) %>%
+    group_by(ageband,area_name,date, measure) %>%
+  summarise(value = sum(value))
+
+## 2001 UV004 - Age
+
+age_data_row_2001 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_1637_1.data.csv?date=latest&geography=1946157089&c_age=0...81&measures=20100")
+
+age_data_2001 <- age_data_row_2001 %>%
+  select(age = C_AGE_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  filter(!age %in% c("All categories: Age") ) %>%
+  mutate(age = str_replace(age,"Age ", ""), age = str_replace(age,"under 1", "0"), age = str_replace(age,"100 and over", "100")) 
+
+age_5_2001 <- age_data_2001 %>%
+    mutate(ageI = as.integer(age),
+         ageband = cut(ageI,
+                       breaks = c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,120),
+                       labels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+"),
+                       right = FALSE)) %>%
+  mutate(ageband = if_else(is.na(ageband),age,as.character(ageband)) ) %>%
+  mutate(ageband = str_replace(ageband," to ", "-")) %>%
+  mutate(ageband = if_else(ageband=="90-94" | ageband=="95-99","90+",as.character(ageband)) ) %>%
+    group_by(ageband,area_name,date, measure) %>%
+  summarise(value = sum(value)) %>%
+  mutate(ageband = factor(ageband, levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+")))
+
+
+## 1991
+
+age_data_row_1991 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_35_1.data.csv?geography=1946157089&date=latest&cell=201457921,201458177,201458433,201458689,201458945,201459201,201459457,201459713,201459969,201460225,201460481,201460737,201460993,201461249,201461505,201461761,201462017,201462273,201462529,201462785,201463041,201463297&measures=20100")
+
+age_5_1991 <- age_data_row_1991 %>%
+    select(age = CELL_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  filter(!age %in% c("L02:1 (All ages : Total persons )") ) %>%
+  mutate(ageband = gsub(".*ed \\s*| :.*", "\\1", age)) %>%
+  mutate(ageband = str_replace(ageband," - ", "-"), ageband = str_replace(ageband," ", "")) %>%
+  mutate(ageband = case_when(ageband =="15" | ageband =="16-17" | ageband =="18-19" ~ '15-19',
+                          ageband == "90& over" ~ '90+',
+                                 TRUE ~ ageband)) %>%
+      group_by(ageband,area_name,date, measure) %>%
+  summarise(value = sum(value)) %>%
+  mutate(ageband = factor(ageband, levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+")))
+
+## 1981
+
+
+age_data_row_1981 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_66_1.data.csv?geography=1946157089&date=latest&cell=50,57,64,71,78,85,92,99,106,113,120,127,134,141,148,155,162,169,176,183&measures=20100")
+
+age_5_1981 <- age_data_row_1981 %>%
+    select(age = CELL_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  filter(!age %in% c("All ages : Total persons") ) %>%
+  mutate(ageband = gsub(".*ed \\s*| :.*", "\\1", age)) %>%
+  mutate(ageband = str_replace(ageband," - ", "-"), ageband = str_replace(ageband," ", "")) %>%
+  mutate(ageband = case_when(ageband =="15" | ageband =="16-19" ~ '15-19',
+                                 TRUE ~ ageband)) %>%
+      group_by(ageband,area_name,date, measure) %>%
+  summarise(value = sum(value)) %>%
+  mutate(ageband = factor(ageband, levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85+")))
+
+## 2021
+
+age_5_2021 <- read_xlsx(tmp, sheet = 5, skip = 7) %>%
+ filter(`Area name`== "Trafford") %>%
+  pivot_longer(`All persons`:`Aged 90 years and over\r\n[note 12]`,names_to = "age", values_to = "value")%>%
+  filter(age != "All persons") %>%
+  mutate(ageband = gsub(".*ed \\s*| y.*", "\\1", age)) %>%
+  mutate(ageband = if_else(ageband == "4","0-4",ageband), ageband = if_else(ageband == "90","90+",ageband)) %>%
+  mutate(ageband = str_replace(ageband," to ", "-")) %>%
+  select(area_name = `Area name`, ageband, value) %>%
+  mutate(date = 2021, measure = "Value") %>%
+mutate(ageband = factor(ageband, levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+")))
+
+
+## timeline
+
+age_5_df <- bind_rows(age_5_1981, age_5_1991, age_5_2001, age_5_2011, age_5_2021) %>%
+  mutate(value = round(value,0))
+
+age_broad <- age_5_df %>%
+  mutate(ageclass = case_when(ageband == "0-4" | ageband =="5-9" | ageband =="10-14" ~ 'Under 15',
+                          ageband == "65-69" | ageband =="70-74" | ageband =="75-79" | ageband =="80-84" | ageband =="85-89" | ageband =="90+" | ageband =="85+" ~ '65 and over',
+                                 TRUE ~ "15-64")) %>%
+        group_by(ageclass,area_name,date, measure) %>%
+  summarise(value = sum(value)) %>%
+  mutate(ageclass = factor(ageclass, levels = c("Under 15", "15-64", '65 and over'))) %>%
+  filter(measure == "Value")
+
+age_cat1 <- age_5_df %>%
+  mutate(ageclass = case_when(ageband == "0-4" ~ 'Under 5',
+                          ageband =="5-9" | ageband =="10-14" | ageband =="15-19" ~ '5 to 19',
+                          ageband =="20-24" | ageband =="25-29" | ageband =="30-34" ~ "20 to 34",
+                                 TRUE ~ "Other")) %>%
+        group_by(ageclass,area_name,date, measure) %>%
+  summarise(value = sum(value)) %>%
+  mutate(ageclass = factor(ageclass, levels = c("Under 5", "5 to 19", "20 to 34"))) %>%
+  filter(measure == "Value", !is.na(ageclass))
+
+age_cat2 <- age_5_df %>%
+  mutate(ageclass = case_when(
+                          ageband =="35-39" | ageband =="40-44" | ageband =="45-49" ~ "35 to 49",
+                          ageband =="50-54" | ageband =="55-59" | ageband =="60-64" | ageband =="65-69" | ageband =="70-74" ~ '50 to 74',
+                          ageband =="75-79" | ageband =="80-84" | ageband =="85-89" | ageband =="90+" | ageband =="85+" ~ '75 and over',
+                                 TRUE ~ "Other")) %>%
+        group_by(ageclass,area_name,date, measure) %>%
+  summarise(value = sum(value)) %>%
+  mutate(ageclass = factor(ageclass, levels = c("35 to 49", '50 to 74', '75 and over'))) %>%
+  filter(measure == "Value", !is.na(ageclass))
+
+
+age_time <- bind_rows(age_broad, age_cat1,age_cat2 )
+
+
+
+```
+
+```{r fig.height=3.5, fig.width=8}
+  ggplot(data = age_broad, aes(x = date)) +
+  geom_col(aes(y = value), fill = "#902082") +
+  geom_text(aes(label = scales::comma(round(value)), y = value), vjust = -1, size = 3) +
+  scale_x_continuous(breaks = unique(age_broad$date), expand = c(0.05, 0)) +
+  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0,190000), label=comma) +
+  facet_wrap(facets = ~`ageclass`, nrow = 1) +
+  labs(x = NULL, y = NULL, title = "Trafford's population by broad age groups",
+       subtitle = "", caption = NULL, fill = NULL) +
+  theme_lab() +
+  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
+  theme(plot.title = element_text(size=16),
+        panel.grid.major.y = element_blank(),
+        panel.spacing = unit(1, "lines"),
+        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 0),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+  
+
+```
+
+```{r fig.height=3, fig.width=8}
+  ggplot(data = age_cat1, aes(x = date)) +
+  geom_col(aes(y = value), fill = "#5d77a3") +
+  geom_text(aes(label = scales::comma(round(value)), y = value), vjust = -1, size = 3) +
+  scale_x_continuous(breaks = unique(age_time$date), expand = c(0.1, 0)) +
+  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0,80000), label=comma) +
+  facet_wrap(facets = ~`ageclass`, nrow = 1) +
+  labs(x = NULL, y = NULL, title = "Trafford's population for specific age groups",
+       subtitle = "", caption = NULL, fill = NULL) +
+  theme_lab() +
+  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
+  theme(plot.title = element_text(size=16),
+        panel.grid.major.y = element_blank(),
+        panel.spacing = unit(0.5, "lines"),
+        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 0),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+ 
+
+```
+
+```{r fig.height=3.5, fig.width=8}
+  ggplot(data = age_cat2, aes(x = date)) +
+  geom_col(aes(y = value), fill = "#5d77a3") +
+  geom_text(aes(label = scales::comma(round(value)), y = value), vjust = -1, size = 3) +
+  scale_x_continuous(breaks = unique(age_time$date), expand = c(0.1, 0)) +
+  scale_y_continuous(expand = c(0.005, 0.005), limits = c(0,80000), label=comma) +
+  facet_wrap(facets = ~`ageclass`, nrow = 1) +
+  labs(x = NULL, y = NULL, title = NULL,
+       subtitle = "", caption = "2021 data from five-year age groups rounded to the nearest 100 \nSource: ONS  |  @traffordDataLab", fill = NULL) +
+  theme_lab() +
+  geom_hline(yintercept = 0, size = 1, colour = "#333333") +
+  theme(plot.title = element_text(size=16),
+        panel.grid.major.y = element_blank(),
+        panel.spacing = unit(0.5, "lines"),
+        strip.text = element_text(face = "plain", hjust = 0.5, vjust = 0),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+ 
+
+```
+
+<br/>
+
+
+## Population Density
+
+Trafford has the second lowest increase in population density  in Greater Manchester compared to the 2011 census at 3.60%. Wigan’s increase was smallest at 3.55% while Salford had the highest at 15.2%. The average increase for all Greater Manchester is 6.9%
+
+```{r}
+
+pop_density_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_143_1.data.csv?date=latest&geography=1941962772...1941962781&rural_urban=0&cell=2&measures=20100")
+
+pop_density_2011 <- pop_density_raw %>%
+    select(area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  mutate(value = value / .01)
+
+pop_density_2021 <- read_xlsx(tmp, sheet = 7, skip = 6) %>%
+ filter(`Area name` %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
+  select(area_name = `Area name`, value = `Population density (number of usual residents per square kilometre) \r\n[note 13]`) %>%
+  mutate(measure = "Value", date = 2021)
+
+pop_density <- bind_rows(pop_density_2011, pop_density_2021) %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), ifelse(date == "2021", value, NA), na.rm = TRUE))
+
+pop_density_change <- pop_density %>%
+  pivot_wider(names_from = date, values_from = value) %>%
+  mutate(change = round(`2021`*100/`2011`-100,1)) %>%
+  mutate()
+
+```
+
+<div class = "row">
+<div class = "col-md-8">
+
+```{r fig.height=6}
+
+ggplot(pop_density, aes(value,area_name)) +
+  geom_line(color = "grey", size=1) +
+  geom_point(aes(color = date), size = 4) +
+  scale_x_continuous(label=comma) +
+  scale_color_manual(values = c("#5d77a3", "#902082"), 
+                     labels = c("2011", "2021")) +
+  labs(x = "number of usual residents per square kilometre", y = NULL, title = "Population Density Change", subtitle = "", caption = NULL, colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=20),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0),
+        legend.position = "bottom",
+        legend.text = element_text(size = 10)) +
+  guides(color = guide_legend(nrow = 1))
+
+```
+
+</div>
+<div class = "col-md-4">
+<br/>
+<br/>
+
+```{r warning = FALSE, echo=FALSE}
+
+pop_density_change %>%
+  select(-measure) %>%
+  arrange(desc(`2021`)) %>% 
+  kable(col.names = c("LA", "2011", "2021", "% Change"), format.args = list(big.mark = ",")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-10">
+
+```{r}
+
+gm <- st_read("https://www.trafforddatalab.io/spatial_data/local_authority/2016/gm_local_authority_super_generalised.geojson", quiet = TRUE) 
+
+gm_pdch <-  gm %>%
+  left_join(pop_density_change %>% mutate(indicator = "Population density", change = round(change,1)) %>% select(-`2011`,-`2021`), by = "area_name")
+
+gg <- ggplot(gm_pdch) +
+  geom_sf_interactive(aes(tooltip = paste0(area_name, "\nChange ", change, "%" ),
+              fill = change), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(12, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "Change (%)",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "Change in population density from 2011 to 2021",
+       subtitle = "GM Local authorities",
+       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: ONS  |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        legend.position = "bottom") 
+
+girafe(ggobj = gg,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+
+```
+</div>
+</div>
+
+## Households
+
+Trafford has the lowest increase in households in Greater Manchester compared to the 2011 census at 1.92%. Salford had the largest increase at 11.15%. The average increase for all Greater Manchester is 4.44%
+
+```{r}
+
+households_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_605_1.data.csv?date=latest&geography=1946157081...1946157090&rural_urban=0&cell=0&measures=20100")
+
+households_2011 <- households_raw %>%
+    select(area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE)
+
+households_2021 <- read_xlsx(tmp, sheet = 8, skip = 6) %>%
+ filter(`Area name` %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
+  select(area_name = `Area name`, value = `Number of households with at least one usual resident`) %>%
+  mutate(measure = "Value", date = 2021)
+
+
+households <- bind_rows(households_2011, households_2021) %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), ifelse(date == "2021", value, NA), na.rm = TRUE))
+
+households_change <- households %>%
+  pivot_wider(names_from = date, values_from = value) %>%
+  mutate(change = round(`2021`*100/`2011`-100,1))
+
+```
+
+<div class = "row">
+<div class = "col-md-8">
+```{r fig.height=6}
+
+ggplot(households, aes(value,area_name)) +
+  geom_line(color = "grey", size=1) +
+  geom_point(aes(color = date), size = 4) +
+  scale_x_continuous(label=comma) +
+  scale_color_manual(values = c("#5d77a3", "#902082"), 
+                     labels = c("2011", "2021")) +
+  labs(x = "households", y = NULL, title = "Number of Households Change", subtitle = "", caption = NULL, colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=20),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0),
+        legend.position = "bottom",
+        legend.text = element_text(size = 10)) +
+  guides(color = guide_legend(nrow = 1))
+
+```
+</div>
+<div class = "col-md-4">
+<br/>
+<br/>
+```{r warning = FALSE, echo=FALSE}
+
+households_change %>%
+  select(-measure) %>%
+  arrange(desc(`2021`)) %>% 
+  kable(col.names = c("LA", "2011", "2021", "% Change"), format.args = list(big.mark = ",")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-10">
+
+```{r}
+
+gm_hch <-  gm %>%
+  left_join(households_change %>% mutate(indicator = "Households", change = round(change,0)) %>% select(-`2011`,-`2021`), by = "area_name")
+
+
+gg <- ggplot(gm_hch) +
+  geom_sf_interactive(aes(tooltip = paste0(area_name, "\nChange ", change, "%"),
+                          fill = change), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(12, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "Change (%)",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+    labs(x = NULL, y = NULL,
+       title = "Change in number of households from 2011 to 2021",
+       subtitle = "GM Local authorities",
+       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: ONS  |  @traffordDataLab") +
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        legend.position = "bottom") 
+ 
+girafe(ggobj = gg,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+
+
+```
+</div>
+</div>
