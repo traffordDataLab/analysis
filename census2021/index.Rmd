@@ -48,7 +48,7 @@ theme_x <- function () {
 
 ```
 
-The first results of the [CENSUS 2021](https://census.gov.uk) include the Usual resident population by sex, by five-year age group, by sex and five-year age group, population density and number of households for local authorities, England and Wales, rounded to the nearest hundred.
+The first results of the [CENSUS 2021](https://census.gov.uk) include the usual resident population by sex, by five-year age group, by sex and five-year age group, population density and number of households for local authorities, England and Wales, rounded to the nearest hundred.
 
 A usual resident is anyone who on Census Day, 21 March 2021 was in the UK and had stayed or intended to stay in the UK for a period of 12 months or more, or had a permanent UK address and was outside the UK and intended to be outside the UK for less than 12 months.
 
@@ -109,9 +109,9 @@ age_f_m_df <- age_f_m %>%
 
           
 ```
-The number of usual residents in Trafford according to the CENSUS 2021 is 235,100, representing an increment of 3.7% from the CENSUS 2011 when the number of usual resident was 226,578. 
+The number of usual residents in Trafford according to the CENSUS 2021 is 235,100, representing an increment of 3.7% from the CENSUS 2011 when the number of usual residents was 226,578. 
 
-There are 120,700 females (51.3%) and 114,400 males (48.6%) in Trafford according to the CENSUS 2021. Similarly,there were 115,619 female (51.03%) and 110,959 male (48.97%) on 2011.
+There are 120,700 females (51.33%) and 114,400 males (48.66%) in Trafford according to the CENSUS 2021. Similarly, there were 115,619 female (51.03%) and 110,959 male (48.97%) in 2011.
 
 
 ```{r}
