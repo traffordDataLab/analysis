@@ -48,7 +48,8 @@ theme_x <- function () {
 
 ```
 
-The first results of the [CENSUS 2021](https://census.gov.uk) include the usual resident population by sex, by five-year age group, by sex and five-year age group, population density and number of households for local authorities, England and Wales, rounded to the nearest hundred.
+
+The ONS has published the demography and migration data of the [CENSUS 2021](https://census.gov.uk) including [population and household estimates](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/bulletins/populationandhouseholdestimatesenglandandwales/census2021unroundeddata), [households and resident characteristics](https://www.ons.gov.uk/peoplepopulationandcommunity/householdcharacteristics/homeinternetandsocialmediausage/bulletins/householdandresidentcharacteristicsenglandandwales/census2021) and [international migration](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/internationalmigration/bulletins/internationalmigrationenglandandwales/census2021).
 
 A usual resident is anyone who on Census Day, 21 March 2021 was in the UK and had stayed or intended to stay in the UK for a period of 12 months or more, or had a permanent UK address and was outside the UK and intended to be outside the UK for less than 12 months.
 
@@ -63,28 +64,32 @@ A household is one person living alone or a group of people (not necessarily rel
 ```{r}
 
 tmp <- tempfile(fileext = ".xlsx")
-m <- GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationandhouseholdestimatesenglandandwalescensus2021/census2021/census2021firstresultsenglandwales1.xlsx",
+m <- GET(url = "https://ons-dp-prod-census-publication.s3.eu-west-2.amazonaws.com/TS009_sex_resident_age_91a/UR-ltla%2Bsex%2Bresident_age_91a.xlsx",
     write_disk(tmp))
 
 
-pop_age_21 <- read_xlsx(tmp, sheet = 6, skip = 7) %>%
- filter(`Area name`== "Trafford") %>%
-  pivot_longer(`All persons`:`Males:\r\nAged 90 years and over\r\n[note 12]`,names_to = "age", values_to = "value") %>%
-  mutate(sex = sub("\\:.*", "", age)) %>%
-  filter(sex != "All persons") %>%
-  mutate(ageband = gsub(".*ed \\s*| y.*", "\\1", age)) %>%
-  mutate(ageband = if_else(ageband == "4","0-4",ageband), ageband = if_else(ageband == "90","90+",ageband)) %>%
-  mutate(ageband = str_replace(ageband," to ", "-")) %>%
-  select(area_name = `Area name`, ageband, sex, `2021` = value)
+pop_age_21 <- read_xlsx(tmp, sheet = 2, skip = 0) %>%
+    select(area_name = `Lower Tier Local Authorities Label`, ageCode = `Age (91 categories) Code`, sex = `Sex (2 categories) Label`, count = Count) %>%
+ filter(area_name== "Trafford") %>%
+
+  mutate(ageband = cut(as.numeric(ageCode),
+                       breaks = c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,120),
+                       labels = c("0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39",
+                                  "40-44","45-49","50-54","55-59","60-64","65-69","70-74",
+                                  "75-79","80-84","85-89","90+"),
+                       right = FALSE)) %>% 
+  group_by(area_name, sex, ageband) %>% 
+  summarise(`2021` = sum(count)) %>%
+  mutate(sex = ifelse(sex=="Female","Females","Males"))
   
 
 ```
 
 ```{r}
 
-trafford_tot <- read_xlsx(tmp, sheet = 4, skip = 6) %>%
-  rename(area_name = `Area name`, all_persons = `All persons`) %>%
-  filter(area_name == "Trafford")
+# trafford_tot <- read_xlsx(tmp, sheet = 4, skip = 6) %>%
+#   rename(area_name = `Area name`, all_persons = `All persons`) %>%
+#   filter(area_name == "Trafford")
   
 age_f_m <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_1414_1.data.csv?date=latest&geography=1941962780&c_sex=0...2&c_age=0...39&measures=20100") 
 
@@ -109,9 +114,9 @@ age_f_m_df <- age_f_m %>%
 
           
 ```
-The number of usual residents in Trafford according to the CENSUS 2021 is 235,100, representing an increment of 3.7% from the CENSUS 2011 when the number of usual residents was 226,578. 
+The number of usual residents in Trafford according to the CENSUS 2021 is 235,052, representing an increment of 3.7% from the CENSUS 2011 when the number of usual residents was 226,578. 
 
-There are 120,700 females (51.33%) and 114,400 males (48.66%) in Trafford according to the CENSUS 2021. Similarly, there were 115,619 female (51.03%) and 110,959 male (48.97%) in 2011.
+There are 120,644 females (51.33%) and 114,408 males (48.66%) in Trafford according to the CENSUS 2021. Similarly, there were 115,619 female (51.03%) and 110,959 male (48.97%) in 2011.
 
 
 ```{r}
@@ -165,6 +170,16 @@ age_data_2011 <- age_data_row_2011 %>%
   filter(!age %in% c("All categories: Age") ) %>%
   mutate(age = str_replace(age,"Age ", ""), age = str_replace(age,"under 1", "0"), age = str_replace(age,"100 and over", "100")) 
 
+age_broad_2011 <- age_data_2011 %>%
+  filter(measure == "Value") %>%
+  mutate(ageband = cut(as.numeric(age),
+                       breaks = c(0,16,65,120),
+                       labels = c("Under 16", "16-64", "65 or over"),
+                       right = FALSE)) %>%
+  group_by(ageband,area_name, date, measure) %>%
+  summarise(value = sum(value))
+  
+
 age_5_2011 <- age_data_2011 %>%
     mutate(age = as.integer(age),
          ageband = cut(age,
@@ -182,6 +197,16 @@ age_data_2001 <- age_data_row_2001 %>%
   select(age = C_AGE_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
   filter(!age %in% c("All categories: Age") ) %>%
   mutate(age = str_replace(age,"Age ", ""), age = str_replace(age,"under 1", "0"), age = str_replace(age,"100 and over", "100")) 
+
+age_broad_2001 <- age_data_2001 %>%
+  mutate(agenum = as.numeric(age)) %>%
+  mutate(agenum = ifelse(is.na(agenum),75,agenum)) %>%
+  mutate(ageband = cut(as.numeric(agenum),
+                       breaks = c(0,16,65,120),
+                       labels = c("Under 16", "16-64", "65 or over"),
+                       right = FALSE)) %>%
+  group_by(ageband,area_name, date, measure) %>%
+  summarise(value = sum(value)) 
 
 age_5_2001 <- age_data_2001 %>%
     mutate(ageI = as.integer(age),
@@ -201,6 +226,17 @@ age_5_2001 <- age_data_2001 %>%
 
 age_data_row_1991 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_35_1.data.csv?geography=1946157089&date=latest&cell=201457921,201458177,201458433,201458689,201458945,201459201,201459457,201459713,201459969,201460225,201460481,201460737,201460993,201461249,201461505,201461761,201462017,201462273,201462529,201462785,201463041,201463297&measures=20100")
 
+age_broad_1991 <- age_data_row_1991 %>%
+    select(age = CELL_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  filter(!age %in% c("L02:1 (All ages : Total persons )") ) %>%
+  mutate(ageband = gsub(".*ed \\s*| :.*", "\\1", age)) %>%
+  mutate(ageband = str_replace(ageband," - ", "-"), ageband = str_replace(ageband," ", "")) %>%
+  mutate(ageband = case_when(ageband =="0-4" | ageband =="5-9"|ageband =="10-14"| ageband =="15" ~ 'Under 16',
+                             ageband =="65-69"| ageband =="70-74"| ageband =="75-79"| ageband =="80-84"|ageband =="85-89"| ageband =="90& over" ~ '65 or over',
+                                 TRUE ~ "16-64")) %>%
+  group_by(ageband,area_name, date, measure) %>%
+  summarise(value = sum(value)) 
+
 age_5_1991 <- age_data_row_1991 %>%
     select(age = CELL_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
   filter(!age %in% c("L02:1 (All ages : Total persons )") ) %>%
@@ -215,8 +251,18 @@ age_5_1991 <- age_data_row_1991 %>%
 
 ## 1981
 
-
 age_data_row_1981 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_66_1.data.csv?geography=1946157089&date=latest&cell=50,57,64,71,78,85,92,99,106,113,120,127,134,141,148,155,162,169,176,183&measures=20100")
+
+age_broad_1981 <- age_data_row_1981 %>%
+    select(age = CELL_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  filter(!age %in% c("All ages : Total persons") ) %>%
+  mutate(ageband = gsub(".*ed \\s*| :.*", "\\1", age)) %>%
+  mutate(ageband = str_replace(ageband," - ", "-"), ageband = str_replace(ageband," ", "")) %>%
+  mutate(ageband = case_when(ageband =="0-4" | ageband =="5-9"|ageband =="10-14"| ageband =="15" ~ 'Under 16',
+                             ageband =="65-69"| ageband =="70-74"| ageband =="75-79"| ageband =="80-84"|ageband =="85-89"| ageband =="90& over" ~ '65 or over',
+                                 TRUE ~ "16-64")) %>%
+  group_by(ageband,area_name, date, measure) %>%
+  summarise(value = sum(value)) 
 
 age_5_1981 <- age_data_row_1981 %>%
     select(age = CELL_NAME, area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
@@ -231,31 +277,53 @@ age_5_1981 <- age_data_row_1981 %>%
 
 ## 2021
 
-age_5_2021 <- read_xlsx(tmp, sheet = 5, skip = 7) %>%
- filter(`Area name`== "Trafford") %>%
-  pivot_longer(`All persons`:`Aged 90 years and over\r\n[note 12]`,names_to = "age", values_to = "value")%>%
-  filter(age != "All persons") %>%
-  mutate(ageband = gsub(".*ed \\s*| y.*", "\\1", age)) %>%
-  mutate(ageband = if_else(ageband == "4","0-4",ageband), ageband = if_else(ageband == "90","90+",ageband)) %>%
-  mutate(ageband = str_replace(ageband," to ", "-")) %>%
-  select(area_name = `Area name`, ageband, value) %>%
-  mutate(date = 2021, measure = "Value") %>%
-mutate(ageband = factor(ageband, levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90+")))
+tmp2 <- tempfile(fileext = ".xlsx")
+m <- GET(url = "https://ons-dp-prod-census-publication.s3.eu-west-2.amazonaws.com/TS007_resident_age_101a/UR-ltla%2Bresident_age_101a.xlsx",
+    write_disk(tmp2))
 
+age_broad_2021 <- read_xlsx(tmp2, sheet = 2) %>%
+    select(area_name = `Lower Tier Local Authorities Label`, age = `Age (101 categories) Code`, Value = Count) %>%
+  filter(area_name== "Trafford") %>%
+  mutate(measure = "Value", date = 2021) %>%
+  mutate(ageband = cut(as.numeric(age),
+                       breaks = c(0,16,65,120),
+                       labels = c("Under 16", "16-64", "65 or over"),
+                       right = FALSE)) %>%
+  group_by(ageband,area_name, date, measure) %>%
+  summarise(value = sum(Value))
+
+
+
+age_5_2021 <- read_xlsx(tmp2, sheet = 2) %>%
+    select(area_name = `Lower Tier Local Authorities Label`, ageCode = `Age (101 categories) Code`, count = Count) %>%
+ filter(area_name== "Trafford") %>%
+
+  mutate(ageband = cut(as.numeric(ageCode),
+                       breaks = c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,120),
+                       labels = c("0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39",
+                                  "40-44","45-49","50-54","55-59","60-64","65-69","70-74",
+                                  "75-79","80-84","85-89","90+"),
+                       right = FALSE)) %>% 
+  group_by(area_name, ageband) %>% 
+  summarise(value = sum(count)) %>%
+  mutate(date = 2021, measure = "Value")
 
 ## timeline
 
 age_5_df <- bind_rows(age_5_1981, age_5_1991, age_5_2001, age_5_2011, age_5_2021) %>%
   mutate(value = round(value,0))
 
-age_broad <- age_5_df %>%
-  mutate(ageclass = case_when(ageband == "0-4" | ageband =="5-9" | ageband =="10-14" ~ 'Under 15',
-                          ageband == "65-69" | ageband =="70-74" | ageband =="75-79" | ageband =="80-84" | ageband =="85-89" | ageband =="90+" | ageband =="85+" ~ '65 and over',
-                                 TRUE ~ "15-64")) %>%
-        group_by(ageclass,area_name,date, measure) %>%
-  summarise(value = sum(value)) %>%
-  mutate(ageclass = factor(ageclass, levels = c("Under 15", "15-64", '65 and over'))) %>%
-  filter(measure == "Value")
+age_broad_df <- bind_rows(age_broad_1981, age_broad_1991, age_broad_2001,age_broad_2011,age_broad_2021) %>%
+  mutate(ageband = factor(ageband, levels = c("Under 16", "16-64", '65 or over'))) 
+
+# age_broad <- age_5_df %>%
+#   mutate(ageclass = case_when(ageband == "0-4" | ageband =="5-9" | ageband =="10-14" ~ 'Under 15',
+#                           ageband == "65-69" | ageband =="70-74" | ageband =="75-79" | ageband =="80-84" | ageband =="85-89" | ageband =="90+" | ageband =="85+" ~ '65 and over',
+#                                  TRUE ~ "15-64")) %>%
+#         group_by(ageclass,area_name,date, measure) %>%
+#   summarise(value = sum(value)) %>%
+#   mutate(ageclass = factor(ageclass, levels = c("Under 15", "15-64", '65 and over'))) %>%
+#   filter(measure == "Value")
 
 age_cat1 <- age_5_df %>%
   mutate(ageclass = case_when(ageband == "0-4" ~ 'Under 5',
@@ -279,21 +347,21 @@ age_cat2 <- age_5_df %>%
   filter(measure == "Value", !is.na(ageclass))
 
 
-age_time <- bind_rows(age_broad, age_cat1,age_cat2 )
+age_time <- bind_rows(age_broad_df, age_cat1,age_cat2 )
 
 
 
 ```
 
 ```{r fig.height=3.5, fig.width=8}
-  ggplot(data = age_broad, aes(x = date)) +
+  ggplot(data = age_broad_df, aes(x = date)) +
   geom_col(aes(y = value), fill = "#902082") +
   geom_text(aes(label = scales::comma(round(value)), y = value), vjust = -1, size = 3) +
-  scale_x_continuous(breaks = unique(age_broad$date), expand = c(0.05, 0)) +
+  scale_x_continuous(breaks = unique(age_broad_df$date), expand = c(0.05, 0)) +
   scale_y_continuous(expand = c(0.005, 0.005), limits = c(0,190000), label=comma) +
-  facet_wrap(facets = ~`ageclass`, nrow = 1) +
+  facet_wrap(facets = ~`ageband`, nrow = 1) +
   labs(x = NULL, y = NULL, title = "Trafford's population by broad age groups",
-       subtitle = "", caption = NULL, fill = NULL) +
+       subtitle = "", caption = "Source: ONS  |  @traffordDataLab", fill = NULL) +
   theme_lab() +
   geom_hline(yintercept = 0, size = 1, colour = "#333333") +
   theme(plot.title = element_text(size=16),
@@ -335,7 +403,7 @@ age_time <- bind_rows(age_broad, age_cat1,age_cat2 )
   scale_y_continuous(expand = c(0.005, 0.005), limits = c(0,80000), label=comma) +
   facet_wrap(facets = ~`ageclass`, nrow = 1) +
   labs(x = NULL, y = NULL, title = NULL,
-       subtitle = "", caption = "2021 data from five-year age groups rounded to the nearest 100 \nSource: ONS  |  @traffordDataLab", fill = NULL) +
+       subtitle = "", caption = "Source: ONS  |  @traffordDataLab", fill = NULL) +
   theme_lab() +
   geom_hline(yintercept = 0, size = 1, colour = "#333333") +
   theme(plot.title = element_text(size=16),
@@ -353,7 +421,7 @@ age_time <- bind_rows(age_broad, age_cat1,age_cat2 )
 
 ## Population Density
 
-Trafford has the second lowest increase in population density  in Greater Manchester compared to the 2011 census at 3.60%. Wigan’s increase was smallest at 3.55% while Salford had the highest at 15.2%. The average increase for all Greater Manchester is 6.9%
+Trafford has the second lowest increase in population density  in Greater Manchester compared to the 2011 census at 3.58%. Wigan’s increase was smallest at 3.55% while Salford had the highest at 15.24%. The average increase for all Greater Manchester is 6.61%
 
 ```{r}
 
@@ -363,10 +431,19 @@ pop_density_2011 <- pop_density_raw %>%
     select(area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
   mutate(value = value / .01)
 
-pop_density_2021 <- read_xlsx(tmp, sheet = 7, skip = 6) %>%
- filter(`Area name` %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
-  select(area_name = `Area name`, value = `Population density (number of usual residents per square kilometre) \r\n[note 13]`) %>%
+tmp3 <- tempfile(fileext = ".xlsx")
+m <- GET(url = "https://ons-dp-prod-census-publication.s3.eu-west-2.amazonaws.com/TS006_population_density/atc-ts-demmig-ur-pd-oa-ltla.xlsx",
+    write_disk(tmp3))
+
+pop_density_2021 <- read_xlsx(tmp3, sheet = 2) %>%
+    select(area_name = `Lower Tier Local Authorities Label`, value = `Population Density`) %>%
+  filter(area_name %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
   mutate(measure = "Value", date = 2021)
+
+# pop_density_2021 <- read_xlsx(tmp, sheet = 7, skip = 6) %>%
+#  filter(`Area name` %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
+#   select(area_name = `Area name`, value = `Population density (number of usual residents per square kilometre) \r\n[note 13]`) %>%
+#   mutate(measure = "Value", date = 2021)
 
 pop_density <- bind_rows(pop_density_2011, pop_density_2021) %>%
   mutate(date = as.character(date),
@@ -470,19 +547,29 @@ girafe(ggobj = gg,
 
 ## Households
 
-Trafford has the lowest increase in households in Greater Manchester compared to the 2011 census at 1.92%. Salford had the largest increase at 11.15%. The average increase for all Greater Manchester is 4.44%
+Trafford has the lowest increase in households in Greater Manchester compared to the 2011 census at 1.89%. Salford had the largest increase at 11.16%. The average increase for all Greater Manchester is 4.37%
 
 ```{r}
 
 households_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_605_1.data.csv?date=latest&geography=1946157081...1946157090&rural_urban=0&cell=0&measures=20100")
 
 households_2011 <- households_raw %>%
-    select(area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE)
+    select(area_name = GEOGRAPHY_NAME, date = DATE, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  mutate(measure = "Count")
 
-households_2021 <- read_xlsx(tmp, sheet = 8, skip = 6) %>%
- filter(`Area name` %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
-  select(area_name = `Area name`, value = `Number of households with at least one usual resident`) %>%
-  mutate(measure = "Value", date = 2021)
+tmp4 <- tempfile(fileext = ".xlsx")
+m <- GET(url = "https://ons-dp-prod-census-publication.s3.eu-west-2.amazonaws.com/TS041_households/atc-ts-demmig-hh-ct-oa-ltla.xlsx",
+    write_disk(tmp4))
+
+households_2021 <- read_xlsx(tmp4, sheet = 2) %>%
+    select(area_name = `Lower Tier Local Authorities Label`, value = `Count`) %>%
+  filter(area_name %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
+  mutate(measure = "Count", date = 2021)
+
+# households_2021 <- read_xlsx(tmp, sheet = 8, skip = 6) %>%
+#  filter(`Area name` %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
+#   select(area_name = `Area name`, value = `Number of households with at least one usual resident`) %>%
+#   mutate(measure = "Value", date = 2021)
 
 
 households <- bind_rows(households_2011, households_2021) %>%
