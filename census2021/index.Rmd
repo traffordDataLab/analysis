@@ -794,7 +794,7 @@ onep_oth <- hushol_onep %>%
 gg <- ggplot() +
   geom_point_interactive(data = onep_66o, aes(Percent, area_name, tooltip = tooltip), size = 3, colour = "#902082") +
   scale_x_continuous(limits = c(0,20)) +
-    labs(x = "Percent", y = NULL, title = "One person household aged 66 years and over", subtitle = "Trafford MSOAs,2021", caption = "Source: ONS  |  @traffordDataLab", colour = NULL) +
+    labs(x = "Percent", y = NULL, title = "One person household aged 66+", subtitle = "Trafford MSOAs,2021", caption = "Source: ONS  |  @traffordDataLab", colour = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=14),
         plot.subtitle = element_text(size=12),
@@ -885,7 +885,7 @@ gg <- ggplot(cobirth_p, aes(value,category)) +
   scale_x_continuous(label=comma) +
   scale_color_manual(values = c("#5d77a3", "#902082"), 
                      labels = c("2011", "2021")) +
-  labs(x = "residents", y = NULL, title = "Country of birth Change", subtitle = "Trafford residents born overseas by country", caption = "200 residents or more born in country\nSource: ONS  |  @traffordDataLab", colour = NULL) +
+  labs(x = "residents", y = NULL, title = "Country of birth Change", subtitle = "Trafford residents born outside the UK by country", caption = "200 residents or more born in country\nSource: ONS  |  @traffordDataLab", colour = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=14),
         plot.subtitle = element_text(size=12),
