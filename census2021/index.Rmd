@@ -58,6 +58,8 @@ A household is one person living alone or a group of people (not necessarily rel
 
 <br/>
 
+# Demography and migration
+
 ## Population
 
 
@@ -440,11 +442,6 @@ pop_density_2021 <- read_xlsx(tmp3, sheet = 2) %>%
   filter(area_name %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
   mutate(measure = "Value", date = 2021)
 
-# pop_density_2021 <- read_xlsx(tmp, sheet = 7, skip = 6) %>%
-#  filter(`Area name` %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
-#   select(area_name = `Area name`, value = `Population density (number of usual residents per square kilometre) \r\n[note 13]`) %>%
-#   mutate(measure = "Value", date = 2021)
-
 pop_density <- bind_rows(pop_density_2011, pop_density_2021) %>%
   mutate(date = as.character(date),
   area_name = fct_reorder(factor(area_name), ifelse(date == "2021", value, NA), na.rm = TRUE))
@@ -566,11 +563,6 @@ households_2021 <- read_xlsx(tmp4, sheet = 2) %>%
   filter(area_name %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
   mutate(measure = "Count", date = 2021)
 
-# households_2021 <- read_xlsx(tmp, sheet = 8, skip = 6) %>%
-#  filter(`Area name` %in% c("Trafford", "Bolton", "Bury", "Manchester", "Oldham", "Rochdale", "Salford", "Stockport", "Tameside", "Wigan")) %>%
-#   select(area_name = `Area name`, value = `Number of households with at least one usual resident`) %>%
-#   mutate(measure = "Value", date = 2021)
-
 
 households <- bind_rows(households_2011, households_2021) %>%
   mutate(date = as.character(date),
@@ -665,4 +657,254 @@ girafe(ggobj = gg,
 
 ```
 </div>
+</div>
+
+## Household composition
+
+The most common household composition in Trafford according to the 2021 Census were 2-people households which represented 31.3% of all households, followed closely by one-person households representing 29.5%.
+There was a slight increment for both 2-people household with 32.9% and one-person household with 29.8% from the 2011 Census.
+
+According to the 2021 Census, single family households with dependent children represented 30.2% of Trafford households, single family households where all children are non-dependent(adult children) represented 11% of Trafford households, and single family households with no children represented 15.1% of Trafford households, according to the 2021 Census.
+
+<div class = "row">
+<div class = "col-md-9">
+
+```{r}
+
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford")
+
+
+w_dep_ch_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2023_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_hhcomp_15=0,5,8,10,13&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_HHCOMP_15_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+w_dep_ch_raw_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_605_1.data.csv?date=latest&geography=1245709510...1245709537,1946157089&rural_urban=0&cell=5,8,10,12&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+w_dep_ch_tool <- bind_rows(w_dep_ch_raw, w_dep_ch_raw_2011) %>%
+  pivot_wider(names_from = "date", values_from = "value") %>%
+  mutate(change = `2021`-`2011`) %>%
+  mutate(pchange = round(change*100/`2011`,0)) %>%
+  select(category, change, pchange) 
+
+w_dep_ch_raw_To_Traf <- bind_rows(w_dep_ch_raw, w_dep_ch_raw_2011) %>%
+  filter(category != "Total") %>%
+  group_by(date,area_name, measure) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  left_join(lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
+
+w_dep_ch_tool <- w_dep_ch_raw_To_Traf %>%
+  pivot_wider(names_from = "date", values_from = "value") %>%
+  mutate(change = round(`2021`-`2011`,1)) %>%
+  select(area_name, measure, change) %>%
+  filter(measure == "Percent")
+
+w_dep_ch_To_Traf <- w_dep_ch_raw_To_Traf %>%
+  pivot_wider(names_from = measure, values_from = value) %>%
+  left_join(w_dep_ch_tool, by = c("area_name")) %>%
+  mutate(tooltip = ifelse(date == 2021,
+                          paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Year: </strong>", date, "<br/>",
+     Percent, "%(", Value, " households)<br/>", 
+    "<strong>", "Change from 2011: </strong><br/>",
+    change, "%<br/>"),
+    paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Year: </strong>", date, "<br/>",
+     Percent, "%(", Value, " households)<br/>"))) %>%
+    mutate(area_name = fct_reorder(factor(area_name), ifelse(date == 2021, Percent, NA), na.rm = TRUE),
+         area_name = fct_relevel(factor(area_name), "Trafford"))
+
+
+```
+
+```{r}
+gg <- ggplot(w_dep_ch_To_Traf, aes(Percent, area_name)) +
+  geom_line(color = "grey", size=1) +
+  geom_point_interactive(aes(tooltip = tooltip, color = as.character(date)), size = 3) +
+    scale_color_manual(values = c("#5d77a3", "#902082"), 
+                     labels = c("2011", "2021")) +
+  scale_x_continuous(limits = c(0,40)) +
+    labs(x = "Percent", y = NULL, title = "Households with dependent children", subtitle = "Trafford MSOAs", caption = "Source: ONS  |  @traffordDataLab", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=9),
+        axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9)) +
+  guides(color = guide_legend(nrow = 1))
+  
+girafe(ggobj = gg, height_svg = 6.5,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+```
+</div>
+</div>
+
+One person households aged 66 years and over represented 13.3% of Trafford households, while 16.2% represented other one person households, making the total of one person households 29.5% of all households in Trafford according to the 2021 Census.
+
+<div class = "row">
+<div class = "col-md-9">
+```{r}
+
+hou_size <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2037_1.data.csv?date=latest&geography=645922849&c2021_hhsize_10=2...9&measures=20100,20301") %>%
+  filter(MEASURES_NAME == "Percent") 
+
+hou_ch_2021 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2023_1.data.csv?date=latest&geography=645922849&c2021_hhcomp_15=0,1001,1,2,1002,3,1003,4...6,1004,7...9,1005,10,11,1006,12,1007,13,14&measures=20100,20301") %>%
+  filter(MEASURES_NAME == "Percent") %>%
+  select(category = C2021_HHCOMP_15_NAME, value = OBS_VALUE)
+
+hushol_onep_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2023_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_hhcomp_15=0...2&measures=20100,20301")
+
+hushol_onep <- hushol_onep_raw %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_HHCOMP_15_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  left_join(lookup%>%select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(categoryb = gsub("One person household: ", "", category)) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
+
+onep_66o <- hushol_onep %>%
+  filter(categoryb =="Aged 66 years and over") %>%
+    mutate(area_name = fct_reorder(factor(area_name), ifelse(measure == "Percent", value, NA), na.rm = TRUE),
+         area_name = fct_relevel(factor(area_name), "Trafford"))%>%
+  pivot_wider(names_from = measure, values_from = value) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Households: </strong>", Value, "<br/>",
+    "<strong>", "Percent: </strong>", Percent, "<br/>"))
+
+onep_oth <- hushol_onep %>%
+  filter(categoryb =="Other") %>%
+    mutate(area_name = fct_reorder(factor(area_name), ifelse(measure == "Percent", value, NA), na.rm = TRUE),
+         area_name = fct_relevel(factor(area_name), "Trafford"))
+```
+
+```{r}
+
+gg <- ggplot() +
+  geom_point_interactive(data = onep_66o, aes(Percent, area_name, tooltip = tooltip), size = 3, colour = "#902082") +
+  scale_x_continuous(limits = c(0,20)) +
+    labs(x = "Percent", y = NULL, title = "One person household aged 66 years and over", subtitle = "Trafford MSOAs,2021", caption = "Source: ONS  |  @traffordDataLab", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=9),
+        axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9)) +
+  guides(color = guide_legend(nrow = 1))
+  
+girafe(ggobj = gg, height_svg = 6,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+  
+
+```
+</div>
+
+</div>
+
+## International Migration
+
+Non-UK born people represented 14.9%(35,022) of Trafford residents according to the 2021 Census, a 3.7% growth from the 2011 Census when 11.2% of Trafford residents were born outside of the UK.
+
+2,130 non-UK born Trafford residents, arrived to the UK from the start of 2020 to the 2021 Census day. They represent 0.9% of the total Trafford residents and 6.1% of the total non-UK born Trafford residents.
+
+
+<div class = "row">
+<div class = "col-md-9">
+
+```{r}
+
+year_arrive <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2035_1.data.csv?date=latest&geography=645922849&c2021_arruk_13=0...12&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_ARRUK_13_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+cob_t <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2024_1.data.csv?date=latest&geography=645922849&c2021_cob_12=0,1001,7...11&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_COB_12_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+
+cobirth_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2032_1.data.csv?date=latest&geography=645922849&c2021_cob_58=7...12,14...16,18,22,23,25...28,31,32,34,35,37...41,43...45,48,49,53,55,56&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_COB_58_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+cobirth <- cobirth_raw %>%
+    mutate(category = gsub('.*\\: ', '', category)) %>%
+  mutate(category = gsub("\\s*\\([^\\)]+\\)","", category)) %>%
+  filter(measure=="Value")
+
+cobirth_raw_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_524_1.data.csv?date=latest&geography=1946157089&rural_urban=0&cell=13,17...21,24...26,29,34,35,38...41,46,49,50,53...56,59,64,69,74&measures=20100") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+  
+cobirth_2011 <- cobirth_raw_2011 %>%
+    mutate(category = gsub('.*\\: ', '', category)) %>%
+  mutate(category = gsub("\\s*\\([^\\)]+\\)","", category))
+
+cobirth_tool <- bind_rows(cobirth, cobirth_2011) %>%
+  pivot_wider(names_from = "date", values_from = "value") %>%
+  mutate(change = `2021`-`2011`) %>%
+  mutate(pchange = round(change*100/`2011`,0)) %>%
+  select(category, change, pchange) 
+
+cobirth_p <- bind_rows(cobirth_2011,cobirth) %>%
+  left_join(cobirth_tool, by = "category") %>%
+  filter(category %in% pull(arrange(filter(., value > 200 & date == 2021), value),category)) %>%
+  mutate(category = ordered(category, levels = pull(arrange(filter(., date == 2021), value),category))) %>%
+  mutate(date = as.character(date)) %>%
+  mutate(tooltip = ifelse(date == 2021,
+                          paste0("<strong>", category,"</strong><br/>",
+      "<strong>", "Year: </strong>", date, "<br/>",
+    "<strong>", "Residents: </strong>", value, "<br/>",
+    "<strong>", "Change from 2011: </strong><br/>",
+    change, " residents (", pchange, "%)<br/>"),
+    paste0("<strong>", category,"</strong><br/>",
+      "<strong>", "Year: </strong>", date, "<br/>",
+    "<strong>", "Residents: </strong>", value, "<br/>")))
+
+```
+
+```{r}
+
+gg <- ggplot(cobirth_p, aes(value,category)) +
+  geom_line(color = "grey", size=1) +
+  geom_point_interactive(aes(tooltip = tooltip, color = date), size = 3) +
+  scale_x_continuous(label=comma) +
+  scale_color_manual(values = c("#5d77a3", "#902082"), 
+                     labels = c("2011", "2021")) +
+  labs(x = "residents", y = NULL, title = "Country of birth Change", subtitle = "Trafford residents born overseas by country", caption = "200 residents or more born in country\nSource: ONS  |  @traffordDataLab", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=9),
+        axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9)) +
+  guides(color = guide_legend(nrow = 1))
+  
+girafe(ggobj = gg, height_svg = 7,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+```
+</div>
+
 </div>
