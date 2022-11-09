@@ -709,12 +709,12 @@ w_dep_ch_To_Traf <- w_dep_ch_raw_To_Traf %>%
   mutate(tooltip = ifelse(date == 2021,
                           paste0("<strong>", area_name,"</strong><br/>",
       "<strong>", "Year: </strong>", date, "<br/>",
-     Percent, "%(", Value, " households)<br/>", 
+     Percent, "% (", Value, " households)<br/>", 
     "<strong>", "Change from 2011: </strong><br/>",
     change, "%<br/>"),
     paste0("<strong>", area_name,"</strong><br/>",
       "<strong>", "Year: </strong>", date, "<br/>",
-     Percent, "%(", Value, " households)<br/>"))) %>%
+     Percent, "% (", Value, " households)<br/>"))) %>%
     mutate(area_name = fct_reorder(factor(area_name), ifelse(date == 2021, Percent, NA), na.rm = TRUE),
          area_name = fct_relevel(factor(area_name), "Trafford"))
 
@@ -728,7 +728,7 @@ gg <- ggplot(w_dep_ch_To_Traf, aes(Percent, area_name)) +
     scale_color_manual(values = c("#5d77a3", "#902082"), 
                      labels = c("2011", "2021")) +
   scale_x_continuous(limits = c(0,40)) +
-    labs(x = "Percent", y = NULL, title = "Households with dependent children", subtitle = "Trafford MSOAs", caption = "Source: ONS  |  @traffordDataLab", colour = NULL) +
+    labs(x = "Percent", y = NULL, title = "Households with dependent children", subtitle = "Trafford MSOAs", caption = "*Interactive plot. Source: ONS  |  @traffordDataLab", colour = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=14),
         plot.subtitle = element_text(size=12),
@@ -794,7 +794,7 @@ onep_oth <- hushol_onep %>%
 gg <- ggplot() +
   geom_point_interactive(data = onep_66o, aes(Percent, area_name, tooltip = tooltip), size = 3, colour = "#902082") +
   scale_x_continuous(limits = c(0,20)) +
-    labs(x = "Percent", y = NULL, title = "One person household aged 66+", subtitle = "Trafford MSOAs,2021", caption = "Source: ONS  |  @traffordDataLab", colour = NULL) +
+    labs(x = "Percent", y = NULL, title = "One person household aged 66+", subtitle = "Trafford MSOAs,2021", caption = "*Interactive plot. Source: ONS  |  @traffordDataLab", colour = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=14),
         plot.subtitle = element_text(size=12),
@@ -822,7 +822,7 @@ girafe(ggobj = gg, height_svg = 6,
 
 ## International Migration
 
-Non-UK born people represented 14.9%(35,022) of Trafford residents according to the 2021 Census, a 3.7% growth from the 2011 Census when 11.2% of Trafford residents were born outside of the UK.
+Non-UK born people represented 14.9% (35,022) of Trafford residents according to the 2021 Census, a 3.7% growth from the 2011 Census when 11.2% of Trafford residents were born outside of the UK.
 
 2,130 non-UK born Trafford residents, arrived to the UK from the start of 2020 to the 2021 Census day. They represent 0.9% of the total Trafford residents and 6.1% of the total non-UK born Trafford residents.
 
@@ -885,7 +885,7 @@ gg <- ggplot(cobirth_p, aes(value,category)) +
   scale_x_continuous(label=comma) +
   scale_color_manual(values = c("#5d77a3", "#902082"), 
                      labels = c("2011", "2021")) +
-  labs(x = "residents", y = NULL, title = "Country of birth Change", subtitle = "Trafford residents born outside the UK by country", caption = "200 residents or more born in country\nSource: ONS  |  @traffordDataLab", colour = NULL) +
+  labs(x = "residents", y = NULL, title = "Country of birth Change", subtitle = "Trafford residents born outside the UK by country", caption = "200 residents or more born in country\n*Interactive plot. Source: ONS  |  @traffordDataLab", colour = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=14),
         plot.subtitle = element_text(size=12),
