@@ -1,0 +1,394 @@
+---
+title: "CENSUS 2021: Veterans"
+lang: "en-GB"
+output:
+  html_document:
+    highlight: null
+    mathjax: null
+    theme: flatly
+    css: styles.css
+    self_contained: TRUE
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+    includes:
+      in_header: head_includes.html
+---
+<main>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(RColorBrewer) ;
+library(kableExtra); 
+library(httr) ; library(readxl)
+library(scales) ; 
+library(ggiraph)
+library(ggpol)
+
+source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
+
+
+# ggplot2 theme
+theme_x <- function () { 
+  theme_minimal(base_size = 14, base_family = "Open Sans") %+replace% 
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      plot.title = element_text(size = 16, face = "bold", hjust = 0),
+      plot.subtitle = element_text(hjust = 0, margin = margin(9, 0, 9, 0)),
+      plot.caption = element_text(size = 12, color = "grey50", hjust = 1, margin = margin(t = 15)),
+      axis.title = element_text(size = 10, hjust = 1),
+      axis.text.x = element_text(angle = 90, hjust = 1, margin = margin(t = 0)),
+      legend.position = "top", 
+      legend.justification = "left"
+    )
+}
+
+```
+
+
+The [CENSUS 2021](https://census.gov.uk) in England and Wales was the first to ask people if they had previously served in the UK armed forces. The ONS has released the [UK armed forces veterans: Census 2021 in England and Wales](https://www.ons.gov.uk/releases/ukarmedforcesveteranscensus2021inenglandandwales) topic summary, including the [data](https://www.ons.gov.uk/peoplepopulationandcommunity/armedforcescommunity/articles/ukarmedforcesveteransdataenglandandwales/census2021) and a [publication](https://www.ons.gov.uk/peoplepopulationandcommunity/armedforcescommunity/bulletins/ukarmedforcesveteransenglandandwales/census2021).
+
+These data relate to those who previously served in the UK armed forces and excludes those who are currently serving (even if they had left and rejoined the armed forces). 
+
+<br/>
+
+# UK armed forces veterans
+
+According to the Census 2021, 5,341 Trafford residents have previously served in the UK armed forces which represented 2.87% of the residents aged 16 and over. The equivalent figure for England and Wales is 3.8% which is higher than in Trafford.
+
+From those who served in the UK armed forces, 3,796 previously served in the regular UK armed forces, 1,350 previously served in the UK reserve armed forces, and 195 previously served in both regular and reserve UK armed forces, representing the 2.04%, 0.73% and 0.1% of the Trafford residents aged 16 and over respectively.
+
+In Trafford, 5.3% (5,093) of the households have at least 1 person who previously served in the UK armed forces. Out of that households, the 97.4% of them have 1 person who previously served in the UK and the remaining 2.6% of them have 2 or more people who previously served in the UK armed forces, according to the Census 2021
+
+Of the Trafford residents who previously served in the UK armed forces, 98% live in a household and 2% live in a communal establishment.
+
+## Previously served in the UK armed forces
+
+
+<div class = "row">
+<div class = "col-md-6">
+
+```{r}
+
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford") %>% 
+  select(msoa11nm,msoa11hclnm)
+
+MSOA_rsdnts <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2027_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_age_102=0,1004...1011&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_AGE_102_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  filter(category != "Total", measure == "Value") %>%
+  group_by(area_name) %>%
+  summarise(residents16p = sum(value)) %>%
+  left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) %>%
+  select (area_name, residents16p)
+
+tmp <- tempfile(fileext = ".xlsx")
+m <- GET(url = "https://ons-dp-prod-census-publication.s3.eu-west-2.amazonaws.com/20221110/TS071_uk_armed_forces/UR-msoa%2Buk_armed_forces.xlsx",
+    write_disk(tmp))
+
+
+prev_ser_MSOA <- read_xlsx(tmp, sheet = 2, skip = 0) %>%
+    select(area_name = `Middle Layer Super Output Areas Label`, category = `UK armed forces veteran indicator (5 categories) Label`, count = Count) %>%
+  filter(str_detect(area_name, 'Trafford')) %>%
+  left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) 
+
+tmp2 <- tempfile(fileext = ".xlsx")
+m <- GET(url = "https://ons-dp-prod-census-publication.s3.eu-west-2.amazonaws.com/20221110/TS071_uk_armed_forces/UR-ltla%2Buk_armed_forces.xlsx",
+    write_disk(tmp2))
+
+prev_ser_Trafford <- read_xlsx(tmp2, sheet = 2, skip = 0) %>%
+    select(area_name = `Lower Tier Local Authorities Label`, category = `UK armed forces veteran indicator (5 categories) Label`, count = Count) %>%
+  filter(area_name == 'Trafford') 
+
+prev_ser_MSOA_T <- bind_rows(prev_ser_MSOA,prev_ser_Trafford) %>%
+  left_join(MSOA_rsdnts, by = "area_name") %>%
+  mutate(percent = round(count *100 / residents16p,2))
+
+```
+
+```{r}
+
+data <- prev_ser_MSOA_T %>%
+  filter(category == "Previously served in UK armed forces") %>%
+  filter(area_name != "Trafford") %>%
+    mutate(area_name = fct_reorder(factor(area_name), count)) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Veterans: </strong>", count, "<br/>",
+    "<strong>", "Percent of residents: </strong>", percent, "<br/>"))
+  
+gg <- ggplot(data) +
+  geom_point_interactive(aes(count, area_name, tooltip = tooltip), size = 3, color = "#48327F") +
+  scale_x_continuous(limits = c(0,200)) +
+    labs(x = "residents", y = NULL, title = "Previously served in regular UK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "Source: Census 2021 |  @traffordDataLab", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=16),
+        plot.title.position = "plot",
+        plot.subtitle = element_text(size=14),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=9),
+        axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9))
+  
+girafe(ggobj = gg, height_svg = 6,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+
+```
+</div>
+<div class = "col-md-6">
+
+
+```{r}
+
+msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+    left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm)
+
+msoa_sf_prev_serv <- msoa_sf %>%
+  left_join(select(prev_ser_MSOA_T,-residents16p), by = "area_name")
+
+
+msoa_sf_prev_serv1 <- msoa_sf_prev_serv %>%
+  filter(category == "Previously served in UK armed forces") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Veterans: </strong>", count, "<br/>",
+    "<strong>", percent, "</strong>% of residents"))
+
+gg <- ggplot(msoa_sf_prev_serv1) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = percent), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(12, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% of MSOA residents aged 16 and over",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "",
+       subtitle = "",
+       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        legend.position = "bottom") 
+
+girafe(ggobj = gg, height_svg = 6,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+```
+</div>
+</div>
+
+<div class = "row">
+<div class = "col-md-6">
+```{r}
+
+data2 <- prev_ser_MSOA_T %>%
+  filter(category == "Previously served in UK reserve armed forces") %>%
+  filter(area_name != "Trafford") %>%
+    mutate(area_name = fct_reorder(factor(area_name), count)) %>%
+         #area_name = fct_relevel(factor(area_name), "Trafford")) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Veterans: </strong>", count, "<br/>",
+    "<strong>", "Percent of residents: </strong>", percent, "<br/>"))
+  
+gg <- ggplot(data2) +
+  geom_point_interactive(aes(count, area_name, tooltip = tooltip), size = 3, color = "#48327F") +
+  scale_x_continuous(limits = c(0,70)) +
+    labs(x = "residents", y = NULL, title = "Previously served in reserve UK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "Source: Census 2021 |  @traffordDataLab", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=16),
+        plot.title.position = "plot",
+        plot.subtitle = element_text(size=14),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=9),
+        axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9))
+  
+girafe(ggobj = gg, height_svg = 6,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+
+```
+</div>
+<div class = "col-md-6">
+
+
+```{r}
+
+msoa_sf_prev_serv2 <- msoa_sf_prev_serv %>%
+  filter(category == "Previously served in UK reserve armed forces") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Veterans: </strong>", count, "<br/>",
+    "<strong>", percent, "</strong>% of residents"))
+
+gg <- ggplot(msoa_sf_prev_serv2) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = percent), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(12, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% of MSOA residents aged 16 and over",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "",
+       subtitle = "",
+       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        legend.position = "bottom") 
+
+girafe(ggobj = gg, height_svg = 6,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+```
+</div>
+</div>
+
+<div class = "row">
+<div class = "col-md-6">
+```{r}
+
+data3 <- prev_ser_MSOA_T %>%
+  filter(category == "Previously served in both regular and reserve UK armed forces") %>%
+  filter(area_name != "Trafford") %>%
+    mutate(area_name = fct_reorder(factor(area_name), count)) %>%
+         #area_name = fct_relevel(factor(area_name), "Trafford")) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Veterans: </strong>", count, "<br/>",
+    "<strong>", "Percent of residents: </strong>", percent, "<br/>"))
+  
+gg <- ggplot(data3) +
+  geom_point_interactive(aes(count, area_name, tooltip = tooltip), size = 3, color = "#48327F") +
+  scale_x_continuous(limits = c(0,15)) +
+    labs(x = "residents", y = NULL, title = "Previously served in both regular and reserve\nUK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "Source: Census 2021 |  @traffordDataLab", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=16),
+        plot.title.position = "plot",
+        plot.subtitle = element_text(size=14),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=9),
+        axis.title.x = element_text(size=9),
+        axis.text.x = element_text(size=9))
+  
+girafe(ggobj = gg, height_svg = 6,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+
+```
+</div>
+<div class = "col-md-6">
+```{r}
+
+msoa_sf_prev_serv3 <- msoa_sf_prev_serv %>%
+  filter(category == "Previously served in both regular and reserve UK armed forces") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Veterans: </strong>", count, "<br/>",
+    "<strong>", percent, "</strong>% of residents"))
+
+gg <- ggplot(msoa_sf_prev_serv3) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = percent), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(12, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% of MSOA residents aged 16 and over",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "",
+       subtitle = "",
+       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        legend.position = "bottom") 
+
+girafe(ggobj = gg, height_svg = 6,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+```
+</div>
+</div>
+
+```{r}
+
+armed_force_households <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2089_1.data.csv?date=latest&geography=645922849&c2021_hhveteran_5=0...4&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_HHVETERAN_5_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+com_estab <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2090_1.data.csv?date=latest&geography=645922849&c2021_restype_3=0...2&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_RESTYPE_3_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+
+```
+
+
+

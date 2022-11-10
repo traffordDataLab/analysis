@@ -1,5 +1,5 @@
 ---
-title: "CENSUS 2021"
+title: "CENSUS 2021: Demographics and Migration"
 lang: "en-GB"
 output:
   html_document:
@@ -116,9 +116,9 @@ age_f_m_df <- age_f_m %>%
 
           
 ```
-The number of usual residents in Trafford according to the CENSUS 2021 is 235,052, representing an increment of 3.7% from the CENSUS 2011 when the number of usual residents was 226,578. 
+The number of usual residents in Trafford according to the Census 2021 is 235,052, representing an increment of 3.7% from the Census 2011 when the number of usual residents was 226,578. 
 
-There are 120,644 females (51.33%) and 114,408 males (48.66%) in Trafford according to the CENSUS 2021. Similarly, there were 115,619 female (51.03%) and 110,959 male (48.97%) in 2011.
+There are 120,644 females (51.33%) and 114,408 males (48.66%) in Trafford according to the Census 2021. Similarly, there were 115,619 female (51.03%) and 110,959 male (48.97%) in 2011.
 
 
 ```{r}
@@ -423,7 +423,7 @@ age_time <- bind_rows(age_broad_df, age_cat1,age_cat2 )
 
 ## Population Density
 
-Trafford has the second lowest increase in population density  in Greater Manchester compared to the 2011 census at 3.58%. Wigan’s increase was smallest at 3.55% while Salford had the highest at 15.24%. The average increase for all Greater Manchester is 6.61%
+Trafford has the second lowest increase in population density  in Greater Manchester compared to the 2011 Census at 3.58%. Wigan’s increase was smallest at 3.55% while Salford had the highest at 15.24%. The average increase for all Greater Manchester is 6.61%
 
 ```{r}
 
@@ -544,7 +544,7 @@ girafe(ggobj = gg,
 
 ## Households
 
-Trafford has the lowest increase in households in Greater Manchester compared to the 2011 census at 1.89%. Salford had the largest increase at 11.16%. The average increase for all Greater Manchester is 4.37%
+Trafford has the lowest increase in households in Greater Manchester compared to the 2011 Census at 1.89%. Salford had the largest increase at 11.16%. The average increase for all Greater Manchester is 4.37%
 
 ```{r}
 
