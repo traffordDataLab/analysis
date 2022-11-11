@@ -55,21 +55,21 @@ These data relate to those who previously served in the UK armed forces and excl
 
 <br/>
 
-# UK armed forces veterans
+# UK armed forces veterans in Trafford
 
 According to the Census 2021, 5,341 Trafford residents have previously served in the UK armed forces which represented 2.87% of the residents aged 16 and over. The equivalent figure for England and Wales is 3.8% which is higher than in Trafford.
 
-From those who served in the UK armed forces, 3,796 previously served in the regular UK armed forces, 1,350 previously served in the UK reserve armed forces, and 195 previously served in both regular and reserve UK armed forces, representing the 2.04%, 0.73% and 0.1% of the Trafford residents aged 16 and over respectively.
+From those who served in the UK armed forces, 3,796 previously served in the regular UK armed forces, 1,350 previously served in the UK reserve armed forces, and 195 previously served in both regular and reserve UK armed forces, representing 2.04%, 0.73% and 0.1% of Trafford residents aged 16 and over respectively.
 
-In Trafford, 5.3% (5,093) of the households have at least 1 person who previously served in the UK armed forces. Out of that households, the 97.4% of them have 1 person who previously served in the UK and the remaining 2.6% of them have 2 or more people who previously served in the UK armed forces, according to the Census 2021
+In Trafford, 5.3% (5,093) of the households have at least 1 person who previously served in the UK armed forces. Out of these households, 97.4% of them have 1 person who previously served in the UK and the remaining 2.6% of them have 2 or more people who previously served in the UK armed forces, according to the Census 2021
 
-Of the Trafford residents who previously served in the UK armed forces, 98% live in a household and 2% live in a communal establishment.
+Of the Trafford residents who previously served in the UK armed forces, 98% were living in a household and 2% were living in a communal establishment at the time of the Census 2021.
 
 ## Previously served in the UK armed forces
 
 
 <div class = "row">
-<div class = "col-md-6">
+<div class = "col-md-7">
 
 ```{r}
 
@@ -127,18 +127,19 @@ data <- prev_ser_MSOA_T %>%
 gg <- ggplot(data) +
   geom_point_interactive(aes(count, area_name, tooltip = tooltip), size = 3, color = "#48327F") +
   scale_x_continuous(limits = c(0,200)) +
-    labs(x = "residents", y = NULL, title = "Previously served in regular UK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "Source: Census 2021 |  @traffordDataLab", colour = NULL) +
+    labs(x = "residents", y = NULL, title = "Previously served in regular UK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "", colour = NULL) +
   theme_lab() +
-  theme(plot.title = element_text(size=16),
+  theme(plot.title = element_text(size=18),
         plot.title.position = "plot",
-        plot.subtitle = element_text(size=14),
-        plot.caption = element_text(size=8, hjust = 1),
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=16),
+        plot.caption = element_text(size=10, hjust = 1),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=10),
         panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0, size=9),
-        axis.title.x = element_text(size=9),
-        axis.text.x = element_text(size=9))
+        axis.text.y = element_text(hjust = 0, size=10),
+        axis.title.x = element_text(size=10),
+        axis.text.x = element_text(size=10))
   
 girafe(ggobj = gg, height_svg = 6,
        options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
@@ -149,7 +150,7 @@ girafe(ggobj = gg, height_svg = 6,
 
 ```
 </div>
-<div class = "col-md-6">
+<div class = "col-md-5">
 
 
 ```{r}
@@ -177,8 +178,8 @@ gg <- ggplot(msoa_sf_prev_serv1) +
                              na.value = "grey50",
                        n.breaks = 5,
                        breaks = waiver(),
-                       guide = guide_legend(keyheight = unit(3, units = "mm"),
-                                             keywidth=unit(12, units = "mm"),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
                                              label.position = "bottom",
                                              title = "% of MSOA residents aged 16 and over",
                                              title.position = 'top',
@@ -189,15 +190,16 @@ gg <- ggplot(msoa_sf_prev_serv1) +
       labs(x = NULL, y = NULL,
        title = "",
        subtitle = "",
-       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
-  theme(plot.title = element_text(size=14),
-        plot.subtitle = element_text(size=12),
-        plot.caption = element_text(size=8, hjust = 1),
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=19),
+        plot.subtitle = element_text(size=17),
+        plot.caption = element_text(size=14, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
         legend.position = "bottom") 
 
-girafe(ggobj = gg, height_svg = 6,
+girafe(ggobj = gg, height_svg = 9,
        options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
                       opts_toolbar(saveaspng = FALSE),
                       opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
@@ -208,7 +210,7 @@ girafe(ggobj = gg, height_svg = 6,
 </div>
 
 <div class = "row">
-<div class = "col-md-6">
+<div class = "col-md-7">
 ```{r}
 
 data2 <- prev_ser_MSOA_T %>%
@@ -223,18 +225,19 @@ data2 <- prev_ser_MSOA_T %>%
 gg <- ggplot(data2) +
   geom_point_interactive(aes(count, area_name, tooltip = tooltip), size = 3, color = "#48327F") +
   scale_x_continuous(limits = c(0,70)) +
-    labs(x = "residents", y = NULL, title = "Previously served in reserve UK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "Source: Census 2021 |  @traffordDataLab", colour = NULL) +
+    labs(x = "residents", y = NULL, title = "Previously served in reserve UK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "", colour = NULL) +
   theme_lab() +
-  theme(plot.title = element_text(size=16),
+  theme(plot.title = element_text(size=18),
         plot.title.position = "plot",
-        plot.subtitle = element_text(size=14),
-        plot.caption = element_text(size=8, hjust = 1),
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=16),
+        plot.caption = element_text(size=10, hjust = 1),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=10),
         panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0, size=9),
-        axis.title.x = element_text(size=9),
-        axis.text.x = element_text(size=9))
+        axis.text.y = element_text(hjust = 0, size=10),
+        axis.title.x = element_text(size=10),
+        axis.text.x = element_text(size=10))
   
 girafe(ggobj = gg, height_svg = 6,
        options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
@@ -245,7 +248,7 @@ girafe(ggobj = gg, height_svg = 6,
 
 ```
 </div>
-<div class = "col-md-6">
+<div class = "col-md-5">
 
 
 ```{r}
@@ -264,8 +267,8 @@ gg <- ggplot(msoa_sf_prev_serv2) +
                              na.value = "grey50",
                        n.breaks = 5,
                        breaks = waiver(),
-                       guide = guide_legend(keyheight = unit(3, units = "mm"),
-                                             keywidth=unit(12, units = "mm"),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
                                              label.position = "bottom",
                                              title = "% of MSOA residents aged 16 and over",
                                              title.position = 'top',
@@ -276,15 +279,16 @@ gg <- ggplot(msoa_sf_prev_serv2) +
       labs(x = NULL, y = NULL,
        title = "",
        subtitle = "",
-       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
-  theme(plot.title = element_text(size=14),
-        plot.subtitle = element_text(size=12),
-        plot.caption = element_text(size=8, hjust = 1),
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=19),
+        plot.subtitle = element_text(size=17),
+        plot.caption = element_text(size=14, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
         legend.position = "bottom") 
 
-girafe(ggobj = gg, height_svg = 6,
+girafe(ggobj = gg, height_svg = 9,
        options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
                       opts_toolbar(saveaspng = FALSE),
                       opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
@@ -295,7 +299,7 @@ girafe(ggobj = gg, height_svg = 6,
 </div>
 
 <div class = "row">
-<div class = "col-md-6">
+<div class = "col-md-7">
 ```{r}
 
 data3 <- prev_ser_MSOA_T %>%
@@ -310,18 +314,19 @@ data3 <- prev_ser_MSOA_T %>%
 gg <- ggplot(data3) +
   geom_point_interactive(aes(count, area_name, tooltip = tooltip), size = 3, color = "#48327F") +
   scale_x_continuous(limits = c(0,15)) +
-    labs(x = "residents", y = NULL, title = "Previously served in both regular and reserve\nUK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "Source: Census 2021 |  @traffordDataLab", colour = NULL) +
+    labs(x = "residents", y = NULL, title = "Previously served in both regular and reserve\nUK armed forces", subtitle = "Trafford MSOAs, 2021", caption = "", colour = NULL) +
   theme_lab() +
-  theme(plot.title = element_text(size=16),
+  theme(plot.title = element_text(size=18),
         plot.title.position = "plot",
-        plot.subtitle = element_text(size=14),
-        plot.caption = element_text(size=8, hjust = 1),
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=16),
+        plot.caption = element_text(size=10, hjust = 1),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=10),
         panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0, size=9),
-        axis.title.x = element_text(size=9),
-        axis.text.x = element_text(size=9))
+        axis.text.y = element_text(hjust = 0, size=10),
+        axis.title.x = element_text(size=10),
+        axis.text.x = element_text(size=10))
   
 girafe(ggobj = gg, height_svg = 6,
        options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
@@ -332,7 +337,7 @@ girafe(ggobj = gg, height_svg = 6,
 
 ```
 </div>
-<div class = "col-md-6">
+<div class = "col-md-5">
 ```{r}
 
 msoa_sf_prev_serv3 <- msoa_sf_prev_serv %>%
@@ -349,8 +354,8 @@ gg <- ggplot(msoa_sf_prev_serv3) +
                              na.value = "grey50",
                        n.breaks = 5,
                        breaks = waiver(),
-                       guide = guide_legend(keyheight = unit(3, units = "mm"),
-                                             keywidth=unit(12, units = "mm"),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
                                              label.position = "bottom",
                                              title = "% of MSOA residents aged 16 and over",
                                              title.position = 'top',
@@ -361,15 +366,16 @@ gg <- ggplot(msoa_sf_prev_serv3) +
       labs(x = NULL, y = NULL,
        title = "",
        subtitle = "",
-       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
-  theme(plot.title = element_text(size=14),
-        plot.subtitle = element_text(size=12),
-        plot.caption = element_text(size=8, hjust = 1),
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=19),
+        plot.subtitle = element_text(size=17),
+        plot.caption = element_text(size=14, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
         legend.position = "bottom") 
 
-girafe(ggobj = gg, height_svg = 6,
+girafe(ggobj = gg, height_svg = 9,
        options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
                       opts_toolbar(saveaspng = FALSE),
                       opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
@@ -387,8 +393,7 @@ armed_force_households <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/N
 com_estab <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2090_1.data.csv?date=latest&geography=645922849&c2021_restype_3=0...2&measures=20100,20301") %>%
   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_RESTYPE_3_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
 
-
 ```
 
-
-
+</main>
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>

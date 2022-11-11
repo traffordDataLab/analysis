@@ -794,7 +794,7 @@ onep_oth <- hushol_onep %>%
 gg <- ggplot() +
   geom_point_interactive(data = onep_66o, aes(Percent, area_name, tooltip = tooltip), size = 3, colour = "#902082") +
   scale_x_continuous(limits = c(0,20)) +
-    labs(x = "Percent", y = NULL, title = "One person household aged 66+", subtitle = "Trafford MSOAs,2021", caption = "*Interactive plot. Source: ONS  |  @traffordDataLab", colour = NULL) +
+    labs(x = "Percent", y = NULL, title = "One person household aged 66+", subtitle = "Trafford MSOAs, 2021", caption = "*Interactive plot. Source: ONS  |  @traffordDataLab", colour = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=14),
         plot.subtitle = element_text(size=12),
@@ -817,7 +817,6 @@ girafe(ggobj = gg, height_svg = 6,
 
 ```
 </div>
-
 </div>
 
 ## International Migration
@@ -906,5 +905,6 @@ girafe(ggobj = gg, height_svg = 7,
 
 ```
 </div>
-
 </div>
+</main>
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
