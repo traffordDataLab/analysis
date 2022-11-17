@@ -754,7 +754,7 @@ girafe(ggobj = gg, height_svg = 6.5,
 One person households aged 66 years and over represented 13.3% of Trafford households, while 16.2% represented other one person households, making the total of one person households 29.5% of all households in Trafford according to the 2021 Census.
 
 <div class = "row">
-<div class = "col-md-9">
+<div class = "col-md-7">
 ```{r}
 
 hou_size <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2037_1.data.csv?date=latest&geography=645922849&c2021_hhsize_10=2...9&measures=20100,20301") %>%
@@ -792,20 +792,27 @@ onep_oth <- hushol_onep %>%
 ```{r}
 
 gg <- ggplot() +
-  geom_point_interactive(data = onep_66o, aes(Percent, area_name, tooltip = tooltip), size = 3, colour = "#902082") +
+  geom_point_interactive(data = onep_66o, aes(Percent, area_name, tooltip = tooltip, color = Percent), size = 3) +
+     scale_color_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide="none")+
   scale_x_continuous(limits = c(0,20)) +
-    labs(x = "Percent", y = NULL, title = "One person household aged 66+", subtitle = "Trafford MSOAs, 2021", caption = "*Interactive plot. Source: ONS  |  @traffordDataLab", colour = NULL) +
+    labs(x = "Percent", y = NULL, title = "One person household aged 66+", subtitle = "Trafford MSOAs, 2021", caption = "", colour = NULL) +
   theme_lab() +
-  theme(plot.title = element_text(size=14),
-        plot.subtitle = element_text(size=12),
-        plot.caption = element_text(size=8, hjust = 1),
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+  theme(plot.title = element_text(size=18),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=16),
+        plot.caption = element_text(size=10, hjust = 1),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=10),
         panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0, size=9),
-        axis.title.x = element_text(size=9),
-        axis.text.x = element_text(size=9)) +
-  guides(color = guide_legend(nrow = 1))
+        axis.text.y = element_text(hjust = 0, size=10),
+        axis.title.x = element_text(size=10),
+        axis.text.x = element_text(size=10))
   
 girafe(ggobj = gg, height_svg = 6,
        options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
@@ -816,6 +823,60 @@ girafe(ggobj = gg, height_svg = 6,
   
 
 ```
+
+</div>
+<div class = "col-md-5">
+```{r}
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford") %>% 
+  select(msoa11nm,msoa11hclnm)
+
+msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+    left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm)
+
+msoa_sf_onep66o <- msoa_sf %>%
+  left_join(onep_66o, by = "area_name")
+
+gg <- ggplot(msoa_sf_onep66o) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = Percent), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% of households in the MSOA",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "",
+       subtitle = "",
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=19),
+        plot.subtitle = element_text(size=17),
+        plot.caption = element_text(size=14, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.position = "bottom") 
+
+girafe(ggobj = gg, height_svg = 9,
+       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      ))
+
+
+```
+
 </div>
 </div>
 
