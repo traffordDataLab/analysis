@@ -46,6 +46,11 @@ theme_x <- function () {
     )
 }
 
+girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      )
+
 ```
 
 
@@ -504,7 +509,7 @@ gm_pdch <-  gm %>%
   left_join(pop_density_change %>% mutate(indicator = "Population density", change = round(change,1)) %>% select(-`2011`,-`2021`), by = "area_name")
 
 gg <- ggplot(gm_pdch) +
-  geom_sf_interactive(aes(tooltip = paste0(area_name, "\nChange ", change, "%" ),
+  geom_sf_interactive(aes(tooltip = paste0("<strong>",area_name,"</strong>\nChange ", change, "%" ),
               fill = change), color = "#FFFFFF", size = 0.5, alpha = 1) +
    scale_fill_gradient(high = "#48327F",
                              low = "#9FBBD9",
@@ -532,10 +537,7 @@ gg <- ggplot(gm_pdch) +
         legend.position = "bottom") 
 
 girafe(ggobj = gg,
-       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
-                      opts_toolbar(saveaspng = FALSE),
-                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
-                      ))
+       options = girafe_options)
 
 
 ```
@@ -620,7 +622,7 @@ gm_hch <-  gm %>%
 
 
 gg <- ggplot(gm_hch) +
-  geom_sf_interactive(aes(tooltip = paste0(area_name, "\nChange ", change, "%"),
+  geom_sf_interactive(aes(tooltip = paste0("<strong>",area_name,"</strong>\nChange ", change, "%" ),
                           fill = change), color = "#FFFFFF", size = 0.5, alpha = 1) +
    scale_fill_gradient(high = "#48327F",
                              low = "#9FBBD9",
@@ -648,10 +650,7 @@ gg <- ggplot(gm_hch) +
         legend.position = "bottom") 
  
 girafe(ggobj = gg,
-       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
-                      opts_toolbar(saveaspng = FALSE),
-                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
-                      ))
+       options = girafe_options)
 
 
 
@@ -709,12 +708,12 @@ w_dep_ch_To_Traf <- w_dep_ch_raw_To_Traf %>%
   mutate(tooltip = ifelse(date == 2021,
                           paste0("<strong>", area_name,"</strong><br/>",
       "<strong>", "Year: </strong>", date, "<br/>",
-     Percent, "% (", Value, " households)<br/>", 
+     Percent, "% (",format(Value, big.mark=","), " households)<br/>", 
     "<strong>", "Change from 2011: </strong><br/>",
     change, "%<br/>"),
     paste0("<strong>", area_name,"</strong><br/>",
       "<strong>", "Year: </strong>", date, "<br/>",
-     Percent, "% (", Value, " households)<br/>"))) %>%
+     Percent, "% (", format(Value, big.mark=","), " households)<br/>"))) %>%
     mutate(area_name = fct_reorder(factor(area_name), ifelse(date == 2021, Percent, NA), na.rm = TRUE),
          area_name = fct_relevel(factor(area_name), "Trafford"))
 
@@ -742,10 +741,7 @@ gg <- ggplot(w_dep_ch_To_Traf, aes(Percent, area_name)) +
   guides(color = guide_legend(nrow = 1))
   
 girafe(ggobj = gg, height_svg = 6.5,
-       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
-                      opts_toolbar(saveaspng = FALSE),
-                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
-                      ))
+       options = girafe_options)
 
 ```
 </div>
@@ -780,7 +776,7 @@ onep_66o <- hushol_onep %>%
          area_name = fct_relevel(factor(area_name), "Trafford"))%>%
   pivot_wider(names_from = measure, values_from = value) %>%
   mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
-      "<strong>", "Households: </strong>", Value, "<br/>",
+      "<strong>", "Households: </strong>", format(Value, big.mark=","), "<br/>",
     "<strong>", "Percent: </strong>", Percent, "<br/>"))
 
 onep_oth <- hushol_onep %>%
@@ -815,12 +811,7 @@ gg <- ggplot() +
         axis.text.x = element_text(size=10))
   
 girafe(ggobj = gg, height_svg = 6,
-       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
-                      opts_toolbar(saveaspng = FALSE),
-                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
-                      ))
-
-  
+       options = girafe_options)
 
 ```
 
@@ -869,10 +860,7 @@ gg <- ggplot(msoa_sf_onep66o) +
         legend.position = "bottom") 
 
 girafe(ggobj = gg, height_svg = 9,
-       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
-                      opts_toolbar(saveaspng = FALSE),
-                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
-                      ))
+       options = girafe_options)
 
 
 ```
@@ -880,7 +868,80 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 </div>
 
-## International Migration
+<div class = "row">
+<div class = "col-md-10">
+
+The census 2021 provides estimates of households experiencing deprivation in four dimensions: Employment, education, health and disability, and household overcrowding. In Trafford 53.9% (51,885) of households are not deprived in any dimension, 30.9% (29,699) are deprived in one dimension, 12.1% (11,666) in two dimensions, 3% (2,883) in three dimensions, and 0.1% (136) in four dimensions.
+
+When comparing the MSOAs of Trafford, there is a difference of more than 30% between the MSOA with the highest and that with the least percentage of households that are deprived in one or more dimensions which are Partington and Hale respectively. Consequently, 1 in 3 household in Hale are deprived in one or more dimension contrasting with Partington where 1 in 3 households are not deprived in any dimension.
+
+```{r}
+
+household_deprivation <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2031_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_dep_6=0...5&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_DEP_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+```
+
+```{r}
+
+data <- household_deprivation %>% 
+  left_join(lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) %>%
+  pivot_wider(names_from = measure,values_from = value) %>%
+  filter(category != "Total: All households") %>%
+  mutate(area_name = fct_reorder(factor(area_name), ifelse(category == "Household is not deprived in any dimension", Percent, NA), na.rm = TRUE),
+         area_name = fct_rev(fct_relevel(factor(area_name), "Trafford"))) %>%
+  mutate(categoryb = word(category,-2, -1)) %>%
+  mutate(categoryb = ifelse(categoryb == "any dimension","not deprived",categoryb)) %>%
+  mutate(categoryb = factor(categoryb, levels = c("four dimensions", "three dimensions", "two dimensions", "one dimension", "not deprived"))) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "% Households: </strong>", Percent, "% (", format(Value, big.mark=","), ")<br/>",
+      "<strong>Deprived in: </strong>", categoryb, "<br/>"))
+
+gg <- ggplot(data, aes(area_name, Percent, fill = categoryb, tooltip = tooltip)) + 
+  geom_col_interactive(position = "stack", colour = "#757575", size = 0.2, alpha = 0.8) +
+  scale_fill_manual(values = c("#48327F","#9FBBD9","#6665A2","#7987BA","#53478C"),
+                     guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth = unit(4, units = "mm"),
+                                             label.position = "right",
+                                             title = "% of househholds deprived in:",
+                                             title.position = 'top',
+                                             ncol = 1,
+                                            aesthetics = "fill")) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+    labs(title = "Households by deprivation dimensions",
+       subtitle = "Trafford MSOAs, 2021",
+       caption = "Four dimensions of deprivation:\nEmployment, education, health and disability, and household overcrowding \nSource: Census 2021  |  @traffordDataLab",
+       x = NULL,
+       y = NULL,
+       fill = NULL) +
+    theme_lab() +
+  theme(panel.grid.major.x = element_blank(),
+        legend.position = "right",
+        plot.title = element_text(size=14),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=6, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=9),
+        axis.text.x = element_text(size=9, angle = 90, vjust = 0.5, hjust=1)) 
+
+
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
+
+
+
+```
+</div>
+</div>
+
+## International migrations
 
 Non-UK born people represented 14.9% (35,022) of Trafford residents according to the 2021 Census, a 3.7% growth from the 2011 Census when 11.2% of Trafford residents were born outside of the UK.
 
@@ -928,12 +989,12 @@ cobirth_p <- bind_rows(cobirth_2011,cobirth) %>%
   mutate(tooltip = ifelse(date == 2021,
                           paste0("<strong>", category,"</strong><br/>",
       "<strong>", "Year: </strong>", date, "<br/>",
-    "<strong>", "Residents: </strong>", value, "<br/>",
+    "<strong>", "Residents: </strong>", format(value, big.mark=","), "<br/>",
     "<strong>", "Change from 2011: </strong><br/>",
     change, " residents (", pchange, "%)<br/>"),
     paste0("<strong>", category,"</strong><br/>",
       "<strong>", "Year: </strong>", date, "<br/>",
-    "<strong>", "Residents: </strong>", value, "<br/>")))
+    "<strong>", "Residents: </strong>", format(value, big.mark=","), "<br/>")))
 
 ```
 
@@ -959,10 +1020,7 @@ gg <- ggplot(cobirth_p, aes(value,category)) +
   guides(color = guide_legend(nrow = 1))
   
 girafe(ggobj = gg, height_svg = 7,
-       options = list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
-                      opts_toolbar(saveaspng = FALSE),
-                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
-                      ))
+       options = girafe_options)
 
 ```
 </div>
