@@ -871,9 +871,11 @@ girafe(ggobj = gg, height_svg = 9,
 <div class = "row">
 <div class = "col-md-10">
 
-The census 2021 provides estimates of households experiencing deprivation in four dimensions: Employment, education, health and disability, and household overcrowding. In Trafford 53.9% (51,885) of households are not deprived in any dimension, 30.9% (29,699) are deprived in one dimension, 12.1% (11,666) in two dimensions, 3% (2,883) in three dimensions, and 0.1% (136) in four dimensions.
+The census 2021 provides estimates of households experiencing deprivation in four dimensions: Employment, education, health and disability, and household overcrowding. However the data provided in this dataset does not distinguish which deprivation dimension is most prevalent in each area. In Trafford 53.9% (51,885) of households are not deprived in any dimension, 30.9% (29,699) are deprived in one dimension, 12.1% (11,666) in two dimensions, 3% (2,883) in three dimensions, and 0.1% (136) in four dimensions.
 
-When comparing the MSOAs of Trafford, there is a difference of more than 30% between the MSOA with the highest and that with the least percentage of households that are deprived in one or more dimensions which are Partington and Hale respectively. Consequently, 1 in 3 household in Hale are deprived in one or more dimension contrasting with Partington where 1 in 3 households are not deprived in any dimension.
+When comparing the MSOAs of Trafford, there is a difference of more than 30% between the MSOAs with the highest and lowest percentage of households that are deprived in one or more dimensions, these are Partington and Hale respectively. 2 in 3 households in Partington are deprived in any dimension, contrasting with Hale where 2 in 3 households are not deprived in any dimension.
+
+
 
 ```{r}
 
