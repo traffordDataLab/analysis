@@ -1,0 +1,636 @@
+---
+title: "CENSUS 2021: Ethnicity, Identity, Language and Religion"
+lang: "en-GB"
+output:
+  html_document:
+    highlight: null
+    mathjax: null
+    theme: flatly
+    css: styles.css
+    self_contained: TRUE
+    toc: false
+    toc_depth: 3
+    toc_float: true
+    df_print: paged
+    includes:
+      in_header: head_includes.html
+---
+<main>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(RColorBrewer) ;
+library(kableExtra); 
+library(httr) ; library(readxl)
+library(scales) ; 
+library(ggiraph)
+library(ggpol)
+library(ggtext)
+
+source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
+
+
+```
+
+
+The [CENSUS 2021](https://census.gov.uk) in England and Wales published data about [ethnic group, national identity, language, and religion](https://www.ons.gov.uk/releases/ethnicgroupnationalidentitylanguageandreligioncensus2021inenglandandwales). The release included four publications: [National identity](https://www.ons.gov.uk/peoplepopulationandcommunity/culturalidentity/ethnicity/bulletins/nationalidentityenglandandwales/census2021), [Religion](https://www.ons.gov.uk/peoplepopulationandcommunity/culturalidentity/religion/bulletins/religionenglandandwales/census2021), [Language](https://www.ons.gov.uk/peoplepopulationandcommunity/culturalidentity/language/bulletins/languageenglandandwales/census2021) and [Ethnic Group](https://www.ons.gov.uk/peoplepopulationandcommunity/culturalidentity/ethnicity/bulletins/ethnicgroupenglandandwales/census2021).
+
+#### Ethnicity
+
+In Trafford the percentage of white population has decreased by 7.7% from 85.5% in 2011 to 77.8% in 2021.
+
+The most common non-white broad ethnic group is Asian/Asian British that has increased 4.7% from 7.9% in 2011 to 12.6% in 2021. All other non-white broad ethnic groups have also increased.
+
+The percentage of households in Trafford where all household members have the same ethnic group has decreased 1.7% from 60.7% in 2011 to 59% in 2021. The percentage of households where ethnic groups differ within partnerships has increased 1.9% from 5.8% in 2011 to 7.7% in 2021. The percentage of households where ethnic groups differ between generations but not within partnerships has decreased 0.4% from 2.3% in 2011 to 1.9% 2021.
+
+#### National identity
+
+"British only" national identity was the most common response in 2021 with 62.1% whilst in 2011 the most common response was "English only", this change could reflect a change in national identity but can also reflect a change to the question structure. 
+
+Residents with "Non-Uk only" identity increased 1.4% from 6.1% in 2011 to 7.5% in 2021. The most common non-UK identity in 2021 was "Irish" with 1.1% followed by "Polish" with 0.6%.
+
+#### Languages
+
+In 2021 92.8% of Trafford residents aged three and over declared English as their main language, a person's first or preferred language, a 1.7% decrease from 2011. The top 5 non-English main languages in Trafford in 2021 were Urdu (0.9%), Polish (0.6%), Arabic (0.6%), Panjabi (0.4%) and Cantonese Chinese (0.4%). These differ from England and Wales top 5 non-english main languages in 2021 which were Polish (1.1%), Romanian (0.8%), Panjabi (0.5), Urdu (0.5), and Portuguese (0.4).
+
+In 2021, 6% of Trafford residents aged three and over can speak English very well or well, and 1.2% cannot speak English or cannot speak English very well, out of the 7.2% whose main language is not English. In 2011, the equivalent figures were 4.4% and 1.1% respectively, out of the 5.5% whose main language was not English in 2011.
+
+#### Religion
+
+In 2021, 48.4% of Trafford residents described themselves as "Christian", a 15% decrease from 63.4% in 2011. 33.1% declared "No Religion" in 2021, an 11.9% increase from 21.2% in 2011. 13.3% declared Non-Christian religion in 2021, a 4.3% increase from 9% in 2011. 8.7% described themselves as "Muslim" in 2021, the most common non-Christian religion, a 3% increase from 5.7% in 2011.
+
+The Census 2021 included for first time information about religious group composition within multi-person households. In 35.5% of Trafford households all members who answered the question about religion reported the same religion within the household and 14.4% reported a combination of the same religion and “No religion”.
+
+<br/>
+
+
+```{r}
+
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford") %>% 
+  select(msoa11nm,msoa11hclnm)
+
+
+join_MSOA_names <- function(lookup,df){
+  left_join(df, lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
+}
+
+ ethnicity_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_608_1.data.csv?date=latest&geography=1941962780,1245709510...1245709537&rural_urban=0&cell=0,100,200,300,400,500&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+ ethnicity_2021 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2041_1.data.csv?date=latest&geography=645922849,637535406...637535433&c2021_eth_20=0,1001...1005&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_ETH_20_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+   mutate(date = 2021)
+
+ethnicity <- bind_rows(ethnicity_2011, ethnicity_2021) %>%
+  join_MSOA_names(lookup,.)
+
+#ethnicity <- read_csv("ethnicityData.csv")
+
+ethnicity_Traf <- ethnicity %>%
+  filter(area_name == "Trafford", category != "All usual residents", category !="Total: All usual residents") %>%
+  mutate(category = gsub("\\/.*", "", category)) %>%
+  mutate(category = gsub("\\,.*", "", category)) %>%
+  mutate(category = gsub("\\ .*", "", category)) %>%
+  mutate(category = ifelse(category == "Other ethnic group", "Other", category)) %>%
+  pivot_wider(names_from = measure,values_from = value) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(Percent_dif = Percent_2021 - Percent_2011) %>%
+  mutate(category = fct_reorder(factor(category), Percent_2021))
+
+ethnicity_Traf_bin <- ethnicity_Traf %>%
+  mutate(category_bin = ifelse(category == "White", "White", "Non-\nWhite")) %>%
+  select(-category,-area_name) %>%
+  group_by(category_bin) %>%
+  summarise_all(sum)
+
+ethnicity_Traf_oth <- ethnicity_Traf %>%
+  filter(category != "White")
+
+multi_ethnic_house <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2042_1.data.csv?date=latest&geography=645922849&c2021_meth_6=0...5&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_METH_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+multi_ethnic_house_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_523_1.data.csv?date=latest&geography=1946157089&rural_urban=0&c_meighuk11=0...5&measures=20100") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C_MEIGHUK11_NAME, Value = OBS_VALUE) %>%
+  mutate(Percent = round(Value*100/94484,1)) %>%
+   pivot_longer(cols = c(Value, Percent), names_to = "measure", values_to = "value")
+
+
+```
+<div class = "row">
+<div class = "col-md-6">
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=4.5}
+ggplot() +
+  geom_col(data = ethnicity_Traf_bin, aes(Percent_2021,category_bin), fill = "#902082") +
+  geom_errorbar(data = ethnicity_Traf_bin,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category_bin), color = "#5d77a3", size = 2) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 87), labels = function(x) paste0(x, "%")) + 
+  labs(x = NULL, y = NULL, title = "Trafford Ethnicity", subtitle = "<span style = 'color:#5d77a3;'>2011</span> and <span style = 'color:#902082;'>2021</span>",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=36),
+        plot.subtitle = element_markdown(size=32),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=30),
+        axis.text.x = element_text(size=22),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+
+
+```
+</div>
+<br>
+<div class = "col-md-6  smtable">
+```{r}
+ethnicity_Traf_bin %>%
+  select(category_bin, Percent_2011, Percent_2021, Percent_dif) %>%
+  mutate(Percent_2011 = paste0(Percent_2011,"%"), Percent_2021 = paste0(Percent_2021,"%"),
+         Percent_dif = paste0(Percent_dif,"%"))%>%
+  arrange(desc(Percent_2021)) %>% 
+  kable(col.names = c("", "2011", "2021", "Change")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=6}
+
+ggplot() +
+  geom_col(data = ethnicity_Traf_oth, aes(Percent_2021,category), fill = "#902082") +
+  geom_errorbar(data = ethnicity_Traf_oth,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category), color = "#5d77a3", size = 2.5) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 13), labels = function(x) paste0(x, "%")) +
+  labs(x = NULL, y = NULL, title = NULL, 
+       subtitle = "Non-White",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=36),
+        plot.subtitle = element_text(size=32),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=30),
+        axis.text.x = element_text(size=22),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+
+
+```
+</div>
+<div class = "col-md-6  smtable">
+```{r}
+
+ethnicity_Traf_oth %>%
+  select(category, Percent_2011, Percent_2021, Percent_dif) %>%
+  arrange(desc(Percent_2021)) %>%
+  mutate(Percent_2011 = paste0(Percent_2011,"%"), Percent_2021 = paste0(Percent_2021,"%"),
+         Percent_dif = paste0(Percent_dif,"%")) %>%
+  kable(col.names = c("", "2011", "2021", "Change"), format.args = list(big.mark = ",")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+</div>
+
+```{r}
+
+`%out%` <- function(a,b) ! a %in% b
+
+identity_2021_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2046_1.data.csv?date=latest&geography=645922849&c2021_natiduk_17=0...5,9995,13...16,9996,9997&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_NATIDUK_17_NAME, measure = MEASURES_NAME, Value = OBS_VALUE)
+
+identity_2021 <- identity_2021_raw %>%
+  filter(category %out% c("Total: All usual residents", "Any other combination of only UK identities", "Irish only identity", "Irish and at least one UK identity", "Other identity only", "Other identity and at least one UK identity"))
+
+identity_2011_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_609_1.data.csv?date=latest&geography=1946157089,2092957703&rural_urban=0&cell=0...2,6,7,21,38...40&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, Value = OBS_VALUE) 
+  
+identity_2011 <- identity_2011_raw %>%
+  mutate(category = case_when(category == "Other identities only" ~"Non-UK identity only",
+                              category == "Other identities and at least one of English/Welsh/Scottish/Northern Irish/British only" ~"UK identity and non-UK identity",
+                              TRUE ~ category)) %>%
+  filter(category %out% c("All categories: National identity English", "At least one of English/Welsh/Scottish/Northern Irish/British identities only")) %>%
+  filter(area_name == "Trafford")
+
+identity <- bind_rows(identity_2011, identity_2021)
+
+#write_csv(identity, "identity.csv")
+#identity <- read_csv("identity.csv")
+identity_Traf <- identity %>%
+  pivot_wider(names_from = measure,values_from = Value) %>% 
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(Percent_dif = Percent_2021 - Percent_2011) 
+
+identity_Traf_plot <- identity_Traf %>%
+  mutate(category = case_when(category == "English only identity" ~ "English\nonly",
+                              category == "English and British only identity" ~ "English and\nBritish only",
+                              category == "Welsh only identity" ~ "Welsh only",
+                              category == "Welsh and British only identity" ~ "Welsh and\nBritish only",
+                              category == "British only identity"~ "British only",
+                              category == "Non-UK identity only"~ "Non-UK only",
+                              category == "UK identity and non-UK identity"~ "UK and\nnon-UK")) %>% mutate(category = fct_reorder(factor(category), Percent_2021)) 
+
+identity_det <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2047_1.data.csv?date=latest&geography=645922849&c2021_natid_71=0,1001,1...13,1002,14...19,1003,1004,20...29,1005,30,31,1006,32,1007,33...35,1008,36...40,1009,1010,41...44,1011,45...48,1012,49...54,1013,55...60,1014,1015,61...65,1016,66,67,1017,1018,68...72&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_NATID_71_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+```
+<div class = "col-md-6">
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=10.5}
+ggplot() +
+  geom_col(data = identity_Traf_plot, aes(Percent_2021,category), fill = "#902082") +
+  geom_errorbar(data = identity_Traf_plot,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category), color = "#5d77a3", size = 2) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 65), labels = function(x) paste0(x, "%")) + 
+  labs(x = NULL, y = NULL, title = "Trafford National identity", subtitle = "<span style = 'color:#5d77a3;'>2011</span> and <span style = 'color:#902082;'>2021</span>",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=36),
+        plot.subtitle = element_markdown(size=32),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=30),
+        axis.text.x = element_text(size=22),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+```
+</div>
+<br>
+<div class = "col-md-6  smtable">
+```{r}
+
+identity_Traf_table <- identity_Traf %>%
+  mutate(category = case_when(category == "English only identity" ~ "E* only",
+                              category == "English and British only identity" ~ "E* and\nB* only",
+                              category == "Welsh only identity" ~ "W* only",
+                              category == "Welsh and British only identity" ~ "W* and\nB* only",
+                              category == "British only identity"~ "B* only",
+                              category == "Non-UK identity only"~ "Non-UK only",
+                              category == "UK identity and non-UK identity"~ "UK and\nnon-UK")) %>% mutate(category = fct_reorder(factor(category), Percent_2021))
+  
+
+identity_Traf_table %>%
+  select(category, Percent_2011, Percent_2021, Percent_dif) %>%
+  arrange(desc(Percent_2021)) %>%
+  mutate(Percent_2011 = paste0(Percent_2011,"%"), Percent_2021 = paste0(Percent_2021,"%"),
+         Percent_dif = paste0(Percent_dif,"%")) %>%
+  kable(col.names = c("", "2011", "2021", "Change")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+<p class = "TableCaption"> B* = British,  E* = English and  W* = Welsh<p>
+</div>
+</div>
+</div>
+
+</div>
+
+
+
+
+```{r}
+
+languages_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_525_1.data.csv?date=latest&geography=1946157089&rural_urban=0&cell=0...2,4...13,15...32,35...37,41...45,47...50,53...64,67,68,70...75,77,79,83...94,100&measures=20100") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, Value = OBS_VALUE) %>%
+  mutate(Percent = round(Value*100/217713,1)) %>%
+  pivot_longer(cols = c(Value, Percent), names_to = "measure", values_to = "value")
+
+
+languages_2021 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2043_1.data.csv?date=latest&geography=645922849&c2021_mlang_94=1...32,34,35,38...47,49...60,62,63,65...70,72,1009,76...87,1011&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_MLANG_94_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+languages <- bind_rows(languages_2011, languages_2021)
+ #mutate(country_of_birth = gsub('.*\\: ', '', country_of_birth)) %>%
+
+
+#write_csv(languages, "languages.csv")
+#languages <- read_csv("languages.csv")
+languages_Traf <- languages %>%
+  filter(area_name == "Trafford", category != "All usual residents aged 3 and over") %>%
+  mutate(category = gsub(".*\\: ", "", category)) %>%
+  mutate(category  = gsub("\\s*\\([^\\)]+\\)","", category)) %>%
+  mutate(category = gsub("\\/", " or ", category)) %>%
+  #mutate(category = ifelse(category == "Other ethnic group", "Other", category)) %>%
+  pivot_wider(names_from = measure,values_from = value) %>%
+  rowwise() %>%
+  mutate(Value = Value[1], Percent = Percent[1]) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(Percent_dif = Percent_2021 - Percent_2011) 
+
+
+languages_Traf_bin <- languages_Traf %>%
+  filter(category == "English") %>%
+  select(category, Percent_2011, Percent_2021) %>%
+  bind_rows(data.frame(category = "Other\nlanguage",
+                       Percent_2011 = 100 - pull(languages_Traf %>% filter(category == "English") %>% select(Percent_2011)),
+                       Percent_2021 = 100 - pull(languages_Traf %>% filter(category == "English") %>% select(Percent_2021)))) %>%
+  mutate(category = factor(category, levels = c("Other\nlanguage", "English"))) %>%
+  mutate(Percent_dif = Percent_2021 - Percent_2011) 
+  
+
+languages_Traf_top <- languages_Traf %>%
+  top_n(6, Percent_2021) %>%
+  filter(category != "English") %>%
+  mutate(category = ifelse(category == "Cantonese Chinese", "Cantonese\nChinese", category)) %>%
+  mutate(category = fct_reorder(factor(category), Percent_2021))
+
+english_profi <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2048_1.data.csv?date=latest&geography=645922849&c2021_engprf_6=0,1,1001,2...5&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_ENGPRF_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+english_profi_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_526_1.data.csv?date=latest&geography=1946157089&rural_urban=0&c_mainlangprf11=0...5&measures=20100") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C_MAINLANGPRF11_NAME, Value = OBS_VALUE) %>%
+  mutate(Percent = round(Value*100/217713,1)) %>%
+   pivot_longer(cols = c(Value, Percent), names_to = "measure", values_to = "value")
+
+```
+<div class = "row">
+<div class = "col-md-6">
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=4.5}
+ggplot() +
+  geom_col(data = languages_Traf_bin, aes(Percent_2021,category), fill = "#902082") +
+  geom_errorbar(data = languages_Traf_bin,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category), color = "#5d77a3", size = 2) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 100), labels = function(x) paste0(x, "%")) + 
+  labs(x = NULL, y = NULL, title = "Trafford Main Language", subtitle = "<span style = 'color:#5d77a3;'>2011</span> and <span style = 'color:#902082;'>2021</span>",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=36),
+        plot.subtitle = element_markdown(size=32),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=30),
+        axis.text.x = element_text(size=22),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+
+
+```
+</div>
+<br>
+<div class = "col-md-6  smtable">
+```{r}
+languages_Traf_bin %>%
+  select(category, Percent_2011, Percent_2021, Percent_dif) %>%
+  mutate(Percent_2011 = paste0(Percent_2011,"%"), Percent_2021 = paste0(Percent_2021,"%"),
+         Percent_dif = paste0(Percent_dif,"%"))%>%
+  arrange(desc(Percent_2021)) %>% 
+  kable(col.names = c("", "2011", "2021", "Change")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=8}
+
+ggplot() +
+  geom_col(data = languages_Traf_top, aes(Percent_2021,category), fill = "#902082") +
+  geom_errorbar(data = languages_Traf_top,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category), color = "#5d77a3", size = 2.5) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1), labels = function(x) paste0(x, "%")) +
+  labs(x = NULL, y = NULL, title = NULL, 
+       subtitle = "Top 5 Languages*",
+       caption = "*Non-English at 2021 Census") +
+  theme_lab() +
+  theme(plot.title = element_text(size=36),
+        plot.subtitle = element_text(size=32),
+        plot.caption = element_text(size=28),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=30),
+        axis.text.x = element_text(size=22),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+
+
+```
+</div>
+<div class = "col-md-6  smtable">
+```{r}
+
+languages_Traf_top %>%
+  select(category, Percent_2011, Percent_2021, Percent_dif) %>%
+  arrange(desc(Percent_2021)) %>%
+  mutate(Percent_2011 = paste0(Percent_2011,"%"), Percent_2021 = paste0(Percent_2021,"%"),
+         Percent_dif = paste0(Percent_dif,"%")) %>%
+  kable(col.names = c("", "2011", "2021", "Change"), format.args = list(big.mark = ",")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+</div>
+
+
+
+
+```{r}
+
+religion_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_616_1.data.csv?date=latest&geography=1245709510...1245709537,1946157089&rural_urban=0&cell=0,100,1...9&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+religion_2021 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2049_1.data.csv?date=latest&geography=645922849,637535406...637535433&c2021_religion_10=0...9&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_RELIGION_10_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+
+religion <- bind_rows(religion_2011, religion_2021) %>%
+  join_MSOA_names(lookup,.)
+
+#write_csv(religion, "religion.csv")
+
+#religion <- read_csv("religion.csv")
+
+religion_Traf <- religion %>%
+  filter(area_name == "Trafford", category != "All categories: Religion", category !="Total: All usual residents") %>%
+  mutate(category = ifelse(category == "Not answered", "Religion not stated", category)) %>%
+  pivot_wider(names_from = measure,values_from = value) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(Percent_dif = Percent_2021 - Percent_2011) 
+
+
+religion_Traf_tri <- religion_Traf %>%
+  filter(category != "Has religion") %>%
+  mutate(category_bin = case_when(category == "Religion not stated" ~ "Religion\nnot stated",
+                                  category == "No religion" ~ "No religion",
+                                  category == "Christian" ~ "Christian",
+                                  TRUE ~ "Other\nreligion")) %>%
+  select(-category,-area_name) %>%
+  group_by(category_bin) %>%
+  summarise_all(sum) %>%
+  mutate(category_bin = fct_reorder(factor(category_bin), Percent_2021)) #%>%
+
+religion_Traf_oth <- religion_Traf %>%
+  filter(category %in% c("Buddhist", "Hindu", "Jewish", "Muslim", "Sikh")) %>%
+  mutate(category = fct_reorder(factor(category), Percent_2021)) #%>%
+
+multi_religion_house <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2097_1.data.csv?date=latest&geography=650117148&c2021_relmult_7=0,1,1001,2...6&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_RELMULT_7_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+```
+<div class = "col-md-6">
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=7}
+ggplot() +
+  geom_col(data = religion_Traf_tri, aes(Percent_2021,category_bin), fill = "#902082") +
+  geom_errorbar(data = religion_Traf_tri,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category_bin), color = "#5d77a3", size = 2) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 65), labels = function(x) paste0(x, "%")) + 
+  labs(x = NULL, y = NULL, title = "Trafford Religion", subtitle = "<span style = 'color:#5d77a3;'>2011</span> and <span style = 'color:#902082;'>2021</span>",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=36),
+        plot.subtitle = element_markdown(size=32),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=30),
+        axis.text.x = element_text(size=22),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+
+
+
+```
+</div>
+<div class = "col-md-6  smtable">
+```{r}
+religion_Traf_tri %>%
+  select(category_bin, Percent_2011, Percent_2021, Percent_dif) %>%
+  arrange(desc(Percent_2021)) %>% 
+  mutate(Percent_2011 = paste0(Percent_2011,"%"), Percent_2021 = paste0(Percent_2021,"%"),
+         Percent_dif = paste0(Percent_dif,"%")) %>%
+  kable(col.names = c("", "2011", "2021", "Change"), format.args = list(big.mark = ",")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=7}
+
+ggplot() +
+  geom_col(data = religion_Traf_oth, aes(Percent_2021,category), fill = "#902082") +
+  geom_errorbar(data = religion_Traf_oth,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category), color = "#5d77a3", size = 2.5) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 9), labels = function(x) paste0(x, "%")) +
+  labs(x = NULL, y = NULL, title = NULL, 
+       subtitle = "Non-Christian Religions",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=36),
+        plot.subtitle = element_text(size=32),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=30),
+        axis.text.x = element_text(size=22),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+
+```
+</div>
+<div class = "col-md-6  smtable">
+```{r}
+
+religion_Traf_oth %>%
+  select(category, Percent_2011, Percent_2021, Percent_dif) %>%
+  arrange(desc(Percent_2021)) %>% 
+  mutate(Percent_2011 = paste0(Percent_2011,"%"), Percent_2021 = paste0(Percent_2021,"%"),
+         Percent_dif = paste0(Percent_dif,"%")) %>%
+  kable(col.names = c("", "2011", "2021", "Change"), format.args = list(big.mark = ",")) %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+</div>
+
+</div>
+
+```{r}
+
+# msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+#     left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+#   mutate(area_name = msoa11hclnm) %>%
+#   select(-msoa11hclnm)
+# 
+# ethnicity_msoa <- ethnicity %>%
+#   filter(area_name != "Trafford", category != "All usual residents", category !="Total: All usual residents") %>%
+#   mutate(category = gsub("\\/.*", "", category)) %>%
+#   mutate(category = gsub("\\,.*", "", category)) %>%
+#   mutate(category = gsub("\\ .*", "", category)) %>%
+#   filter(category != "White") %>%
+#   pivot_wider(names_from = measure,values_from = value) %>%
+#   pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+#   mutate(Percent_dif = Percent_2021 - Percent_2011)
+# 
+# msoa_sf_ethnicity <- msoa_sf %>%
+#   left_join(ethnicity_msoa, by = "area_name")
+# 
+# gg <- ggplot(msoa_sf_ethnicity) +
+#   geom_sf_interactive(aes(tooltip = area_name,
+#               fill = Percent_2021), color = "#FFFFFF", size = 0.5, alpha = 1) +
+#   facet_wrap(~category, nrow = 2) +
+#    scale_fill_gradient(high = "#48327F",
+#                              low = "#9FBBD9",
+#                              na.value = "grey50",
+#                        n.breaks = 5,
+#                        breaks = waiver(),
+#                        guide = guide_legend(keyheight = unit(4, units = "mm"),
+#                                              keywidth=unit(16, units = "mm"),
+#                                              label.position = "bottom",
+#                                              title = "% of households in the MSOA",
+#                                              title.position = 'top',
+#                                              nrow = 1,
+#                                             aesthetics = "fill")) +
+#   coord_sf(crs = st_crs(4326), datum = NA) +
+#   theme_lab() +
+#       labs(x = NULL, y = NULL,
+#        title = "",
+#        subtitle = "",
+#        caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+#   theme(plot.title = element_text(size=19),
+#         plot.subtitle = element_text(size=17),
+#         plot.caption = element_text(size=14, hjust = 1),
+#         plot.margin = unit(c(0,0,0,0), "cm"),
+#         legend.title = element_text(size=12),
+#         legend.text = element_text(size=12),
+#         legend.position = "bottom") 
+# 
+# girafe(ggobj = gg, height_svg = 9,
+#        options = girafe_options)
+# 
+
+```
+
+
+```{css}
+
+.smtable {
+
+padding-left: 0px;
+
+}
+
+.TableCaption {
+
+font-size: 10px;
+
+}
+
+```
+
