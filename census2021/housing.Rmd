@@ -1,0 +1,406 @@
+---
+title: "CENSUS 2021: Housing"
+lang: "en-GB"
+output:
+  html_document:
+    highlight: null
+    mathjax: null
+    theme: flatly
+    css: styles.css
+    self_contained: TRUE
+    toc: TRUE
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+    includes:
+      in_header: head_includes.html
+---
+<main>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(RColorBrewer) ;
+library(kableExtra); 
+library(httr) ; library(readxl)
+library(scales) ; 
+library(ggiraph)
+library(ggpol)
+library(ggtext)
+
+source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
+
+`%out%` <- function(a,b) ! a %in% b
+
+```
+
+
+The [CENSUS 2021](https://census.gov.uk) in England and Wales published data about [housing](https://www.ons.gov.uk/releases/housingcensus2021inenglandandwales). The release included three publications: [People with second addresses](https://www.ons.gov.uk/peoplepopulationandcommunity/housing/bulletins/peoplewithsecondaddressesenglandandwales/census2021), [Housing](https://www.ons.gov.uk/peoplepopulationandcommunity/housing/bulletins/housingenglandandwales/census2021) and [Communal establishment residents](https://www.ons.gov.uk/peoplepopulationandcommunity/housing/bulletins/communalestablishmentresidentsenglandandwales/census2021).
+
+## Central Heating
+
+In Trafford, 98.8% (95,107) of households have central heating whilst the remaining 1.2% (1,160) of households do not have central heating. The most common type of central heating in Trafford's households is by far "Mains gas only" (81.9%, 78,873).
+
+In Trafford, 139 (0.1%) households have a central heating that only uses renewable energy. An additional 217 households (0.2%) use renewable energy alongside other type of central heating.
+
+```{r}
+
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford") %>% 
+  select(msoa11nm,msoa11hclnm)
+
+join_MSOA_names <- function(lookup,df){
+  left_join(df, lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
+}
+
+central_heating_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_547_1.data.csv?date=latest&geography=1946157089&rural_urban=0&cell=0...7&measures=20100") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>% 
+  mutate(Percent = round(value *100/value[1],1))
+
+central_heating_2021 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2064_1.data.csv?date=latest&geography=645922849,637535406...637535433,2092957699&c2021_heating_13=0...12&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_HEATING_13_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+central_heating_Traf <- central_heating_2021 %>%
+  filter(area_name == "Trafford", category != "Total: All households") %>%
+  pivot_wider(names_from = measure,values_from = value) %>%
+  mutate(category = case_when(category == "District or communal heat networks only" ~ "Heat networks only",
+                              category == "Two or more types of central heating (including renewable energy)" ~ "Two or more types***",
+                              category == "Two or more types of central heating (not including renewable energy)" ~ "Two or more types**",
+                              category == "Tank or bottled gas only" ~ "Tank or bottled gas only",
+                              category == "Renewable energy only"~ "Renewable energy only",
+                              category == "Other central heating only"~ "Other central heating only",
+                              category == "Mains gas only"~ "Mains gas only*",
+                              TRUE ~ category))
+```
+
+```{r fig.height=6}
+ggplot(central_heating_Traf, aes(x = fct_reorder(category, Value), y = Value)) +
+  geom_col(fill = "#5d77a3") +
+  geom_text(aes(y = 0, label = paste0(category, ": ", Value, ", ", Percent, "%")), 
+            hjust = 1, size = 3, colour = "#212121") +
+  labs(x = NULL, y = NULL,
+       title = "Central Heating",
+       subtitle = "Trafford 2021",
+       caption = "* Bar is not presented\n** Not including renewable energy, *** Including renewable energy.\nSource: Census 2021 | @traffordDataLab",
+       fill = NULL) +
+  theme_lab() +
+  theme(panel.grid.major.y = element_blank(),
+        plot.title = element_text(size = 15),
+        plot.subtitle = element_text(size = 12),
+        plot.caption = element_text(size = 8),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank()
+        ) +
+  coord_polar(theta = "y") +
+  ylim(0, 10000) 
+```
+
+Trafford has a higher proportion of households with “Mains gas only” central heating, When compared to the mean of 15 similar authorities, Greater Manchester and England. For most of all other central heating categories, the proportion of households in Trafford is lower  when compared to the mean of similar authorities, Greater Manchester and England.
+
+Trafford has a 0.3 % of households using at least one renewable energy source for central heating, while the mean of similar authorities is more than the double at 0.7% and England's percentage (0.9%) is three times that of Trafford.
+
+```{r ch_trafCIPFA}
+
+cipfa <- read_csv("https://www.traffordDataLab.io/corporate_plan/data/cipfa2021.csv")
+
+gm <- read_csv ("https://www.traffordDataLab.io/spatial_data/lookups/administrative_lookup.csv") %>%
+  select(area_name = lad17nm, area_code = lad17cd) %>%
+  unique()
+
+gm_cipfa <- cipfa %>%
+  bind_rows(gm) %>%
+  unique()
+
+cen_heat_2021_raw <- read_csv(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2064_1.data.csv?date=latest&geography=",paste(c("E92000001",gm_cipfa$area_code), collapse = ','),"&c2021_heating_13=0...12&measures=20100,20301")) %>%
+  unique() %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_HEATING_13_NAME, measure = MEASURES_NAME, value = OBS_VALUE) 
+
+cen_heat_2021_cipfa <- cen_heat_2021_raw %>%
+  filter(measure == "Percent") %>%
+  filter(area_name %in% cipfa$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise_all(mean) %>%
+  mutate(Percent = round(value,1)) %>%
+  mutate(area_name = "CIPFA mean")
+
+cen_heat_gm <- cen_heat_2021_raw %>%
+  filter(measure == "Value") %>%
+  filter(area_name %in% gm$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise_all(sum) %>%
+  mutate(`Percent` = round(value*100/value[10],1)) %>%
+  mutate(area_name = "Greater Manchester")
+
+cen_heat_Traff <- cen_heat_2021_raw %>%
+  #filter(category %in% c("No central heating", "Electric only", "Renewable energy only"))  %>%
+  filter(measure == "Percent") %>%
+  filter(area_name %in% c("Trafford", "England")) %>%
+  select(area_name, category, Percent = value)
+
+cen_heat_4 <- bind_rows(cen_heat_2021_cipfa, cen_heat_gm,cen_heat_Traff)
+  
+```
+
+<div class = "row">
+<div class = "col-md-12">
+<div class = "row">
+<div class = "col-md-7">
+
+```{r plotBin, fig.height=4}
+cen_heat_plot <- cen_heat_4 %>%
+  filter(category != "Total: All households") %>%
+  mutate(category = case_when(category == "Mains gas only" ~ category,
+                               category == "No central heating" ~ category,
+                               category == "Electric only" ~ category,
+                               TRUE ~ "Other central heating"
+                               )) %>%
+  mutate(area_name = case_when(area_name == "CIPFA mean" ~ "Similar Authorities",
+                               area_name == "Greater Manchester" ~ "GM",
+                               TRUE ~ area_name
+                               )) %>%
+  group_by(area_name, category) %>%
+  summarise(Percent = sum(Percent)) %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "GM", "England"))) %>%
+  mutate(category = factor(category, levels = c("No central heating", "Other central heating", "Electric only", "Mains gas only")))
+  
+
+ggplot() +
+  geom_col(data = cen_heat_plot %>% filter(area_name == "Trafford"), aes(Percent, category), fill = "#902082") +
+  geom_errorbar(data = cen_heat_plot %>% filter(area_name != "Trafford"),  aes(x=Percent, xmax=Percent, xmin=Percent, y = category, color = area_name), size = .7) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 87), labels = function(x) paste0(x, "%")) +
+  scale_color_manual(values = c("#5d77a3", "black", "grey")) +
+  labs(x = NULL, y = NULL, title = "Central Heating", subtitle = "Trafford 2021",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=20),
+        plot.subtitle = element_markdown(size=17),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=14),
+        axis.text.x = element_text(size=14),
+        axis.line.y = element_line(colour = "#000000"),
+        legend.text = element_text(size=14)) +
+  guides(color = guide_legend(nrow = 1, title=""))
+
+```
+</div>
+<br>
+<div class = "col-md-5  smtable">
+<br>
+
+```{r tableBin}
+cen_heat_plot %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"),
+         `GM` = paste0(`GM`,"%"),
+          `Trafford` = paste0(`Trafford`,"%")) %>%
+  select(category, Trafford, `Similar Authorities`, `GM`, `England`) %>%
+  arrange(factor(category, levels = c("Mains gas only", "Electric only", "Other central heating", "No central heating")) ) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "Greater Manchester", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-7">
+```{r plotLes, fig.height=6}
+cen_heat_plot2 <- cen_heat_4 %>%
+  filter(category %out% c("Total: All households", "Mains gas only", "Electric only" )) %>%
+  mutate(category = case_when(category == "District or communal heat networks only" ~ "District or communal\nheat networks only",
+                              category == "Two or more types of central heating (including renewable energy)" ~ "Two or more types\n(including renewable)",
+                              category == "Two or more types of central heating (not including renewable energy)" ~ "Two or more types (not\nincluding renewable)",
+                              category == "Tank or bottled gas only" ~ "Tank or bottled gas\nonly",
+                              category == "Renewable energy only"~ "Renewable energy\nonly",
+                              category == "Other central heating only"~ "Other central heating\nonly",
+                              TRUE ~ category)) %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "CIPFA mean", "Greater Manchester", "England"))) %>%
+  mutate(category = reorder(category, ifelse(area_name == "Trafford", Percent, NA), na.rm = TRUE))
+  
+
+ggplot() +
+  geom_col(data = cen_heat_plot2 %>% filter(area_name == "Trafford"), aes(Percent, category), fill = "#902082") +
+  geom_errorbar(data = cen_heat_plot2 %>% filter(area_name != "Trafford"),  aes(x=Percent, xmax=Percent, xmin=Percent, y = category, color = area_name), size = .7) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 8.7), labels = function(x) paste0(x, "%")) +
+  scale_color_manual(values = c("#5d77a3", "black", "grey")) +
+  labs(x = NULL, y = NULL, title = NULL, subtitle = "Excluding Gas and Electric",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=20),
+        plot.subtitle = element_markdown(size=16),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=14),
+        axis.text.x = element_text(size=14),
+        axis.line.y = element_line(colour = "#000000"),
+        legend.position = "none") 
+```
+</div>
+<div class = "col-md-5  smtable">
+
+```{r tableLes}
+
+cen_heat_plot2 %>%
+  select(-value) %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  mutate(`CIPFA mean` = paste0(`CIPFA mean`,"%"), England = paste0(England,"%"),
+         `Greater Manchester` = paste0(`Greater Manchester`,"%"),
+          `Trafford` = paste0(`Trafford`,"%")) %>%
+  select(category, Trafford, `CIPFA mean`, `Greater Manchester`, `England`) %>%
+  arrange(desc(factor(category, levels = levels(cen_heat_plot2$category)))) %>%
+  kable(col.names = c("", "T*", "S A*", "GM*", "E*")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575") %>%
+  column_spec(2:5, width = "50px")
+```
+<p class = "TableCaption"> T* = Trafford,  S A* = Similar Authorities (CIPFA 2021),  GM* = Greater Manchester and E* = England<p>
+</div>
+</div>
+</div>
+</div>
+
+<br>
+The Trafford's MSOAs with the highest proportion of households with No central heating was Old Trafford with 1.7 2.1% (100 households) Gorse Hill with 1.9% (70 households), Partington with 1.8% (60 households) and Sale Central with 1.7% (73 households).
+
+```{r}
+
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford") %>% 
+  select(msoa11nm,msoa11hclnm)
+
+
+join_MSOA_names <- function(lookup,df){
+  left_join(df, lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
+}
+
+girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      )
+
+msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+    left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm)
+
+CH_msoa <- central_heating_2021 %>%
+  pivot_wider(names_from = "measure", values_from = "value") %>%
+  join_MSOA_names(lookup,.) %>%
+  filter(area_name != "Trafford") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", category,"</strong>", format(Value, big.mark=","), " households<br/>",
+    "<strong>", Percent, "</strong>% of households"))
+
+msoa_sf_central_heating <- msoa_sf %>%
+  left_join(CH_msoa, by = "area_name")
+
+```
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+NCH_plot <- CH_msoa %>% 
+  filter(category == "No central heating") %>%
+  arrange(Percent) %>%
+  mutate(area_name = factor(area_name, levels = area_name)) 
+
+gg <- ggplot() +
+  geom_point_interactive(data = NCH_plot, aes(Percent, area_name, tooltip = tooltip, color = Percent), size = 3) +
+     scale_color_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide="none")+
+  scale_x_continuous(limits = c(0,2.3)) +
+    labs(x = "Percent", y = NULL, title = "No central heating", subtitle = "Trafford MSOAs, 2021", caption = "", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=17),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=14),
+        plot.caption = element_text(size=10, hjust = 1),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=10),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=10),
+        axis.title.x = element_text(size=10),
+        axis.text.x = element_text(size=10))
+  
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-5">
+```{r}
+
+gg <- ggplot(msoa_sf_central_heating %>% filter(category == "No central heating")) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = Percent), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% of households in the MSOA",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "",
+       subtitle = "",
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=19),
+        plot.subtitle = element_text(size=17),
+        plot.caption = element_text(size=14, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.position = "bottom") 
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+
+</div>
+</div>
+
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
+
+```{css}
+
+.smtable {
+
+padding-left: 0px;
+
+}
+
+.TableCaption {
+
+font-size: 10px;
+
+}
+
+```
+
