@@ -67,24 +67,24 @@ central_heating_Traf <- central_heating_2021 %>%
   filter(area_name == "Trafford", category != "Total: All households") %>%
   pivot_wider(names_from = measure,values_from = value) %>%
   mutate(category = case_when(category == "District or communal heat networks only" ~ "Heat networks only",
-                              category == "Two or more types of central heating (including renewable energy)" ~ "Two or more types***",
-                              category == "Two or more types of central heating (not including renewable energy)" ~ "Two or more types**",
+                              category == "Two or more types of central heating (including renewable energy)" ~ "***Two or more types(IR)",
+                              category == "Two or more types of central heating (not including renewable energy)" ~ "**Two or more types(NIR)",
                               category == "Tank or bottled gas only" ~ "Tank or bottled gas only",
                               category == "Renewable energy only"~ "Renewable energy only",
                               category == "Other central heating only"~ "Other central heating only",
-                              category == "Mains gas only"~ "Mains gas only*",
+                              category == "Mains gas only"~ "*Mains gas only",
                               TRUE ~ category))
 ```
 
 ```{r fig.height=6}
 ggplot(central_heating_Traf, aes(x = fct_reorder(category, Value), y = Value)) +
   geom_col(fill = "#5d77a3") +
-  geom_text(aes(y = 0, label = paste0(category, ": ", Value, ", ", Percent, "%")), 
+  geom_text(aes(y = 0, label = paste0(category, ": ", format(Value, big.mark=","), ", ", Percent, "%")), 
             hjust = 1, size = 3, colour = "#212121") +
   labs(x = NULL, y = NULL,
        title = "Central Heating",
        subtitle = "Trafford 2021",
-       caption = "* Bar is not presented\n** Not including renewable energy, *** Including renewable energy.\nSource: Census 2021 | @traffordDataLab",
+       caption = "* Bar is not presented\n** Not including renewable energy (NIR), *** Including renewable energy(IR).\nSource: Census 2021 | @traffordDataLab",
        fill = NULL) +
   theme_lab() +
   theme(panel.grid.major.y = element_blank(),
@@ -266,7 +266,7 @@ cen_heat_plot2 %>%
 </div>
 
 <br>
-The Trafford's MSOAs with the highest proportion of households with No central heating was Old Trafford with 1.7 2.1% (100 households) Gorse Hill with 1.9% (70 households), Partington with 1.8% (60 households) and Sale Central with 1.7% (73 households).
+The Trafford's MSOAs with the highest proportion of households with No central heating was Old Trafford with 2.1% (100 households) Gorse Hill with 1.9% (70 households), Partington with 1.8% (60 households) and Sale Central with 1.7% (73 households).
 
 ```{r}
 
@@ -312,19 +312,19 @@ msoa_sf_central_heating <- msoa_sf %>%
 
 NCH_plot <- CH_msoa %>% 
   filter(category == "No central heating") %>%
-  arrange(Percent) %>%
+  arrange(Value) %>%
   mutate(area_name = factor(area_name, levels = area_name)) 
 
 gg <- ggplot() +
-  geom_point_interactive(data = NCH_plot, aes(Percent, area_name, tooltip = tooltip, color = Percent), size = 3) +
+  geom_point_interactive(data = NCH_plot, aes(Value, area_name, tooltip = tooltip, color = Percent), size = 3) +
      scale_color_gradient(high = "#48327F",
                              low = "#9FBBD9",
                              na.value = "grey50",
                        n.breaks = 5,
                        breaks = waiver(),
                        guide="none")+
-  scale_x_continuous(limits = c(0,2.3)) +
-    labs(x = "Percent", y = NULL, title = "No central heating", subtitle = "Trafford MSOAs, 2021", caption = "", colour = NULL) +
+  scale_x_continuous(limits = c(0,100)) +
+    labs(x = "Households", y = NULL, title = "No central heating", subtitle = "Trafford MSOAs, 2021", caption = "", colour = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=17),
         plot.title.position = "plot",
@@ -381,7 +381,133 @@ girafe(ggobj = gg, height_svg = 9,
 
 
 ```
+</div>
+</div>
 
+## Bedroom occupancy
+
+The Bedroom occupancy rating measure whether a household's accommodation is overcrowded, ideally occupied or under-occupied. This is calculated by comparing the number of bedrooms the household requires to the number of available bedrooms according to the Bedroom Standard.
+
+An occupancy rating of -1 or less implies that a household's accommodation has fewer bedrooms than required (overcrowded). Likewise, an occupancy rating of +1 or more implies that a household's accommodation has more bedrooms than required (under-occupied). And finally,  an occupancy rating of 0 suggests that a household's accommodation has an ideal number of bedrooms.
+
+According to the Census 2021, 73.5% (70,746) of households in Trafford were under-occupied and 2.9% (2,779) were overcrowded. Trafford had a higher proportion of under-occupied households when compared to the average of 15 similar local authorities, Greater Manchester and England. In contrast, Trafford had a lower proportion of overcrowded households than the average of 15 similar local authorities, Greater Manchester and England.
+
+The MSOAs with a higher proportion of households living in overcrowded properties are Old Trafford and Firswood with 9.9% (473) and 7.3% (224) of households respectively. Old Trafford had 1.8% (86) of households requiring 2 or more bedrooms to achieve ideal occupancy.
+
+In contrast, more than a third of Trafford's MSOAs had over 80% of households living in under-occupied properties. Timperley South, Bowdon, Hale, Ashton upon Mersey South, Timperley North and Hale Barns had over 50% of households living in properties with 2 or more spare rooms.
+
+```{r}
+
+br_occupancy_2021_raw <- read_csv(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2070_1.data.csv?date=latest&geography=",paste(c("E92000001",gm_cipfa$area_code), collapse = ','),"&c2021_occrat_bedrooms_6=0...5&measures=20100,20301")) %>%
+  unique() %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_OCCRAT_BEDROOMS_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  mutate(type = "Other")
+
+br_occupancy_2021_MSOA <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2070_1.data.csv?date=latest&geography=637535406...637535433&c2021_occrat_bedrooms_6=0...5&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_OCCRAT_BEDROOMS_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  join_MSOA_names(lookup,.) %>%
+  mutate(type = "MSOA") %>%
+  bind_rows(br_occupancy_2021_raw %>% filter(area_name %in% c("Trafford", "England"))) %>%
+  pivot_wider(names_from = measure, values_from = value) %>%
+  select(-date)
+  
+
+br_occupancy_2021_cipfa <- br_occupancy_2021_raw %>%
+  filter(measure == "Percent") %>%
+  filter(area_name %in% cipfa$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise(Percent = mean(value)) %>%
+  mutate(Percent = round(Percent,1)) %>%
+  mutate(area_name = "Similar Authorities") %>%
+  mutate(type = "Other")
+
+br_occupancy_gm <- br_occupancy_2021_raw%>%
+  filter(measure == "Value") %>%
+  filter(area_name %in% gm$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise_all(sum) %>%
+  mutate(`Percent` = round(value*100/value[6],1)) %>%
+  mutate(area_name = "Greater Manchester") %>%
+  rename(Value = value) %>%
+  mutate(type = "Other")
+
+br_occupancy_all <- br_occupancy_2021_MSOA %>%
+  bind_rows(br_occupancy_2021_cipfa) %>%
+  bind_rows(br_occupancy_gm) %>%
+      mutate(category = case_when(category == "Occupancy rating of bedrooms: -2 or less" ~ "-2 or less (overcrowded)",
+                              category == "Occupancy rating of bedrooms: -1" ~ "-1 (overcrowded)",
+                              category == "Occupancy rating of bedrooms: 0" ~ "0 (ideal)",
+                              category == "Occupancy rating of bedrooms: +1" ~ "+1 (under-occupied)",
+                              category == "Occupancy rating of bedrooms: +2 or more"~ "+2 or more (under-occupied)",
+                              TRUE ~ category))
+for_commentary <- br_occupancy_all %>%
+  mutate(category = case_when(str_detect(category, "overcrowded") ~ "overcrowded",
+                               str_detect(category, "under-occupied") ~ "under-occupied",
+                               TRUE ~ category)) %>%
+  select(-type) %>%
+  group_by(area_name, category) %>%
+  summarise(Percent = sum(Percent), Value = sum(Value))
+  
+```
+
+<div class = "row">
+<div class = "col-md-12">
+
+```{r}
+
+plot_bo <- br_occupancy_all %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                          "<strong>Rating: </strong>", category, "<br/>",
+      "<strong>", "% Households: </strong>", Percent, "% (", format(Value, big.mark=","), ")<br/>"
+      )) %>%
+  filter(category != "Total: All households") %>%
+    mutate(area_name = fct_reorder(factor(area_name), ifelse(category == "-1 (overcrowded)", Percent, NA), na.rm = TRUE),
+         area_name = fct_relevel(factor(area_name), "Trafford", "Similar Authorities", "Greater Manchester",  "England")) %>%
+  mutate(category = factor(category, levels = c("-2 or less (overcrowded)", "-1 (overcrowded)", "0 (ideal)", "+1 (under-occupied)", "+2 or more (under-occupied)")))
+
+
+gg <- ggplot(plot_bo, aes(area_name, Percent, fill = category, tooltip = tooltip)) + 
+  geom_col_interactive(position = "stack", colour = "#757575", size = 0.2, alpha = 1) +
+  scale_fill_manual(values = c("#37216B", "#53478C", "#bdbdbd", "#7987BA", "#9FBBD9"),
+                     guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth = unit(4, units = "mm"),
+                                             label.position = "right",
+                                             title = "% of households with\noccupancy rating:",
+                                             title.position = 'top',
+                                             ncol = 1,
+                                            aesthetics = "fill")) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  facet_grid(.~type, scales = "free_x", space = "free") +
+    labs(title = "Bedroom Occupancy: Overcrowded or Under-occupied",
+       subtitle = "Trafford MSOAs, 2021",
+       caption = "Similar Authorities from CIPFA 2021\nSource: Census 2021  |  @traffordDataLab",
+       x = NULL,
+       y = NULL,
+       fill = NULL) +
+    theme_lab() +
+  theme(panel.grid.major.x = element_blank(),
+        legend.position = "right",
+        plot.title = element_text(size=12),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=10),
+        plot.caption = element_text(size=6, hjust = 1),
+        legend.title = element_text(size=7),
+        legend.text = element_text(size=7),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=7),
+        axis.text.x = element_text(size=7, angle = 90, vjust = 0.5, hjust=1),
+        strip.text = element_blank()) 
+
+
+girafe(ggobj = gg, height_svg = 5,
+       options = girafe_options)
+
+
+
+```
 </div>
 </div>
 
