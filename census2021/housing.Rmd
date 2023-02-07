@@ -98,7 +98,7 @@ ggplot(central_heating_Traf, aes(x = fct_reorder(category, Value), y = Value)) +
   ylim(0, 10000) 
 ```
 
-Trafford has a higher proportion of households with “Mains gas only” central heating, When compared to the mean of 15 similar authorities, Greater Manchester and England. For most of all other central heating categories, the proportion of households in Trafford is lower  when compared to the mean of similar authorities, Greater Manchester and England.
+Trafford has a higher proportion of households with “Mains gas only” central heating, when compared to the mean of 15 similar authorities, Greater Manchester and England. For most of all other central heating categories, the proportion of households in Trafford is lower  when compared to the mean of similar authorities, Greater Manchester and England.
 
 Trafford has a 0.3 % of households using at least one renewable energy source for central heating, while the mean of similar authorities is more than the double at 0.7% and England's percentage (0.9%) is three times that of Trafford.
 
@@ -379,7 +379,13 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 
 
+
+
 ## Accommodation type 
+
+According to the Census 2021, 43.8% (42,193) of households in Trafford reported to live in a semi-detached property, which is more than the double of any other type of accommodation in Trafford. Terraced (20.8%, 19,976), Flats in a purpose-built block (16.9%, 16,236) and detached (15.2%, 14,601) constitute most of the rest of the accommodation properties.
+
+Trafford had a larger proportion of semi-detached properties when compared to the mean of 15 similar authorities (9.1% more), Greater Manchester (5.9% more) and England (12.3 more). The proportion of terraced houses was smaller and the proportion of flats was similar when compared to all comparators. Trafford had a similar proportion of detached houses to Greater Manchester but a smaller proportion compared to  the mean of  similar authorities.
 
 <div class = "row">
 <div class = "col-md-9">
@@ -484,7 +490,6 @@ accom_type4_plot %>%
 </div>
 </div>
 <p class = "TableCaption">\*In a purpose-built block of flats or tenement. \** For example, in an office building, hotel or over a shop. \***For example, former school, church or warehouse.<br>Source: Census 2021 |  @traffordDataLab</p>
-
 
 ## Tenure
 
@@ -697,6 +702,10 @@ girafe(ggobj = gg, height_svg = 5,
 
 ## Number of bedrooms
 
+According to the Census 2021, 45.1% (43,420) of households in Trafford reported to live in a 3 bedroom property, which is almost the double of any other housing group by number of bedrooms in Trafford. The proportion of the rest of the housing properties were: 4 or more bedrooms 23.2% (22,365), 2 bedrooms 22.2% (21,354) and 1 bedroom 9.5% (9,130).
+
+Trafford had a slightly larger proportion of 3 bedroom properties when compared to the mean of 15 similar authorities, Greater Manchester and England. Trafford had also a slightly larger proportion of 4 or more bedrooms houses to similar authorities and England and a 7.3% larger proportion of 4 or more bedrooms houses when compared to Greater Manchester. The proportion of 2 bedrooms houses was smaller than all comparators specially to Greater Manchester (8.35% less).
+
 ```{r}
 
 bedrooms_Traf_2021 <- read_csv(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2068_1.data.csv?date=latest&geography=",paste(c("E92000001",gm_cipfa$area_code), collapse = ','),"&c2021_bedrooms_5=0...4&measures=20100,20301")) %>%
@@ -785,10 +794,6 @@ bedrooms_plot %>%
 ```
 </div>
 </div>
-
-
-
-
 
 ## Bedroom occupancy
 
