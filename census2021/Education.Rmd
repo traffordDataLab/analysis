@@ -1,0 +1,614 @@
+---
+title: "CENSUS 2021: Education"
+lang: "en-GB"
+output:
+  html_document:
+    highlight: null
+    mathjax: null
+    theme: flatly
+    css: styles.css
+    self_contained: TRUE
+    toc: TRUE
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+    includes:
+      in_header: head_includes.html
+---
+<main>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(RColorBrewer) ;
+library(kableExtra); 
+library(httr) ; library(readxl)
+library(scales) ; 
+library(ggiraph)
+library(ggpol)
+library(ggtext)
+
+source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
+
+`%out%` <- function(a,b) ! a %in% b
+
+```
+
+
+The [CENSUS 2021](https://census.gov.uk) in England and Wales published data about [Education](https://www.ons.gov.uk/releases/educationcensus2021inenglandandwales). The release included one publication: [Education](https://www.ons.gov.uk/peoplepopulationandcommunity/educationandchildcare/bulletins/educationenglandandwales/census2021).
+
+## Highest level of qualification
+
+The residents with a Level 4 qualifications or above in Trafford represent 43% of the total residents aged 16 years and over, which is almost two times more than any of the other group of residents by level of qualification. Residents with no qualifications represent the 14% of Trafford residents aged 16 years and over.
+
+Trafford had around 10% more resident with a Level 4 qualifications or above when compared to the mean of 15 similar authorities, Greater Manchester and England. Trafford had a lower proportion of resident with any other qualification level when compared to all comparators. Trafford had a smaller proportion of residents with no qualifications when compared to the mean of 15 similar authorities (3.4% less), Greater Manchester (6% less) and England (4.1% less).
+
+<div class = "row">
+<div class = "col-md-9">
+
+```{r}
+
+cipfa <- read_csv("https://www.traffordDataLab.io/corporate_plan/data/cipfa2021.csv")
+
+gm <- read_csv ("https://www.traffordDataLab.io/spatial_data/lookups/administrative_lookup.csv") %>%
+  select(area_name = lad17nm, area_code = lad17cd) %>%
+  unique()
+
+gm_cipfa <- cipfa %>%
+  bind_rows(gm) %>%
+  unique()
+
+hlq_2021 <- read_csv(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2084_1.data.csv?date=latest&geography=",paste(c("E92000001",gm_cipfa$area_code), collapse = ','),"&c2021_hiqual_8=0...7&measures=20100,20301")) %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_HIQUAL_8_NAME, measure = MEASURES_NAME, value = OBS_VALUE) 
+
+hlq_2021_cipfa <- hlq_2021 %>%
+  filter(measure == "Percent") %>%
+  filter(area_name %in% cipfa$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise(Percent = mean(value)) %>%
+  mutate(Percent = round(Percent,1)) %>%
+  mutate(area_name = "CIPFA mean")
+
+hlq_gm <- hlq_2021 %>%
+  filter(measure == "Value") %>%
+  filter(area_name %in% gm$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise(value = sum(value)) %>%
+  mutate(`Percent` = round(value*100/value[8],2)) %>%
+  mutate(area_name = "Greater Manchester") %>%
+  rename(Value = value)
+
+hlq_Traff <- hlq_2021 %>%
+  filter(area_name %in% c("Trafford", "England")) %>%
+  select(-date) %>%
+  pivot_wider(names_from = "measure", values_from = "value")
+
+hlq_4 <- bind_rows(hlq_Traff, hlq_2021_cipfa, hlq_gm)
+
+```
+
+```{r plotAT, fig.height=5}
+hlq_4_plot <- hlq_4 %>%
+  filter(category != "Total: All usual residents aged 16 years and over") %>%
+  mutate(area_name = case_when(area_name == "CIPFA mean" ~ "Similar Authorities",
+                               area_name == "Greater Manchester" ~ "GM",
+                               TRUE ~ area_name
+                               )) %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "GM", "England"))) %>%
+  mutate(category = reorder(category, ifelse(area_name == "Trafford", Percent, NA), na.rm = TRUE))
+  
+
+ggplot() +
+  geom_col(data = hlq_4_plot %>% filter(area_name == "Trafford"), aes(Percent, category), fill = "#5d77a3") +
+  geom_errorbar(data = hlq_4_plot %>% filter(area_name != "Trafford"),  aes(x=Percent, xmax=Percent, xmin=Percent, y = category, color = area_name), size = .7) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 45), labels = function(x) paste0(x, "%")) +
+  scale_color_manual(values = c("#902082", "black", "grey")) +
+  labs(x = NULL, y = NULL, title = "Highest level of qualification", subtitle = "Trafford 2021",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=16),
+        plot.subtitle = element_markdown(size=14),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1, size=11),
+        axis.text.x = element_text(size=11),
+        axis.line.y = element_line(colour = "#000000"),
+        legend.text = element_text(size=11)) +
+  guides(color = guide_legend(nrow = 1, title=""))
+
+```
+</div>
+</div>
+<br>
+
+<div class = "row">
+<div class = "col-md-9">
+
+```{r}
+hlq_4_plot %>%
+  select(-Value) %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  left_join(hlq_4_plot %>% filter(area_name == "Trafford") %>% select(category, Value), by = "category") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"),
+         `GM` = paste0(`GM`,"%"),
+          `Trafford` = paste0(`Trafford`,"% (", format(Value, big.mark=","),")")) %>%
+  select(category, Trafford, `Similar Authorities`, `GM`, `England`) %>%
+  arrange(desc(factor(category, levels = levels(hlq_4_plot$category)))) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "Greater Manchester", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+<p class = "TableCaption">Contains OS data ©; Crown copyright and database right 2022<br>Source: Census 2021 |  @traffordDataLab</p>
+
+The proportion of resident with no qualifications had decreased in Trafford from 18.6% in 2011 to 14% in 2021. All MSOAs in Trafford had decreased the proportion of residents with no qualifications from 2011 to 2021.
+
+```{r}
+
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford") %>% 
+  select(msoa11nm,msoa11hclnm)
+
+join_MSOA_names <- function(lookup,df){
+  left_join(df, lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
+}
+
+  hlq_2011_msoa <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_623_1.data.csv?date=latest&geography=1245709510...1245709537,1946157089&rural_urban=0&cell=0...7&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, Value = OBS_VALUE) %>%
+  join_MSOA_names(lookup,.) %>%
+  mutate(category = sub(".*: ", "", category)) %>%
+  pivot_wider(names_from = measure,values_from = Value) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents aged 16+"))
+
+  hlq_msoa <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2084_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_hiqual_8=0...7&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_HIQUAL_8_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+      join_MSOA_names(lookup,.) %>%
+  mutate(category = sub(".*: ", "", category)) %>%
+  pivot_wider(names_from = measure,values_from = value) %>%
+ mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents aged 16+"))
+
+girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      )
+
+```
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+hlq_plot_NQ <- hlq_msoa %>%
+  bind_rows(hlq_2011_msoa) %>%
+  filter(category == "No qualifications") %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), ifelse(date == "2021", Percent, NA), na.rm = TRUE),
+   area_name = fct_relevel(factor(area_name), "Trafford"))
+
+gg <- ggplot() +
+  geom_line(data = hlq_plot_NQ, aes(Percent, area_name), color = "grey", size=1) +
+  geom_point_interactive(data = hlq_plot_NQ, aes(Percent, area_name, tooltip = tooltip, color = date), size = 3) +
+  scale_x_continuous(limits = c(0,31)) +
+      scale_color_manual(values = c("#5d77a3", "#902082"), 
+                     labels = c("2011", "2021")) +
+
+    labs(x = "% of residents aged 16+ ", y = NULL, title = "No qualifications", subtitle = "Trafford MSOA", caption = "", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=17),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=14),
+        plot.caption = element_text(size=10, hjust = 1),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=10),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=10),
+        axis.title.x = element_text(size=10),
+        axis.text.x = element_text(size=10))
+  
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-5">
+<br>
+<br>
+```{r}
+
+hlq_change_map <- hlq_plot_NQ %>%
+  select(-tooltip) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(`Difference (%)` = Percent_2021 - Percent_2011, Difference = Value_2021 - Value_2011) %>%
+  filter(area_name != "Trafford") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                          "<strong>", category,"</strong> Residents aged 16+<br/>",
+      "<strong>2011: </strong>", Percent_2011, "% (", format(Value_2011, big.mark=","), ")<br/>",
+      "<strong>2021: </strong>", Percent_2021, "% (", format(Value_2021, big.mark=","), ")<br/>",
+    "<strong>Difference from 2011: </strong>", `Difference (%)`, "% (", format(Difference, big.mark=","), ")<br/>"))
+
+msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+    left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm)
+
+msoa_sf_hlq <- msoa_sf %>%
+  left_join(hlq_change_map)
+
+gg <- ggplot(msoa_sf_hlq) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = Percent_2021), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% aged 16+ in the Ward",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "",
+       subtitle = "No qualifications, 2021",
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") +
+  theme(plot.title = element_text(size=19),
+        plot.subtitle = element_text(size=17),
+        plot.caption = element_text(size=14, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.position = "bottom")
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
+
+The proportion of resident with a Level 4 qualifications or above had increased in Trafford from 33.8% in 2011 to 43% in 2021. All MSOAs in Trafford had increased the proportion of residents with a Level 4 qualifications or above from 2011 to 2021.
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+hlq_plot_4L <- hlq_msoa %>%
+  bind_rows(hlq_2011_msoa) %>%
+  mutate(category = ifelse(category == "Level 4 qualifications and above", "Level 4 qualifications or above", category)) %>%
+  filter(category == "Level 4 qualifications or above") %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), ifelse(date == "2021", Percent, NA), na.rm = TRUE),
+   area_name = fct_relevel(factor(area_name), "Trafford"))
+
+gg <- ggplot() +
+  geom_line(data = hlq_plot_4L, aes(Percent, area_name), color = "grey", size=1) +
+  geom_point_interactive(data = hlq_plot_4L, aes(Percent, area_name, tooltip = tooltip, color = date), size = 3) +
+  scale_x_continuous(limits = c(0,65)) +
+      scale_color_manual(values = c("#5d77a3", "#902082"), 
+                     labels = c("2011", "2021")) +
+
+    labs(x = "% of residents aged 16+ ", y = NULL, title = "Level 4 qualifications or above", subtitle = "Trafford MSOA", caption = "", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=17),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=14),
+        plot.caption = element_text(size=10, hjust = 1),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=10),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=10),
+        axis.title.x = element_text(size=10),
+        axis.text.x = element_text(size=10))
+  
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-5">
+<br>
+<br>
+```{r}
+
+hlq_change_map <- hlq_plot_4L %>%
+  #bind_rows(hlq_plot_2011) %>%
+  select(-tooltip) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(`Difference (%)` = Percent_2021 - Percent_2011, Difference = Value_2021 - Value_2011) %>%
+  filter(area_name != "Trafford") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                          "<strong>", category,"</strong> Residents aged 16+<br/>",
+      "<strong>2011: </strong>", Percent_2011, "% (", format(Value_2011, big.mark=","), ")<br/>",
+      "<strong>2021: </strong>", Percent_2021, "% (", format(Value_2021, big.mark=","), ")<br/>",
+    "<strong>Difference from 2011: </strong>", `Difference (%)`, "% (", format(Difference, big.mark=","), ")<br/>"))
+
+msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+    left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm)
+
+msoa_sf_hlq <- msoa_sf %>%
+  left_join(hlq_change_map)
+
+gg <- ggplot(msoa_sf_hlq) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = Percent_2021), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% aged 16+ in the MSOA",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "",
+       subtitle = "Level 4 qualifications and above, 2021",
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") +
+  theme(plot.title = element_text(size=19),
+        plot.subtitle = element_text(size=17),
+        plot.caption = element_text(size=14, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.position = "bottom")
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
+
+## Schoolchildren and full-time students
+
+According to the Census 2021, 21.4% of Trafford residents aged 5 years or more were schoolchildren or full-time students, which is slightly higher than the mean of 15 similar authorities and also than England, but slightly lower than the student proportion in Greater Manchester.
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+fts_2021 <- read_csv(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2085_1.data.csv?date=latest&geography=",paste(c("E92000001",gm_cipfa$area_code), collapse = ','),"&c2021_student_3=0...2&measures=20100,20301")) %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_STUDENT_3_NAME, measure = MEASURES_NAME, value = OBS_VALUE) 
+
+fts_2021_cipfa <- fts_2021 %>%
+  filter(measure == "Percent") %>%
+  filter(area_name %in% cipfa$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise(Percent = mean(value)) %>%
+  mutate(Percent = round(Percent,1)) %>%
+  mutate(area_name = "CIPFA mean")
+
+fts_gm <- fts_2021 %>%
+  filter(measure == "Value") %>%
+  filter(area_name %in% gm$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise(value = sum(value)) %>%
+  mutate(`Percent` = round(value*100/value[3],1)) %>%
+  mutate(area_name = "Greater Manchester") %>%
+  rename(Value = value)
+
+fts_Traff <- fts_2021 %>%
+  filter(area_name %in% c("Trafford", "England")) %>%
+  select(-date) %>%
+  pivot_wider(names_from = "measure", values_from = "value")
+
+fts_4 <- bind_rows(fts_Traff, fts_2021_cipfa, fts_gm)
+
+```
+
+```{r plotFTS, fig.height=3}
+fts_4_plot <- fts_4 %>%
+  filter(category != "Total: All usual residents aged 5 years and over") %>%
+  mutate(area_name = case_when(area_name == "CIPFA mean" ~ "Similar Authorities",
+                               area_name == "Greater Manchester" ~ "GM",
+                               TRUE ~ area_name
+                               )) %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "GM", "England"))) %>%
+  mutate(category = reorder(category, ifelse(area_name == "Trafford", Percent, NA), na.rm = TRUE))
+  
+
+ggplot() +
+  geom_col(data = fts_4_plot %>% filter(area_name == "Trafford"), aes(Percent, category), fill = "#5d77a3") +
+  geom_errorbar(data = fts_4_plot %>% filter(area_name != "Trafford"),  aes(x=Percent, xmax=Percent, xmin=Percent, y = category, color = area_name), size = .7) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 80), labels = function(x) paste0(x, "%")) +
+  scale_color_manual(values = c("#902082", "black", "grey")) +
+  labs(x = NULL, y = NULL, title = "Schoolchildren and full-time students", subtitle = "Trafford 2021",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=16),
+        plot.subtitle = element_markdown(size=14),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1, size=11),
+        axis.text.x = element_text(size=11),
+        axis.line.y = element_line(colour = "#000000"),
+        legend.text = element_text(size=11)) +
+  guides(color = guide_legend(nrow = 1, title=""))
+
+```
+</div>
+<div class = "col-md-5">
+<br>
+<br>
+```{r}
+fts_4_plot %>%
+  select(-Value) %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  left_join(fts_4_plot %>% filter(area_name == "Trafford") %>% select(category, Value), by = "category") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"),
+         `GM` = paste0(`GM`,"%"),
+          `Trafford` = paste0(`Trafford`,"% (", format(Value, big.mark=","),")")) %>%
+  select(category, Trafford, `Similar Authorities`, `GM`, `England`) %>%
+  arrange(desc(factor(category, levels = levels(fts_4_plot$category)))) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "Greater Manchester", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+<p class = "TableCaption">% of residents aged 5 years and over<br>Source: Census 2021 |  @traffordDataLab</p>
+</div>
+</div>
+
+Old Trafford MSOA have a larger number of schoolchildren and full-time students than the rest of the MSOAs in Trafford 2021. Old Trafford MSOA also have a larger proportion of students than the rest of the MSOAs.
+
+```{r}
+
+  fts_msoa <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2085_1.data.csv?date=latest&geography=645922849,637535406...637535433&c2021_student_3=0...2&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_STUDENT_3_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+      join_MSOA_names(lookup,.) %>%
+  mutate(category = sub(".*: ", "", category)) %>%
+  #mutate(area_name = sub(" \\(.*", "", area_name)) %>%
+  pivot_wider(names_from = measure,values_from = value) %>%
+ mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents aged 5+"))
+
+girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      )
+
+```
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+fts_plot <- fts_msoa %>%
+  filter(area_name != "Trafford") %>%
+  filter(category == "Student") %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), ifelse(date == "2021", Value, NA), na.rm = TRUE))
+
+gg <- ggplot() +
+  geom_point_interactive(data = fts_plot, aes(Value, area_name, tooltip = tooltip), color = "#5d77a3", size = 3) +
+  scale_x_continuous(limits = c(0,3000)) +
+    labs(x = "residents aged 5+", y = NULL, title = "Schoolchildren and full-time students", subtitle = "Trafford MSOA", caption = "", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=17),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=14),
+        plot.caption = element_text(size=10, hjust = 1),
+        legend.title = element_text(size=10),
+        legend.text = element_text(size=10),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=10),
+        axis.title.x = element_text(size=10),
+        axis.text.x = element_text(size=10))
+  
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-5">
+<br>
+<br>
+```{r}
+
+fts_change_map <- fts_plot
+
+msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+    left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm)
+
+msoa_sf_fts <- msoa_sf %>%
+  left_join(fts_change_map)
+
+gg <- ggplot(msoa_sf_fts) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = Percent), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% aged 5+ in the Ward",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "",
+       subtitle = "",
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") +
+  theme(plot.title = element_text(size=19),
+        plot.subtitle = element_text(size=17),
+        plot.caption = element_text(size=14, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.position = "bottom")
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
+
+
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
+
+```{css}
+
+.smtable {
+
+padding-left: 0px;
+
+}
+
+.TableCaption {
+
+font-size: 10px;
+
+}
+
+```
+
+
