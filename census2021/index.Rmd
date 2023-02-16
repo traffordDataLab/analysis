@@ -26,25 +26,11 @@ library(httr) ; library(readxl)
 library(scales) ; 
 library(ggiraph)
 library(ggpol)
+library(ggtext)
 
 source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
 
-
-# ggplot2 theme
-theme_x <- function () { 
-  theme_minimal(base_size = 14, base_family = "Open Sans") %+replace% 
-    theme(
-      panel.grid.major.x = element_blank(),
-      panel.grid.minor = element_blank(),
-      plot.title = element_text(size = 16, face = "bold", hjust = 0),
-      plot.subtitle = element_text(hjust = 0, margin = margin(9, 0, 9, 0)),
-      plot.caption = element_text(size = 12, color = "grey50", hjust = 1, margin = margin(t = 15)),
-      axis.title = element_text(size = 10, hjust = 1),
-      axis.text.x = element_text(angle = 90, hjust = 1, margin = margin(t = 0)),
-      legend.position = "top", 
-      legend.justification = "left"
-    )
-}
+`%out%` <- function(a,b) ! a %in% b
 
 girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
                       opts_toolbar(saveaspng = FALSE),
@@ -124,7 +110,6 @@ age_f_m_df <- age_f_m %>%
 The number of usual residents in Trafford according to the Census 2021 is 235,052, representing an increment of 3.7% from the Census 2011 when the number of usual residents was 226,578. 
 
 There are 120,644 females (51.33%) and 114,408 males (48.66%) in Trafford according to the Census 2021. Similarly, there were 115,619 female (51.03%) and 110,959 male (48.97%) in 2011.
-
 
 ```{r}
 
@@ -423,6 +408,139 @@ age_time <- bind_rows(age_broad_df, age_cat1,age_cat2 )
 
 ```
 
+
+Comparing Trafford's population by 5-years age bands from 2011 to 2021, the number of children aged 4 and under have fallen 9.4% whilst the children aged 5 to 9 and 10 to 14 have risen 14.1% and 16.7% respectively. The population between 15 and 49 has fallen except for the age band 35 to 39. All the 5-year age bands above 50 fell in numbers.
+
+Greater Manchester is rising more or falling less than Trafford in 14 of the 18 5-years age bands and England is rising more or falling less than Trafford in 13 of the 18 5-years age bands.
+
+```{r}
+
+#cipfa <- read_csv("https://www.traffordDataLab.io/corporate_plan/data/cipfa2021.csv")
+
+gm <- read_csv ("https://www.traffordDataLab.io/spatial_data/lookups/administrative_lookup.csv") %>%
+  select(area_name = lad17nm, area_code = lad17cd) %>%
+  unique()
+
+Band5Year2021raw <- read_csv(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2020_1.data.csv?date=latest&geography=",paste(c("E92000001",gm$area_code), collapse = ','),"&c2021_age_19=0...18&measures=20100,20301")) %>%
+  select(area_code = GEOGRAPHY_CODE, area_name = GEOGRAPHY_NAME, date = DATE_NAME,  age = C2021_AGE_19_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+singleYear2011 <- read_csv(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_503_1.data.csv?date=latest&geography=",paste(c("E92000001",gm$area_code), collapse = ','),"&rural_urban=0&c_age=0...101&measures=20100")) %>%
+  select(area_code = GEOGRAPHY_CODE, area_name = GEOGRAPHY_NAME, date = DATE_NAME,  age = C_AGE_NAME, value = OBS_VALUE, ageCode = C_AGE_SORTORDER)
+
+Total2011 <- singleYear2011 %>%
+  filter(ageCode == 0) %>%
+  select(area_name, total_pop = value)
+
+Band5Year2011 <- singleYear2011 %>%
+  filter(ageCode != 0) %>%
+  mutate(ageCode = ageCode-1) %>%
+  mutate(ageband = cut(as.numeric(ageCode),
+                       breaks = c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,120),
+                       labels = c("0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39",
+                                  "40-44","45-49","50-54","55-59","60-64","65-69","70-74",
+                                  "75-79","80-84","85+"),
+                       right = FALSE)) %>%
+  group_by(area_code, area_name, ageband, date) %>% 
+  summarise(Value = sum(value)) %>%
+  #mutate(date = 2011) %>%
+  left_join(Total2011, by = "area_name") %>%
+  mutate(Percent = round(Value * 100 / total_pop,1)) %>%
+  select(-total_pop) %>%
+  pivot_longer(c(Value, Percent), names_to = "measure", values_to = "value") 
+
+  Band5Year2021 <- Band5Year2021raw %>% 
+  filter(!age %in% c("Total") ) %>%
+  mutate(ageband = gsub(".*ed \\s*| :.*", "\\1", age)) %>%
+  mutate(ageband = str_replace(ageband," to ", "-"), ageband = str_replace(ageband," ", "")) %>%
+    mutate(ageband = str_replace(ageband,"years", "")) %>%
+    mutate(ageband = case_when(ageband == "4 and under" ~ "0-4",
+                               ageband == "85 and over" ~ "85+",
+                               TRUE ~ ageband)) %>%
+    select(-age)
+  
+  band5year_gm <- Band5Year2021 %>%
+    bind_rows(Band5Year2011) %>%
+  filter(measure == "Value") %>%
+  filter(area_name %in% gm$area_name) %>%
+  select(date, ageband,value) %>%
+  group_by(date, ageband) %>%
+  summarise(value = sum(value)) %>%
+  mutate(`Percent` = round(value*100/sum(value),1)) %>%
+  mutate(area_name = "Greater Manchester") %>%
+  rename(Value = value) %>%
+    pivot_longer(c("Percent", "Value"), names_to = "measure", values_to = "value")
+
+  
+  band5year <- Band5Year2021 %>%
+    bind_rows(Band5Year2011) %>%
+    filter(area_name %in% c("Trafford", "England")) %>%
+    select(-area_code) %>%
+    bind_rows(band5year_gm) %>%
+    pivot_wider(names_from = c(measure, date), values_from = value) %>%
+  mutate(`Difference (%)` = Percent_2021 - Percent_2011, Difference = Value_2021 - Value_2011, PChange= round(Difference*100/Value_2011,1)) %>%
+    mutate(grow = ifelse(PChange >= 0, "Rise", "Fall")) %>%
+    bind_rows(data.frame(area_name="None", ageband = "85+", PChange = 40, grow = "Rise")) %>%
+    bind_rows(data.frame(area_name="None", ageband = "85+", PChange = -40, grow = "Fall")) %>%
+    mutate(ageband = factor(ageband,levels = c("0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80-84","85+"))) %>%
+    mutate(area_name = factor(area_name,levels = c("Trafford","Greater Manchester","England","None"))) #%>%
+
+  for(i in 1:nrow(band5year)) {
+    row <- band5year[i,]
+    ageb5 <- row$ageband
+    gmab5 <- filter(band5year, ageband == ageb5 , area_name == "Greater Manchester")$PChange
+    eab5 <- filter(band5year, ageband == ageb5 , area_name == "England") %>% pull(PChange)
+  band5year[i,"label"] <-   ifelse(row$area_name == "Trafford", paste0("<strong>", row$area_name, "</strong> ", row$PChange, "% <br>",
+                                                      "<strong> Greater Manchester ", "</strong> ", gmab5, "%<br>",
+                                                      "<strong> England ", "</strong> ", eab5 , "%<br>"), NA_character_)
+}
+  
+  
+gg <-  ggplot() +
+  geom_col_interactive(data = band5year %>% filter(area_name == "Trafford"), aes(`PChange`, ageband, fill = grow, tooltip = label)) +
+  geom_errorbar(data = band5year %>% filter(area_name %out% c("Trafford", "None")),  aes(x=`PChange`, xmax=`PChange`, xmin=`PChange`, y = ageband, color = area_name), size = .7) +
+    geom_point(data = band5year %>% filter(area_name == "None"), aes(`PChange`, ageband), fill = "transparent", color="transparent") +
+  scale_x_continuous( labels = function(x) paste0(x, "%")) +
+  scale_color_manual(values = c("black", "grey")) +
+    scale_fill_manual(values = c("#902082", "#5d77a3")) +
+    facet_share(~grow, scales = "free" ) +
+    #scale_y_discrete(drop = FALSE) +
+  labs(x = NULL, y = NULL, title = "Percentage Change from 2011 to 2021", subtitle = "Trafford, 5-year band",
+       caption = "Source: Census 2011 and Census 2021 | @traffordDataLab")  +
+  theme(
+        plot.title = element_text(size=12, face = "bold", colour = "#757575", hjust = 0),
+        plot.subtitle = element_markdown(size=10, colour = "#757575", hjust = 0),
+      plot.caption = element_text(size = 8, color = "grey50", hjust = 1, margin = margin(t = 15)),
+        plot.title.position = "plot",
+        #plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1, size=8),
+        axis.text.x = element_text(size=8),
+        axis.line.y = element_line(colour = "#000000"),
+        legend.text = element_text(size=7),
+        
+              plot.background = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+            panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      
+            axis.ticks.x=element_line(size=0.1, color = "transparent"),
+      axis.ticks.y=element_line(size=0.1, color = "transparent"),
+      axis.line = element_blank(),
+            legend.position = "top",
+      legend.background = element_blank(),
+      legend.key = element_blank(),
+      strip.background = element_rect(fill = "transparent", colour = NA),
+      strip.text = element_text(size = 9, face = "bold", colour = "#757575", hjust = .5)
+) +
+  guides(color = guide_legend(nrow = 1, title=""),
+         fill="none")
+  
+  girafe(ggobj = gg, height_svg = 5,
+       options = girafe_options)
+
+```
+
 <br/>
 
 
@@ -453,9 +571,7 @@ pop_density <- bind_rows(pop_density_2011, pop_density_2021) %>%
 
 pop_density_change <- pop_density %>%
   pivot_wider(names_from = date, values_from = value) %>%
-  mutate(change = round(`2021`*100/`2011`-100,1)) %>%
-  mutate()
-
+  mutate(change = round(`2021`*100/`2011`-100,1)) 
 ```
 
 <div class = "row">
@@ -680,14 +796,14 @@ w_dep_ch_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2023_1.d
 w_dep_ch_raw_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_605_1.data.csv?date=latest&geography=1245709510...1245709537,1946157089&rural_urban=0&cell=5,8,10,12&measures=20100,20301") %>%
   select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
 
-w_dep_ch_tool <- bind_rows(w_dep_ch_raw, w_dep_ch_raw_2011) %>%
-  pivot_wider(names_from = "date", values_from = "value") %>%
-  mutate(change = `2021`-`2011`) %>%
-  mutate(pchange = round(change*100/`2011`,0)) %>%
-  select(category, change, pchange) 
+# w_dep_ch_tool <- bind_rows(w_dep_ch_raw, w_dep_ch_raw_2011) %>%
+#   pivot_wider(names_from = "date", values_from = "value") %>%
+#   mutate(change = `2021`-`2011`) %>%
+#   mutate(pchange = round(change*100/`2011`,0)) %>%
+#   select(category, change, pchange) 
 
 w_dep_ch_raw_To_Traf <- bind_rows(w_dep_ch_raw, w_dep_ch_raw_2011) %>%
-  filter(category != "Total") %>%
+  filter(category != "Total: All households") %>%
   group_by(date,area_name, measure) %>%
   summarise(value = sum(value)) %>%
   ungroup() %>%
@@ -767,13 +883,13 @@ hushol_onep <- hushol_onep_raw %>%
   left_join(lookup%>%select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
   mutate(area_name = msoa11hclnm) %>%
   select(-msoa11hclnm) %>%
-  mutate(categoryb = gsub("One person household: ", "", category)) %>%
+  mutate(categoryb = gsub("One-person household: ", "", category)) %>% 
   mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
 
 onep_66o <- hushol_onep %>%
   filter(categoryb =="Aged 66 years and over") %>%
     mutate(area_name = fct_reorder(factor(area_name), ifelse(measure == "Percent", value, NA), na.rm = TRUE),
-         area_name = fct_relevel(factor(area_name), "Trafford"))%>%
+         area_name = fct_relevel(factor(area_name), "Trafford")) %>%
   pivot_wider(names_from = measure, values_from = value) %>%
   mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
       "<strong>", "Households: </strong>", format(Value, big.mark=","), "<br/>",
@@ -980,7 +1096,7 @@ cobirth_2011 <- cobirth_raw_2011 %>%
 cobirth_tool <- bind_rows(cobirth, cobirth_2011) %>%
   pivot_wider(names_from = "date", values_from = "value") %>%
   mutate(change = `2021`-`2011`) %>%
-  mutate(pchange = round(change*100/`2011`,0)) %>%
+  mutate(pchange = round(change*100/`2011`,0)) %>%# round(`2021`*100/`2011`-100,1)
   select(category, change, pchange) 
 
 cobirth_p <- bind_rows(cobirth_2011,cobirth) %>%
