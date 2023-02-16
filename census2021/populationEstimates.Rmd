@@ -1,0 +1,332 @@
+---
+title: "Comparing Population Estimates for Trafford"
+lang: "en-GB"
+output:
+  html_document:
+    highlight: null
+    mathjax: null
+    theme: flatly
+    css: styles.css
+    self_contained: TRUE
+    toc: false
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+    includes:
+      in_header: head_includes.html
+---
+<main>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(RColorBrewer) ;
+library(kableExtra); 
+library(httr) ; library(readxl)
+library(scales) ; 
+library(ggiraph)
+library(ggpol)
+library(ggtext)
+
+source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
+
+`%out%` <- function(a,b) ! a %in% b
+
+girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      )
+
+```
+
+
+
+```{r}
+
+pop_census_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2021_1.data.csv?date=latest&geography=641728593...641728602,641728604,641728605,641728607,641728609,641728608,641728610...641728613,645922849,641728606,641728603&c2021_restype_3=0&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, `CENSUS 2021` = OBS_VALUE) %>%
+  mutate(area_name = sub(" \\(.*", "", area_name))
+
+Mid_year_2020_T <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1811939363&date=latestMINUS1&gender=0&c_age=200&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, `Mid Year 2020` = OBS_VALUE)
+
+Mid_year_2020 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=1656750701...1656750706,1656750708...1656750710,1656750712...1656750715,1656750717,1656750716,1656750718...1656750721,1656750707,1656750711&date=latest&gender=0&c_age=200&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, `Mid Year 2020` = OBS_VALUE) %>%
+  bind_rows(Mid_year_2020_T)
+
+pop_com <- Mid_year_2020 %>%
+  left_join(pop_census_ward) %>%
+  mutate(Difference = `CENSUS 2021` - `Mid Year 2020`) %>%
+  mutate(`% Change` = round(Difference*100/`Mid Year 2020`,1))
+
+
+```
+
+## Comparing Mid Year 2020 to CENSUS 2021
+
+The changes in population could reflect differences on the methodology of estimation and not actual changes in population. At local authority level, the Mid year 2021 has been rolled forward from the Census 2021 reporting 235,546 people as Trafford's population.
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r fig.height=8.5}
+
+pop_com_plot <- pop_com %>%
+  select(area_name, `Mid Year 2020`, `CENSUS 2021`) %>%
+  filter(area_name != "Trafford") %>%
+  pivot_longer(c(`Mid Year 2020`, `CENSUS 2021`), names_to = "source", values_to = "value") %>%
+  mutate(area_name = fct_reorder(factor(area_name), ifelse(source == "CENSUS 2021", value, NA), na.rm = TRUE))
+
+ggplot(pop_com_plot, aes(value,area_name)) +
+  geom_line(color = "grey", size=1) +
+  geom_point(aes(color = source), size = 4) +
+  scale_x_continuous(label=comma, limits = c(0,15000)) +
+  scale_color_manual(values = c("#902082", "#194a81"), 
+                     labels = c("CENSUS 2021", "Mid Year 2020")) +
+  labs(x = "residents", y = NULL, title = "Population percentage change", subtitle = "Comparing Mid Year 2020 to CENSUS 2021", caption = NULL, colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=20),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0),
+        legend.position = "bottom",
+        legend.text = element_text(size = 12)) +
+  guides(color = guide_legend(nrow = 1))
+
+```
+
+</div>
+<div class = "col-md-5 smtable">
+<br>
+
+```{r warning = FALSE, echo=FALSE}
+
+pop_com %>%
+  select(-Difference) %>%
+  arrange(desc(`CENSUS 2021`)) %>% 
+  kable(col.names = c("", "Mid Year 2020", "CENSUS 2021", "% Change"), format.args = list(big.mark = ","), table.attr='id="popTable"') %>% 
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575", font_size = 13) %>%
+  row_spec(1, bold = T, color = "black")
+
+```
+
+</div>
+</div>
+<p class= "rightPar">Source: Mid Year Population estimates, ONS. Census 2021  |  @traffordDataLab</p>
+
+```{r}
+
+# Ward by age
+
+pop_census_ward_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2027_1.data.csv?date=latest&geography=641728593...641728607,641728609,641728608,641728610...641728613,645922849&c2021_age_102=0...101&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, age = C2021_AGE_102_NAME, `CENSUS 2021` = OBS_VALUE) %>%
+  mutate(area_name = sub(" \\(.*", "", area_name)) %>%
+  
+  mutate(age = case_when(age == "Aged under 1 year" ~ "Aged 0",
+                          age == "Aged 100 years and over" ~ "100",
+                          TRUE ~ age )) %>%
+  mutate(age = gsub("Aged ","Age ", age)) %>%
+  mutate(age = gsub(" year","", age)) %>%
+  mutate(age = gsub("s","", age)) %>%
+mutate(age = ifelse(age == "Total: All uual reident", "All Ages", age)) %>%
+  mutate (age = ifelse(age %in% c("Age 90", "Age 91", "Age 92", "Age 93", "Age 94", "Age 95", "Age 96", "Age 97", "Age 98", "Age 99", "100"), "Aged 90+",age)) %>%
+  group_by(area_name, age) %>%
+  summarise(`CENSUS 2021` = sum(`CENSUS 2021`))
+  
+
+
+
+Mid_year_2020_age5 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=1656750701...1656750715,1656750717,1656750716,1656750718...1656750721&date=latest&gender=0&c_age=200,1,3...18,210&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, age = C_AGE_NAME, `Mid Year 2020` = OBS_VALUE)
+
+Mid_year_2020_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=1656750701...1656750715,1656750717,1656750716,1656750718...1656750721&date=latest&gender=0&c_age=0,101...191&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, age = C_AGE_NAME, `Mid Year 2020` = OBS_VALUE)
+
+Mid_year_2020_T_age5 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1811939363&date=latestMINUS1&gender=0&c_age=0,1,3...18,210&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, age = C_AGE_NAME, `Mid Year 2020` = OBS_VALUE) %>%
+  bind_rows(Mid_year_2020_age)
+
+
+
+Mid_year_2020_T_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1811939363&date=latestMINUS1&gender=0&c_age=0,101...191&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, age = C_AGE_NAME, `Mid Year 2020` = OBS_VALUE) %>%
+  bind_rows(Mid_year_2020_age)
+
+pop_com_age <- Mid_year_2020_T_age %>%
+  left_join(pop_census_ward_age) %>%
+  mutate(Difference = `CENSUS 2021` - `Mid Year 2020`) %>%
+  mutate(`% Change` = round(Difference*100/`Mid Year 2020`,1))
+
+#write_csv(pop_com_age, "Ward_2020_2021_age.csv") 
+
+pop_com_age5 <- pop_com_age %>%
+  mutate(age5 = case_when(age %in% c("Age 0", "Age 1", "Age 2", "Age 3", "Age 4") ~ "Age 0 - 4",
+                          age %in% c("Age 5", "Age 6", "Age 7", "Age 8", "Age 9") ~ "Aged 5-9",
+                          age %in% c("Age 10", "Age 11", "Age 12", "Age 13", "Age 14") ~ "Aged 10-14",
+                          age %in% c("Age 15", "Age 16", "Age 17", "Age 18", "Age 19") ~ "Aged 15-19",
+                          age %in% c("Age 20", "Age 21", "Age 22", "Age 23", "Age 24") ~ "Aged 20-24",
+                          age %in% c("Age 25", "Age 26", "Age 27", "Age 28", "Age 29") ~ "Aged 25-29",
+                          age %in% c("Age 30", "Age 31", "Age 32", "Age 33", "Age 34") ~ "Aged 30-34",
+                          age %in% c("Age 35", "Age 36", "Age 37", "Age 38", "Age 39") ~ "Aged 35-39",
+                          age %in% c("Age 40", "Age 41", "Age 42", "Age 43", "Age 44") ~ "Aged 40-44",
+                          age %in% c("Age 45", "Age 46", "Age 47", "Age 48", "Age 49") ~ "Aged 45-49",
+                          age %in% c("Age 50", "Age 51", "Age 52", "Age 53", "Age 54") ~ "Aged 50-54",
+                          age %in% c("Age 55", "Age 56", "Age 57", "Age 58", "Age 59") ~ "Aged 55-59",
+                          age %in% c("Age 60", "Age 61", "Age 62", "Age 63", "Age 64") ~ "Aged 60-64",
+                          age %in% c("Age 65", "Age 66", "Age 67", "Age 68", "Age 69") ~ "Aged 65-69",
+                          age %in% c("Age 70", "Age 71", "Age 72", "Age 73", "Age 74") ~ "Aged 70-74",
+                          age %in% c("Age 75", "Age 76", "Age 77", "Age 78", "Age 79") ~ "Aged 75-79",
+                          age %in% c("Age 80", "Age 81", "Age 82", "Age 83", "Age 84") ~ "Aged 80-84",
+                          age %in% c("Age 85", "Age 86", "Age 87", "Age 88", "Age 89") ~ "Aged 85-89",
+                          TRUE ~ age
+                          )) %>%
+  mutate(area_name = factor(area_name, levels = pop_com_age %>% filter(age == "All Ages") %>% pull(area_name))) %>%
+  mutate(age5 = factor(age5, levels = c("All Ages", "Age 0 - 4", "Aged 5-9", "Aged 10-14", "Aged 15-19", "Aged 20-24", "Aged 25-29", "Aged 30-34", "Aged 35-39","Aged 40-44","Aged 45-49","Aged 50-54","Aged 55-59","Aged 60-64","Aged 65-69","Aged 70-74","Aged 75-79","Aged 80-84","Aged 85-89","Aged 90+"))) %>%
+  select(area_name, age5, `Mid Year 2020`, `CENSUS 2021`) %>%
+  group_by(area_name, age5) %>%
+  summarise(`Mid Year 2020` = sum(`Mid Year 2020`),  `CENSUS 2021` = sum(`CENSUS 2021`)) %>%
+  mutate(Difference = `CENSUS 2021` - `Mid Year 2020`) %>%
+  mutate(`% Change` = round(Difference*100/`Mid Year 2020`,1)) 
+
+
+
+```
+<div class = "col-md-12">
+```{r}
+
+pop_com_age5_plot <- pop_com_age5 %>%
+  mutate(grow = ifelse(`% Change` >= 0, "Rise", "Fall")) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                           age5,
+                          ": <strong>",`% Change`, "% ", grow, "</strong> ")) 
+  
+
+gg <- ggplot(pop_com_age5_plot) +
+  geom_col_interactive(aes(`% Change`, age5, fill = grow, tooltip = tooltip)) +
+  scale_fill_manual(values = c("#1d85a5", "#194a81")) +
+  facet_wrap(~area_name, ncol = 3) +
+  labs(x = "Percentage change", y = NULL, title = "Population percentage change for Trafford and its Wards", subtitle = "Comparing Mid Year 2020 to CENSUS 2021", caption = "Source: Mid Year 2020 Population estimates, ONS. Census 2021  |  @traffordDataLab", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=10),
+        plot.subtitle = element_text(size=8),
+        plot.caption = element_text(size=6),
+        axis.text.x = element_text(hjust = 1, size=4),
+        axis.title.x = element_text(hjust = 1, size=7),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(size = 4, hjust = 0),
+        strip.text = element_text(size = 7, face = "bold", colour = "#757575", hjust = .5),
+        legend.position = "none")
+
+  girafe(ggobj = gg, height_svg = 12,
+       options = girafe_options)
+
+
+```
+<div>
+
+## Population Projections
+
+
+
+```{r}
+
+pop_projections_2031 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2006_1.data.csv?geography=1853882369,1820327969,2092957699&projected_year=2021,2031&gender=0&c_age=200,201,203,209,1,3...18,210&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, year = PROJECTED_YEAR_NAME, age_group = C_AGE_NAME, value = OBS_VALUE)
+
+popProjectons2031 <- pop_projections_2031 %>%
+  group_by(area_name,year) %>%
+  mutate(total_population = value[1]) %>%
+  mutate(`%population` = round(value/total_population*100,1)) %>%
+  pivot_wider(names_from = year, values_from = c(value, `%population`, `total_population`)) %>%
+  mutate(`value`= round((value_2031-value_2021)/value_2021*100,1)) %>%
+  select(area_name,age_group,value) %>%
+  arrange(age_group, area_name) %>%
+  pivot_wider(names_from = "area_name", values_from = "value") %>%
+  mutate(indicator = "Population change (%) 2021-2031") %>%
+  mutate(grow = ifelse(Trafford >= 0, "Rise", "Fall")) %>%
+  mutate(tooltip = paste0("<strong> Trafford </strong> ", Trafford, "%<br>",
+                                                      "<strong> Greater Manchester ", "</strong> ", `Greater Manchester`, "%<br>",
+                                                      "<strong> England ", "</strong> ", England , "%<br>")) %>%
+  mutate(age_group = str_replace(age_group,"Aged ", ""), age_group = str_replace(age_group,"Age ", "")) %>%
+  mutate(age_group = factor(age_group, levels = c("0 - 4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49",  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85+", "0 to 15", "16 to 64", "65+", "All Ages")))
+
+
+
+```
+
+```{r}
+comparators <- popProjectons2031 %>%
+  select(age_group, `Greater Manchester`, England) %>%
+  pivot_longer(c(`Greater Manchester`, England), names_to = "area_name", values_to = "PChange") %>%
+  mutate(grow = ifelse(PChange >= 0, "Rise", "Fall"))  %>%
+    bind_rows(data.frame(area_name="None", age_group = "85+", PChange = 40, grow = "Rise")) %>%
+    bind_rows(data.frame(area_name="None", age_group = "85+", PChange = -40, grow = "Fall"))
+
+gg <-  ggplot() +
+  geom_col_interactive(data = popProjectons2031, aes(Trafford, age_group, fill = grow, tooltip = tooltip)) +
+  geom_errorbar(data = comparators %>% filter(area_name != "None"),  aes(x=`PChange`, xmax=`PChange`, xmin=`PChange`, y = age_group, color = area_name), size = .7) +
+    geom_point(data = comparators %>% filter(area_name == "None"), aes(`PChange`, age_group), fill = "transparent", color="transparent") +
+  scale_x_continuous( labels = function(x) paste0(x, "%")) +
+  scale_color_manual(values = c("black", "grey")) +
+      scale_fill_manual(values = c("#1d85a5", "#194a81")) +
+    facet_share(~grow, scales = "free" ) +
+    #scale_y_discrete(drop = FALSE) +
+  labs(x = NULL, y = NULL, title = "Trafford's population percentage change from 2021 to 2031", subtitle = "Based on 2018 Population Projections",
+       caption = "Source: Population projections based on 2018, ONS  |  @traffordDataLab")  +
+  theme(
+        plot.title = element_text(size=12, face = "bold", colour = "#757575", hjust = 0),
+        plot.subtitle = element_markdown(size=10, colour = "#757575", hjust = 0),
+      plot.caption = element_text(size = 6, color = "grey50", hjust = 1, margin = margin(t = 15)),
+        plot.title.position = "plot",
+        #plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1, size=8),
+        axis.text.x = element_text(size=8),
+        axis.line.y = element_line(colour = "#000000"),
+        legend.text = element_text(size=7),
+        
+              plot.background = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+            panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      
+            axis.ticks.x=element_line(size=0.1, color = "transparent"),
+      axis.ticks.y=element_line(size=0.1, color = "transparent"),
+      axis.line = element_blank(),
+            legend.position = "top",
+      legend.background = element_blank(),
+      legend.key = element_blank(),
+      strip.background = element_rect(fill = "transparent", colour = NA),
+      strip.text = element_text(size = 9, face = "bold", colour = "#757575", hjust = .5)
+
+
+
+) +
+  guides(color = guide_legend(nrow = 1, title=""),
+         fill="none")
+  
+  girafe(ggobj = gg, height_svg = 5,
+       options = girafe_options)
+
+```
+
+
+```{css}
+.smtable {
+padding-left: 0px;
+}
+.TableCaption {
+font-size: 10px;
+}
+
+#popTable td {
+padding: 2px 2px;
+}
+
+.rightPar {
+text-align:right;
+color: grey;
+font-size: 14px;
+}
+```
