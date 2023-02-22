@@ -27,6 +27,7 @@ library(scales) ;
 library(ggiraph)
 library(ggpol)
 library(ggtext)
+library(formattable)
 
 source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
 
@@ -496,7 +497,6 @@ Band5Year2011 <- singleYear2011 %>%
                                                       "<strong> England ", "</strong> ", eab5 , "%<br>"), NA_character_)
 }
   
-  
 gg <-  ggplot() +
   geom_col_interactive(data = band5year %>% filter(area_name == "Trafford"), aes(`PChange`, ageband, fill = grow, tooltip = label)) +
   geom_errorbar(data = band5year %>% filter(area_name %out% c("Trafford", "None")),  aes(x=`PChange`, xmax=`PChange`, xmin=`PChange`, y = ageband, color = area_name), size = .7) +
@@ -515,7 +515,7 @@ gg <-  ggplot() +
         plot.title.position = "plot",
         #plot.margin = unit(c(0,0,0,0), "cm"),
         panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 1, size=8),
+        axis.text.y = element_text(size=8, margin = margin(r = 0, l = 0)),
         axis.text.x = element_text(size=8),
         axis.line.y = element_line(colour = "#000000"),
         legend.text = element_text(size=7),
@@ -526,8 +526,8 @@ gg <-  ggplot() +
             panel.grid.major.x = element_blank(),
       panel.grid.minor = element_blank(),
       
-            axis.ticks.x=element_line(size=0.1, color = "transparent"),
-      axis.ticks.y=element_line(size=0.1, color = "transparent"),
+            axis.ticks.x=element_line(size=0.01, color = "transparent"),
+      axis.ticks.y=element_line(size=0.01, color = "transparent"),
       axis.line = element_blank(),
             legend.position = "top",
       legend.background = element_blank(),
@@ -547,9 +547,129 @@ gg <-  ggplot() +
 
 ```{r}
 
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford") %>% 
+  select(msoa11nm,msoa11hclnm)
+
+join_MSOA_names <- function(lookup,df){
+  left_join(df, lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
+}
+
+pop_census_2021_msoa <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2027_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_age_102=0&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, `2021` = OBS_VALUE)
+
+pop_census_2011_msoa <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_144_1.data.csv?date=latest&geography=1245709510...1245709537,1946157089&rural_urban=0&cell=0&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, `2011` = OBS_VALUE)
+
+pop_com <- pop_census_2011_msoa %>%
+  left_join(pop_census_2021_msoa) %>%
+  join_MSOA_names(lookup,.) %>%
+  mutate(Difference = `2021` - `2011`) %>%
+  mutate(`% Change` = round(Difference*100/`2011`,1)) %>%
+  arrange(`% Change`) %>%
+  mutate(area_name = factor(area_name, levels = area_name))
+```
+Old Trafford (15%), Altrincham East (12.2%) and Altrincham West (10.1%) were the MSOAs in Trafford with the highest increase in usual residents from 2011 to 2021. In contrast Partington (-2.5%), Urmston East (-2.3%), and Urmston West (-2.3%) were the MSOAs in Trafford with the highest decrease in usual residents from 2011 to 2021.
+
+<div class = "row">
+<div class = "col-md-12">
+```{r}
+
+pop_com_plot <- pop_com %>%
+  select(area_name, `2011`, `2021`) %>%
+  filter(area_name != "Trafford") %>%
+  pivot_longer(c(`2011`, `2021`), names_to = "date", values_to = "value") %>%
+  left_join(pop_com %>% select(area_name, `% Change`)) %>%
+    mutate(tooltip = ifelse(date == "2021",
+                          paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Year: </strong>", date, "<br/>",
+     format(value, big.mark=","), " residents<br/>", 
+    "<strong>", "Change from 2011: </strong><br/>",
+    `% Change`, "%<br/>"),
+    paste0("<strong>", area_name,"</strong><br/>",
+      "<strong>", "Year: </strong>", date, "<br/>",
+     format(value, big.mark=","), " residents<br/>")))
+
+gg <- ggplot(pop_com_plot, aes(value, area_name)) +
+  geom_line(color = "grey", size=1) +
+  geom_point_interactive(aes(color = date, tooltip = tooltip), size = 2) +
+  geom_text(pop_com_plot %>% filter(date == "2021"), mapping = aes(x= -700, label = paste0(`% Change`,"%")), color = "black", size = 2.5) +
+  scale_x_continuous(label=comma, limits = c(-700,14000)) +
+  scale_color_manual(values = c("#5d77a3", "#902082")) +
+  labs(x = "residents", y = NULL, title = "Usual residents percentage change from 2011 to 2021", subtitle = "Trafford's MSOA", caption = "Source: Census 2011 and Census 2021 | @traffordDataLab", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=10),
+        plot.subtitle = element_text(size=9),
+        plot.caption = element_text(size=5, hjust = 1),
+        legend.title = element_text(size=5),
+        legend.text = element_text(size=5),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=7),
+        axis.title.x = element_text(size=7),
+        axis.text.x = element_text(size=7),
+        #axis.ticks.length.y = unit(.85, "cm"),
+        axis.ticks=element_blank()) +
+  guides(color = guide_legend(nrow = 1))
+
+girafe(ggobj = gg, height_svg = 5.5,
+       options = girafe_options)
 
 
 ```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-10">
+
+```{r}
+
+
+msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+    left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm)
+
+popChsf <- msoa_sf %>%
+  left_join(pop_com, by = "area_name")
+
+gg <- ggplot(popChsf) +
+  geom_sf_interactive(aes(tooltip = paste0("<strong>",area_name,"</strong>\n% Change ", `% Change`, "%" ),
+              fill = `% Change`), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(12, units = "mm"),
+                                             label.position = "bottom",
+                                             title = "% Change",
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = "Usual residents percentage change from 2011 to 2021",
+       subtitle = "Trafford MSOAs",
+       caption = "Contains OS data ©; Crown copyright and database right 2022\nSource: ONS  |  @traffordDataLab") + 
+  theme(plot.title = element_text(size=12),
+        plot.subtitle = element_text(size=10),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        legend.position = "bottom") 
+
+girafe(ggobj = gg,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
 
 
 ## Population Density
@@ -789,14 +909,11 @@ There was a slight increment for both 2-people household with 32.9% and one-pers
 
 According to the 2021 Census, single family households with dependent children represented 30.2% of Trafford households, single family households where all children are non-dependent(adult children) represented 11% of Trafford households, and single family households with no children represented 15.1% of Trafford households, according to the 2021 Census.
 
+
 <div class = "row">
 <div class = "col-md-9">
 
 ```{r}
-
-lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
-  filter(Laname=="Trafford")
-
 
 w_dep_ch_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2023_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_hhcomp_15=0,5,8,10,13&measures=20100,20301") %>%
   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_HHCOMP_15_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
@@ -942,9 +1059,7 @@ girafe(ggobj = gg, height_svg = 6,
 </div>
 <div class = "col-md-5">
 ```{r}
-lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
-  filter(Laname=="Trafford") %>% 
-  select(msoa11nm,msoa11hclnm)
+
 
 msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
     left_join(lookup, by = c(area_name = "msoa11nm")) %>%
@@ -992,9 +1107,6 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 </div>
 
-<div class = "row">
-<div class = "col-md-10">
-
 The census 2021 provides estimates of households experiencing deprivation in four dimensions: Employment, education, health and disability, and household overcrowding. However the data provided in this dataset does not distinguish which deprivation dimension is most prevalent in each area. In Trafford 53.9% (51,885) of households are not deprived in any dimension, 30.9% (29,699) are deprived in one dimension, 12.1% (11,666) in two dimensions, 3% (2,883) in three dimensions, and 0.1% (136) in four dimensions.
 
 When comparing the MSOAs of Trafford, there is a difference of more than 30% between the MSOAs with the highest and lowest percentage of households that are deprived in one or more dimensions, these are Partington and Hale respectively. 2 in 3 households in Partington are deprived in any dimension, contrasting with Hale where 2 in 3 households are not deprived in any dimension.
@@ -1003,19 +1115,66 @@ When comparing the MSOAs of Trafford, there is a difference of more than 30% bet
 
 ```{r}
 
-household_deprivation <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2031_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_dep_6=0...5&measures=20100,20301") %>%
-  select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_DEP_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+cipfa <- read_csv("https://www.traffordDataLab.io/corporate_plan/data/cipfa2021.csv")
+
+gm <- read_csv ("https://www.traffordDataLab.io/spatial_data/lookups/administrative_lookup.csv") %>%
+  select(area_name = lad17nm, area_code = lad17cd) %>%
+  unique()
+
+gm_cipfa <- cipfa %>%
+  bind_rows(gm) %>%
+  unique()
+
+
+# household_deprivation <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2031_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_dep_6=0...5&measures=20100,20301") %>%
+#   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_DEP_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+household_deprivation_2021_raw <- read_csv(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2031_1.data.csv?date=latest&geography=",paste(c("E92000001",gm_cipfa$area_code), collapse = ','),"&c2021_dep_6=0...5&measures=20100,20301")) %>%
+  unique() %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_DEP_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  mutate(type = "Other")
+
+household_deprivation_2021_MSOA <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2031_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_dep_6=0...5&measures=20100,20301") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = C2021_DEP_6_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  filter(area_name != "Trafford") %>%
+  join_MSOA_names(lookup,.) %>%
+  mutate(type = "MSOA") %>%
+  bind_rows(household_deprivation_2021_raw %>% filter(area_name %in% c("Trafford", "England"))) %>%
+  pivot_wider(names_from = measure, values_from = value) %>%
+  select(-date)
+  
+
+household_deprivation_2021_cipfa <- household_deprivation_2021_raw %>%
+  filter(measure == "Percent") %>%
+  filter(area_name %in% cipfa$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise(Percent = mean(value)) %>%
+  mutate(Percent = round(Percent,1)) %>%
+  mutate(area_name = "Similar Authorities") %>%
+  mutate(type = "Other")
+
+household_deprivation_gm <- household_deprivation_2021_raw%>%
+  filter(measure == "Value") %>%
+  filter(area_name %in% gm$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise_all(sum) %>%
+  mutate(`Percent` = round(value*100/value[6],1)) %>%
+  mutate(area_name = "Greater Manchester") %>%
+  rename(Value = value) %>%
+  mutate(type = "Other")
+
 
 ```
-
+<div class = "row">
+<div class = "col-md-12">
 ```{r}
 
-data <- household_deprivation %>% 
-  left_join(lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
-  mutate(area_name = msoa11hclnm) %>%
-  select(-msoa11hclnm) %>%
-  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) %>%
-  pivot_wider(names_from = measure,values_from = value) %>%
+household_deprivation_all <- household_deprivation_2021_MSOA %>%
+  bind_rows(household_deprivation_2021_cipfa) %>%
+  bind_rows(household_deprivation_gm) %>%
+
   filter(category != "Total: All households") %>%
   mutate(area_name = fct_reorder(factor(area_name), ifelse(category == "Household is not deprived in any dimension", Percent, NA), na.rm = TRUE),
          area_name = fct_rev(fct_relevel(factor(area_name), "Trafford"))) %>%
@@ -1026,8 +1185,10 @@ data <- household_deprivation %>%
       "<strong>", "% Households: </strong>", Percent, "% (", format(Value, big.mark=","), ")<br/>",
       "<strong>Deprived in: </strong>", categoryb, "<br/>"))
 
-gg <- ggplot(data, aes(area_name, Percent, fill = categoryb, tooltip = tooltip)) + 
+gg <- ggplot(household_deprivation_all, aes(area_name, Percent, fill = categoryb, tooltip = tooltip)) + 
   geom_col_interactive(position = "stack", colour = "#757575", size = 0.2, alpha = 0.8) +
+  facet_grid(type~., scales = "free_y", space = "free") +
+  coord_flip() +
   scale_fill_manual(values = c("#48327F","#9FBBD9","#6665A2","#7987BA","#53478C"),
                      guide = guide_legend(keyheight = unit(4, units = "mm"),
                                              keywidth = unit(4, units = "mm"),
@@ -1046,16 +1207,17 @@ gg <- ggplot(data, aes(area_name, Percent, fill = categoryb, tooltip = tooltip))
     theme_lab() +
   theme(panel.grid.major.x = element_blank(),
         legend.position = "right",
-        plot.title = element_text(size=14),
+        plot.title = element_text(size=12),
         plot.title.position = "plot",
         plot.margin = unit(c(0,0,0,0), "cm"),
-        plot.subtitle = element_text(size=12),
+        plot.subtitle = element_text(size=10),
         plot.caption = element_text(size=6, hjust = 1),
-        legend.title = element_text(size=8),
-        legend.text = element_text(size=8),
+        legend.title = element_text(size=7),
+        legend.text = element_text(size=7),
         panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0, size=9),
-        axis.text.x = element_text(size=9, angle = 90, vjust = 0.5, hjust=1)) 
+        axis.text.y = element_text(hjust = 1, size=7),
+        axis.text.x = element_text(size=7, angle = 90, vjust = 0.5, hjust=1),
+        strip.text = element_blank()) 
 
 
 girafe(ggobj = gg, height_svg = 6,
@@ -1153,3 +1315,24 @@ girafe(ggobj = gg, height_svg = 7,
 </div>
 </main>
 <div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
+
+```{css}
+
+.smtable {
+padding-left: 0px;
+}
+.TableCaption {
+font-size: 10px;
+}
+
+#popTable td {
+padding: 2px 2px;
+}
+
+.rightPar {
+text-align:right;
+color: grey;
+font-size: 14px;
+}
+
+```

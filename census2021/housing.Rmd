@@ -890,13 +890,14 @@ gg <- ggplot(plot_bo, aes(area_name, Percent, fill = category, tooltip = tooltip
                                              ncol = 1,
                                             aesthetics = "fill")) +
   scale_y_continuous(labels = function(x) paste0(x, "%")) +
-  facet_grid(.~type, scales = "free_x", space = "free") +
+  facet_grid(type~., scales = "free_y", space = "free") +
     labs(title = "Bedroom Occupancy: Overcrowded or Under-occupied",
        subtitle = "Trafford MSOAs, 2021",
        caption = "Similar Authorities from CIPFA 2021\nSource: Census 2021  |  @traffordDataLab",
        x = NULL,
        y = NULL,
        fill = NULL) +
+  coord_flip() +
     theme_lab() +
   theme(panel.grid.major.x = element_blank(),
         legend.position = "right",
@@ -908,7 +909,7 @@ gg <- ggplot(plot_bo, aes(area_name, Percent, fill = category, tooltip = tooltip
         legend.title = element_text(size=7),
         legend.text = element_text(size=7),
         panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 0, size=7),
+        axis.text.y = element_text(hjust = 1, size=7),
         axis.text.x = element_text(size=7, angle = 90, vjust = 0.5, hjust=1),
         strip.text = element_blank()) 
 
