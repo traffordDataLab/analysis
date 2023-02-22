@@ -414,7 +414,7 @@ Comparing Trafford's population by 5-years age bands from 2011 to 2021, the numb
 
 Greater Manchester is rising more or falling less than Trafford in 14 of the 18 5-years age bands and England is rising more or falling less than Trafford in 13 of the 18 5-years age bands.
 
-Population changes comparing the Census 2021 with other estimates could be find [here](https://www.traffordDataLab.io/analysis/demographics/population/EstimatesAndProjections.html).
+Population changes comparing the Census 2021 with other estimates could be found in our separate report: [Comparing Population Estimates for Trafford](https://www.traffordDataLab.io/analysis/demographics/population/EstimatesAndProjections.html).
 
 ```{r}
 
