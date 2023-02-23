@@ -23,7 +23,7 @@ basech <- "January 2020"
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS33-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
+cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS36-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
     select(period = DATE_NAME,
          area_code = GEOGRAPHY_CODE,
          area_name = GEOGRAPHY_NAME,
@@ -33,8 +33,8 @@ cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.dat
 latest <- as.character(max(as.yearmon(cc_trafford$period)))
 latestm12 <- as.character(max(as.yearmon(cc_trafford$period))-1)
 
-latestch <- "October 2022"
-latestm12ch <- "October 2021"
+latestch <- "January 2023"
+latestm12ch <- "January 2022"
 
 cc_traf <- cc_trafford %>%
   mutate(period=as.yearmon(period, "%b %Y"),
@@ -56,7 +56,7 @@ The [Claimant Count](https://www.nomisweb.co.uk/sources/cc) indicates the number
 
  <div class="container-fluid">
   <div class="row">
-   <div class = "col-sm-6">
+   <div class = "col-sm-4">
 
 ```{r CCTraffPCHTable}
 
@@ -70,7 +70,7 @@ tbl1 <- reactable(
   defaultSorted = "period",
   defaultSortOrder = "desc",
   fullWidth = FALSE,
-  defaultColDef = colDef(headerClass = "header", align = "right", format = colFormat(separators = TRUE)),
+  defaultColDef = colDef(headerClass = "header", align = "right", minWidth = 60, format = colFormat(separators = TRUE)),
   columns = list(
     period = colDef(name = "Date", align = "left", cell = function(value) date_format("%b %Y")(value)),
    # area_name = colDef(name = "Area", align = "left"),
@@ -90,18 +90,25 @@ tbl1
 
    </div>
   
-   <div class = "col-sm-6">
+   <div class = "col-sm-8">
 ```{r CCTrafPCHPLineP}
 
-cc_traffordp <- cc_traf %>% mutate(date=as.Date(period,frac=0))
+cc_traffordp <- cc_traf %>% mutate(date=as.Date(period,frac=0)) %>%
+  mutate(change = round(change,0)) %>%
+  mutate(index = case_when(change == 0 ~ "Label",
+                           period == latest ~ "Label",
+                           change -lag(change)<=0 & change - lead(change)<0 ~ "Label",
+                           change -lag(change)>=0 & change - lead(change)>0 ~ "Label",
+                           change -lead(change)<(-20) | change - lag(change)>20 ~ "Label",
+                           TRUE ~ "No label"))
 
 ggplot(cc_traffordp,aes(x = date, y = round(change,0))) + 
-  geom_line(aes(group=1), size = 2, alpha = 0.8, color="#66c2a4") + 
-  geom_point(size = 5, alpha = 0.8, color="#66c2a4") + 
-    geom_text(data=cc_traffordp %>% filter(!period==base),
-            aes(label = paste0(round(change,0), "%"), fontface = 2), 
-            color = "#66c2a4", 
-            size = 2.5, hjust = 0.3, vjust = -1.3) +
+  geom_line(aes(group=1), size = 1, alpha = 1, color="#006d2c") + #"#66c2a4", "#006d2c" dark
+  geom_point(size = 3, alpha = 1, color="#006d2c") + 
+    geom_text(data=cc_traffordp,
+            aes(label = paste0(change, "%"), color = index),
+            fontface = 1.5, size = 2.5, hjust = 0.3, vjust = -1.3)+
+  scale_color_manual(values = c("#006d2c", "transparent")) +
   scale_x_date(date_breaks="2 month", date_labels="%b %y", expand = c(0.03,0.03)) +
   scale_y_continuous(limits = c(0,135)) +
   labs(title = "Claimant Count percentage change",
@@ -132,7 +139,9 @@ ggplot(cc_traffordp,aes(x = date, y = round(change,0))) +
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-claimant_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latestMINUS12,latest&gender=0&age=0&measure=1,2&measures=20100")
+# claimant_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latestMINUS12,latest&gender=0&age=0&measure=1,2&measures=20100")
+
+claimant_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1648362073...1648362087,1648362089,1648362088,1648362090...1648362093&date=latestMINUS12,latest&gender=0&age=0&measure=1,2&measures=20100")
 
 claimant_area <- claimant_ward %>%
   select(period = DATE_NAME,
@@ -156,7 +165,7 @@ c_rate <- claimant_area %>%
 
 ```
  
-The Trafford ward with the largest share of claims in `r latestch` was `r filter(c_count, Share == max(Share)) %>% pull(area_name)` with `r filter(c_count, Share == max(Share))$Share`% of all claimants within Trafford. All the wards have less claims or no change in `r latestch`  compared to `r latestm12ch`. `r arrange(c_count, additional_claims)$area_name[1]` have the largest reduction in number of claims with (`r arrange(c_count, additional_claims)$additional_claims[1]`) followed by `r arrange(c_count, additional_claims)$area_name[2]` (`r arrange(c_count, additional_claims)$additional_claims[2]`), `r arrange(c_count, additional_claims)$area_name[3]` (`r arrange(c_count, additional_claims)$additional_claims[3]`) and `r arrange(c_count, additional_claims)$area_name[4]` (`r arrange(c_count, additional_claims)$additional_claims[4]`).
+The Trafford ward with the largest share of claims in `r latestch` was `r filter(c_count, Share == max(Share)) %>% pull(area_name)` with `r filter(c_count, Share == max(Share))$Share`% of all claimants within Trafford. All the wards have less claims or no change in `r latestch`  compared to `r latestm12ch` except for Altrincham that have 5 additional claims. `r arrange(c_count, additional_claims)$area_name[1]` have the largest reduction in number of claims with (`r arrange(c_count, additional_claims)$additional_claims[1]`) followed by `r arrange(c_count, additional_claims)$area_name[2]` (`r arrange(c_count, additional_claims)$additional_claims[2]`), `r arrange(c_count, additional_claims)$area_name[3]` (`r arrange(c_count, additional_claims)$additional_claims[3]`),  `r arrange(c_count, additional_claims)$area_name[4]` (`r arrange(c_count, additional_claims)$additional_claims[4]`) and `r arrange(c_count, additional_claims)$area_name[5]` (`r arrange(c_count, additional_claims)$additional_claims[5]`).
 
 
 ```{r CCWardTable}
@@ -200,7 +209,7 @@ tbl2 <- reactable(
         cell_function(value,table2$additional_claims)
       }
     ),
-    Share = colDef(name = "Share Oct 22", maxWidth = 80, align = "left"),
+    Share = colDef(name = "Share Jan 23", maxWidth = 80, align = "left"),
     percentage_change = colDef(name = "% Change", maxWidth = 80, align = "right"),
     latestm12_r = colDef(name = latestm12, maxWidth = 60, align = "left"),
     latest_r = colDef(name = latest, maxWidth = 60, align = "left"),
@@ -226,7 +235,7 @@ tbl2
 
 ```
 
-The wards with higher claimant rate in `r latestch` were `r arrange(table2, desc(latest_r))$area_name[1]` with `r arrange(table2, desc(latest_r))$latest_r[1]`%, and `r arrange(table2, desc(latest_r))$area_name[2]`  and `r arrange(table2, desc(latest_r))$area_name[3]` with `r arrange(table2, desc(latest_r))$latest_r[2]`%. There is a gap of 1.6% between the top five wards on claimant rate and the rest of the wards. The wards where the claimant rate has decreased more from `r latestm12ch` to `r latestch` are `r arrange(table2, Change)$area_name[1]` and `r arrange(table2, Change)$area_name[2]` with a decrease in rate of `r arrange(table2, Change)$Change[1]`% and `r arrange(table2, Change)$Change[2]`% respectively followed by `r arrange(table2, Change)$area_name[3]` with `r arrange(table2, Change)$Change[3]`, and `r arrange(table2, Change)$area_name[4]` and `r arrange(table2, Change)$area_name[5]` with `r arrange(table2, Change)$Change[4]`%.
+The wards with higher claimant rate in `r latestch` were `r arrange(table2, desc(latest_r))$area_name[1]` with `r arrange(table2, desc(latest_r))$latest_r[1]`%,  `r arrange(table2, desc(latest_r))$area_name[2]` with `r arrange(table2, desc(latest_r))$latest_r[2]`%,  `r arrange(table2, desc(latest_r))$area_name[3]` with `r arrange(table2, desc(latest_r))$latest_r[3]`%. There is a gap of 1.2% between the top five wards on claimant rate and the rest of the wards. The wards where the claimant rate has decreased more from `r latestm12ch` to `r latestch` are `r arrange(table2, Change)$area_name[1]` with a decrease in rate of `r arrange(table2, Change)$Change[1]`%, `r arrange(table2, Change)$area_name[2]` and `r arrange(table2, Change)$area_name[3]` with `r arrange(table2, Change)$Change[3]`% followed by `r arrange(table2, Change)$area_name[4]` with `r arrange(table2, Change)$Change[4]`%.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -311,7 +320,7 @@ ggplot() +
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS33-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
+raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS36-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
 
 
 cc_age <- raw_cc_age %>%
@@ -430,7 +439,7 @@ tbl4
    </div>
   </div>
  
-At the start of 2020 the age band 25-34 already had the highest number of claims, however after the effects of the Covid-19 pandemic which started in March 2020 this figure increased more sharply compared to the other age bands. The claimant rate as a proportion of Trafford's population within each age band shows a higher increase in the age bands of 16-24 and 25-34 compared to the others. The rate and count have been decreasing during the last months for all age bands particularly for the the age bands of 16-24 and 25-34.
+At the start of 2020 the age band 25-34 already had the highest number of claims, however after the effects of the Covid-19 pandemic which started in March 2020 this figure increased more sharply compared to the other age bands. The claimant rate as a proportion of Trafford's population within each age band showed then a higher increase in the age bands of 16-24 and 25-34 compared to the others. The rate and count have been decreasing during the last months for all age bands particularly for the the age bands of 16-24 and 25-34.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -545,7 +554,7 @@ plotdf2 <- quinary %>%
    </div>
   </div>
 
-Almost half of Trafford's claimants are residents of five of the 21 wards. Almost half of the claimants are under 34 years.
+Almost half of Trafford's claimants are residents of five of the 21 wards. Almost half of the claimants are under 40 years.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -674,7 +683,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202209,202210))))
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202209,202210,202211,202212,202301))))
               )) %>% toJSON()
 request <- POST(
   url = path,
@@ -703,7 +712,7 @@ The [Universal Credit](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly
 
 
   <div class="row">
-   <div class = "col-sm-6">
+   <div class = "col-sm-4">
 
 ```{r UCTrafPCHTable}
 
@@ -716,7 +725,7 @@ table6 <-  trafford_uc %>%
   pagination = TRUE,
   defaultSorted = "period",
   defaultSortOrder = "desc",
-  defaultColDef = colDef(headerClass = "header", align = "right", format = colFormat(separators = TRUE)),
+  defaultColDef = colDef(headerClass = "header", align = "right", minWidth = 60, format = colFormat(separators = TRUE)),
   columns = list(
     period = colDef(name = "Date", align = "left", cell = function(value) date_format("%b %Y")(value))
     #area_name = colDef(name = "Area", maxWidth = 100, align = "left")
@@ -734,18 +743,26 @@ tbl6
 
    </div>
   
-   <div class = "col-sm-6">
+   <div class = "col-sm-8">
 
 ```{r UCTrafPCHPlot}
 
-uc_plot_ch <- trafford_uc %>% mutate(date=as.Date(period,frac=0))
+uc_plot_ch <- trafford_uc %>% mutate(date=as.Date(period,frac=0)) %>%
+  mutate(change = round(change,0)) %>%
+  mutate(index = case_when(change == 0 ~ "Label",
+                           period == latest ~ "Label",
+                           change -lag(change)<=0 & change - lead(change)<0 ~ "Label",
+                           change -lag(change)>=0 & change - lead(change)>0 ~ "Label",
+                           change -lead(change)<(-20) | change - lag(change)>20 ~ "Label",
+                           TRUE ~ "No label"))
 
 ggplot(uc_plot_ch,aes(x = date, y = change)) + 
-  geom_line(aes(group=1), size = 2, alpha = 0.8, color="#66c2a4") + 
-  geom_point(size = 5, alpha = 0.8, color="#66c2a4") + 
+  geom_line(aes(group=1), size = 1, alpha = 1, color="#006d2c") + 
+  geom_point(size = 3, alpha = 1, color="#006d2c") + 
     geom_text(data=uc_plot_ch %>% filter(!period==base),
-            aes(label = paste0(round(change,0), "%"), fontface = 2), 
-            color = "#66c2a4", size = 2.8, hjust = 0.3, vjust = -1.3) +
+            aes(label = paste0(change, "%"), color = index),
+            fontface = 1.5, size = 2.5, hjust = 0.3, vjust = -1.3)+
+  scale_color_manual(values = c("#006d2c", "transparent")) +
   scale_x_date(date_breaks="2 month", date_labels="%b %y", expand = c(0.03,0.03)) +
   scale_y_continuous(limits = c(0,105)) +
   labs(title = "Universal Credit claims percentage change",
@@ -800,7 +817,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202110,202210))))
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202201,202301))))
               )) %>% toJSON()
 request <- POST(
   url = path,
@@ -833,7 +850,7 @@ table7 <- uc %>%
  
 ```
  
-The Trafford MSOA with the largest share of claims in `r latestch` was `r filter(table7, Share == max(Share)) %>% pull(area_name)` with `r filter(table7, Share == max(Share))$Share`% of all Universal Credit claims in Trafford. Almost half of the MSOAs have more claims in `r latestch`  compared to `r latestm12ch`. The MSOAs with more additional in claims when comparing `r latestm12ch` to `r latestch` were `r arrange(table7,desc(additional_claims))$area_name[1]` (`r arrange(table7,desc(additional_claims))$additional_claims[1]`), `r arrange(table7,desc(additional_claims))$area_name[2]` (`r arrange(table7, desc(additional_claims))$additional_claims[2]`) and `r arrange(table7, desc(additional_claims))$area_name[3]` (`r arrange(table7,desc(additional_claims))$additional_claims[3]`). The MSOA with more increase in percentage change from `r latestm12ch` to `r latestch` was `r arrange(table7, desc(percentage_change))$area_name[1]` with `r arrange(table7, desc(percentage_change))$percentage_change[1]`% change. The MSOAs with more reduction in claims when comparing `r latestm12ch` to `r latestch` are `r arrange(table7,additional_claims)$area_name[1]` (`r arrange(table7,additional_claims)$additional_claims[1]`), `r arrange(table7,additional_claims)$area_name[2]` (`r arrange(table7, additional_claims)$additional_claims[2]`) and `r arrange(table7, additional_claims)$area_name[3]` (`r arrange(table7,additional_claims)$additional_claims[3]`). The MSOA with more reduction in percentage change from `r latestm12ch` to `r latestch` was `r arrange(table7, percentage_change)$area_name[1]` with `r arrange(table7, percentage_change)$percentage_change[1]`% change.
+The Trafford MSOA with the largest share of claims in `r latestch` was `r filter(table7, Share == max(Share)) %>% pull(area_name)` with `r filter(table7, Share == max(Share))$Share`% of all Universal Credit claims in Trafford. More than two thirds of the MSOAs have more claims in `r latestch`  compared to `r latestm12ch`. The MSOAs with more additional claims when comparing `r latestm12ch` to `r latestch` were `r arrange(table7,desc(additional_claims))$area_name[1]` (`r arrange(table7,desc(additional_claims))$additional_claims[1]`), `r arrange(table7,desc(additional_claims))$area_name[2]` (`r arrange(table7, desc(additional_claims))$additional_claims[2]`) and `r arrange(table7, desc(additional_claims))$area_name[3]` (`r arrange(table7,desc(additional_claims))$additional_claims[3]`). The MSOA with more increase in percentage change from `r latestm12ch` to `r latestch` was `r arrange(table7, desc(percentage_change))$area_name[1]` with `r arrange(table7, desc(percentage_change))$percentage_change[1]`% change. The MSOAs with more reduction in claims when comparing `r latestm12ch` to `r latestch` are `r arrange(table7,additional_claims)$area_name[1]` (`r arrange(table7,additional_claims)$additional_claims[1]`), `r arrange(table7,additional_claims)$area_name[2]` (`r arrange(table7, additional_claims)$additional_claims[2]`) and `r arrange(table7, additional_claims)$area_name[3]` (`r arrange(table7,additional_claims)$additional_claims[3]`). The MSOA with more reduction in percentage change from `r latestm12ch` to `r latestch` was `r arrange(table7, percentage_change)$area_name[1]` with `r arrange(table7, percentage_change)$percentage_change[1]`% change.
 
 
 ```{r UCMSOATable}
@@ -857,7 +874,7 @@ tbl7 <- reactable(
       }
     ),
     percentage_change = colDef(name = "% Change", maxWidth = 80),
-    Share = colDef(name = "Share Oct 22", maxWidth = 80, align = "left"),
+    Share = colDef(name = "Share Jan 23", maxWidth = 80, align = "left"),
     latestm12_rate = colDef(name = latestm12, maxWidth = 60, align = "left"),
     latest_rate = colDef(name = latest, maxWidth = 60, align = "left"),
     `Change` = colDef(
@@ -882,7 +899,7 @@ tbl7
 
 ```
 
-The MSOAs with higher rates of Universal Credit claims in `r latestch` were `r filter(table7, latest_rate == max(latest_rate)) %>% pull(area_name)` with `r filter(table7, latest_rate == max(latest_rate))$latest_rate`% and `r arrange(table7, desc(latest_rate))$area_name[2]` with `r arrange(table7, desc(latest_rate))$latest_rate[2]`%. The MSOAs where the rate of Universal Credit claims has increased more from `r latestm12ch` to `r latestch` were `r arrange(table7, desc(Change))$area_name[1]` with `r arrange(table7, desc(Change))$Change[1]`% and `r arrange(table7, desc(Change))$area_name[2]` with `r arrange(table7, desc(Change))$Change[2]`%. The MSOA where the rate of Universal Credit claims has decreased more from `r latestm12ch` to `r latestch` was `r arrange(table7, Change)$area_name[1]` and `r arrange(table7, Change)$area_name[2]` with `r arrange(table7, Change)$Change[1]`%.
+The MSOAs with higher rates of Universal Credit claims in `r latestch` were `r filter(table7, latest_rate == max(latest_rate)) %>% pull(area_name)` with `r filter(table7, latest_rate == max(latest_rate))$latest_rate`% and `r arrange(table7, desc(latest_rate))$area_name[2]` with `r arrange(table7, desc(latest_rate))$latest_rate[2]`%. The MSOAs where the rate of Universal Credit claims has increased more from `r latestm12ch` to `r latestch` were `r arrange(table7, desc(Change))$area_name[1]` with `r arrange(table7, desc(Change))$Change[1]`% and `r arrange(table7, desc(Change))$area_name[2]` with `r arrange(table7, desc(Change))$Change[2]`%. The MSOA where the rate of Universal Credit claims has decreased more from `r latestm12ch` to `r latestch` was `r arrange(table7, Change)$area_name[1]` with `r arrange(table7, Change)$Change[1]`% and and `r arrange(table7, Change)$area_name[2]` with `r arrange(table7, Change)$Change[2]`%.
 
   <div class="row">
   <div class = "col-sm-6">
@@ -974,7 +991,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE:C_UC_AGE_BAND:",c(1,2,3,4,5,6,7,8,9,10,999))))
 
@@ -1007,7 +1024,7 @@ table8 <- traf_uc %>%
   select(Age, `latestm12`= latestm12, `latest` = latest, additional_claims, percentage_change)
 ```
  
-In Trafford from  `r latestm12ch` to `r latestch` the `r filter(table8, percentage_change == max(percentage_change)) %>% pull(Age)` age band has the largest increment in percentage change of Universal Credit claims with `r filter(table8, percentage_change == max(percentage_change)) %>% pull(percentage_change)`%. When considering the number of additional claims from  `r latestm12ch` to `r latestch` the 5-year age band `r filter(table8, additional_claims == max(additional_claims)) %>% pull(Age)` years had the highest with `r filter(table8, additional_claims == max(additional_claims)) %>% pull(additional_claims)` more claims. The age bands `r arrange(table8, additional_claims)$Age[1]` and `r arrange(table8, additional_claims)$Age[2]` have the largest decrease in number of Universal Credit claims.
+In Trafford from  `r latestm12ch` to `r latestch` the `r filter(table8, percentage_change == max(percentage_change)) %>% pull(Age)` age band has the largest increment in percentage change of Universal Credit claims with `r filter(table8, percentage_change == max(percentage_change)) %>% pull(percentage_change)`%. When considering the number of additional claims from  `r latestm12ch` to `r latestch` the 5-year age band `r filter(table8, additional_claims == max(additional_claims)) %>% pull(Age)` years had the highest with `r filter(table8, additional_claims == max(additional_claims)) %>% pull(additional_claims)` more claims. The age bands `r arrange(table8, additional_claims)$Age[1]` and `r arrange(table8, additional_claims)$Age[2]` have the largest decrease in number of Universal Credit claims. Claimants  under 30 decreased in number whilst claimants 30 and over increased in number when comparing `r latestm12ch` to `r latestch`.
  
 ```{r UCAgeTable}
 
@@ -1049,7 +1066,7 @@ tbl8
 ```
 
 
-Following the start of the Covid-19 pandemic in March 2020 the number of claims for all ages rose dramatically from pre-pandemic levels at a similar proportion for all age bands with the age band 16-24 rising faster in May 2020. At the start of 2020 the age band 25-34 had the highest number of claims and also the highest rate maintaining that position after the rise from March 2020 until May 2022 when the 35-44 became the age band with the highest number of claims. The age band 16-24 has the lowest number of claims among the other age bands from July 2021. All the age bands but the 16-24 are increasing their number of claims particularly the age bands 25-34 and 35-44 from June 2022.
+Following the start of the Covid-19 pandemic in March 2020 the number of claims for all ages rose dramatically from pre-pandemic levels at a similar proportion for all age bands with the age band 16-24 rising faster in May 2020. At the start of 2020 the age band 25-34 had the highest number of claims and also the highest rate maintaining that position after the rise from March 2020 until May 2022 when the 35-44 became the age band with the highest number of claims. The age band 16-24 has the lowest number of claims among the other age bands from July 2021. All the age bands but the 16-24 and 25-34 are increasing their number of claims particularly the age bands 35-44 and 55+ from June 2022.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -1170,7 +1187,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202210)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202301)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME:C_UC_CONDITIONALITY_REGIME:",c("AA","AB","BC","BD","DF","CE"))))
 
@@ -1195,7 +1212,7 @@ uc_condition <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
 
 ```
 
-The [Conditionality](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/Conditionality%20Regime.html)  regimen for entitlement to Universal Credit is associated to work-related things that claimants will have to do to maintain elegibility. In Trafford the largest proportion of Universal Credit claims are in the "Searching for Work" category however there is also a significant proportion of claims under "No work requirements".
+The [Conditionality](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/Conditionality%20Regime.html)  regimen for entitlement to Universal Credit is associated to work-related things that claimants will have to do to maintain elegibility. In Trafford the largest proportion of Universal Credit claims are in the "No work requirements" category however there is also a significant proportion of claims under "Searching for work".
 
 ```{r UCConditionMMK, fig.height=5.5,fig.width=7}
 uc_msoa_cond<- uc_condition %>%
@@ -1225,7 +1242,6 @@ ggplot(uc_msoa_cond, aes(x = area_name, y = percent, width = total, fill = condi
     axis.ticks = element_blank())
 
 ```
-
 
   </div>
  </div>
