@@ -597,7 +597,7 @@ gg <- ggplot(pop_com_plot, aes(value, area_name)) +
   geom_line(color = "grey", size=1) +
   geom_point_interactive(aes(color = date, tooltip = tooltip), size = 2) +
   geom_text(pop_com_plot %>% filter(date == "2021"), mapping = aes(x= -700, label = paste0(`% Change`,"%")), color = "black", size = 2.5) +
-  scale_x_continuous(label=comma, limits = c(-700,14000)) +
+  scale_x_continuous(labels=comma_format(digits=0), limits = c(-700,14000)) +
   scale_color_manual(values = c("#5d77a3", "#902082")) +
   labs(x = "residents", y = NULL, title = "Usual residents percentage change from 2011 to 2021", subtitle = "Trafford's MSOA", caption = "Source: Census 2011 and Census 2021 | @traffordDataLab", colour = NULL) +
   theme_lab() +
@@ -710,7 +710,7 @@ pop_density_change <- pop_density %>%
 ggplot(pop_density, aes(value,area_name)) +
   geom_line(color = "grey", size=1) +
   geom_point(aes(color = date), size = 4) +
-  scale_x_continuous(label=comma) +
+  scale_x_continuous(labels=comma_format(digits=0)) +
   scale_color_manual(values = c("#5d77a3", "#902082"), 
                      labels = c("2011", "2021")) +
   labs(x = "number of usual residents per square kilometre", y = NULL, title = "Population Density Change", subtitle = "", caption = NULL, colour = NULL) +
@@ -827,7 +827,7 @@ households_change <- households %>%
 ggplot(households, aes(value,area_name)) +
   geom_line(color = "grey", size=1) +
   geom_point(aes(color = date), size = 4) +
-  scale_x_continuous(label=comma) +
+  scale_x_continuous(labels=comma_format(digits=0)) +
   scale_color_manual(values = c("#5d77a3", "#902082"), 
                      labels = c("2011", "2021")) +
   labs(x = "households", y = NULL, title = "Number of Households Change", subtitle = "", caption = NULL, colour = NULL) +
@@ -1291,7 +1291,7 @@ cobirth_p <- bind_rows(cobirth_2011,cobirth) %>%
 gg <- ggplot(cobirth_p, aes(value,category)) +
   geom_line(color = "grey", size=1) +
   geom_point_interactive(aes(tooltip = tooltip, color = date), size = 3) +
-  scale_x_continuous(label=comma) +
+  scale_x_continuous(labels=comma_format(digits=0)) +
   scale_color_manual(values = c("#5d77a3", "#902082"), 
                      labels = c("2011", "2021")) +
   labs(x = "residents", y = NULL, title = "Country of birth Change", subtitle = "Trafford residents born outside the UK by country", caption = "200 residents or more born in country\n*Interactive plot. Source: ONS  |  @traffordDataLab", colour = NULL) +
