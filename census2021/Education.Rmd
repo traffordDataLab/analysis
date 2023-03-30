@@ -260,7 +260,7 @@ gg <- ggplot(msoa_sf_hlq) +
                        guide = guide_legend(keyheight = unit(4, units = "mm"),
                                              keywidth=unit(16, units = "mm"),
                                              label.position = "bottom",
-                                             title = "% aged 16+ in the Ward",
+                                             title = "% aged 16+ in the MSOA",
                                              title.position = 'top',
                                              nrow = 1,
                                             aesthetics = "fill")) +
@@ -565,7 +565,7 @@ gg <- ggplot(msoa_sf_fts) +
                        guide = guide_legend(keyheight = unit(4, units = "mm"),
                                              keywidth=unit(16, units = "mm"),
                                              label.position = "bottom",
-                                             title = "% aged 5+ in the Ward",
+                                             title = "% aged 5+ in the MSOA",
                                              title.position = 'top',
                                              nrow = 1,
                                             aesthetics = "fill")) +

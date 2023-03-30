@@ -1,0 +1,1269 @@
+---
+title: "CENSUS 2021: Health, Disability and Unpaid care"
+lang: "en-GB"
+output:
+  html_document:
+    highlight: null
+    mathjax: null
+    theme: flatly
+    css: styles.css
+    self_contained: TRUE
+    toc: TRUE
+    toc_depth: 2
+    toc_float: true
+    df_print: paged
+    includes:
+      in_header: head_includes.html
+---
+<main>
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(RColorBrewer) ;
+library(kableExtra); 
+library(httr) ; library(readxl)
+library(scales) ; 
+library(ggiraph)
+library(ggpol)
+library(ggtext)
+
+source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
+
+`%out%` <- function(a,b) ! a %in% b
+```
+
+## General health
+
+```{r}
+
+girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      )
+
+
+lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names-Latest.csv") %>%
+  filter(Laname=="Trafford") %>% 
+  select(msoa11nm,msoa11hclnm)
+
+xlsx_from_link <- function(link,sheet_n, skip_p){
+tmp <- tempfile(fileext = ".xlsx")
+GET(url = link,
+    write_disk(tmp))
+
+read_xlsx(tmp, sheet = sheet_n, skip = skip_p)
+}
+
+cipfa <- read_csv("https://www.traffordDataLab.io/corporate_plan/data/cipfa2021.csv")
+
+gm <- read_csv ("https://www.traffordDataLab.io/spatial_data/lookups/administrative_lookup.csv") %>%
+  select(area_name = lad17nm, area_code = lad17cd) %>%
+  unique()
+
+gm_cipfa <- cipfa %>%
+  bind_rows(gm) %>%
+  unique()
+
+
+join_MSOA_names <- function(lookup,df){
+  left_join(df, lookup %>% select(msoa11nm,msoa11hclnm), by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm) %>%
+  mutate(area_name = ifelse(is.na(area_name),"Trafford", area_name)) 
+}
+
+msoa_sf <- st_read("https://www.traffordDataLab.io/spatial_data/msoa/2021/trafford_msoa_generalised.geojson", quiet = TRUE) %>%
+    left_join(lookup, by = c(area_name = "msoa11nm")) %>%
+  mutate(area_name = msoa11hclnm) %>%
+  select(-msoa11hclnm)
+
+get_census_api_2011 <- function(link){ read_csv(link) %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+}
+
+get_indicator_col <- function(data){
+  
+  data.frame(column = colnames(data)) %>%
+  filter(grepl("(C2021.*NAME)", column, ignore.case=TRUE))
+  
+}
+
+get_census_api_2021 <- function(link){
+
+data <- read_csv(link) 
+
+cols <- get_indicator_col(data)
+
+data %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = cols$column, measure = MEASURES_NAME, value = OBS_VALUE)
+  
+}
+
+get_census_api_comp <- function(link, comparators) {
+
+  link_start <- sub("geography=.*", "", link)
+  link_end <- sub(".*&c2021", "", link)  
+  
+data <- read_csv(paste0(link_start,"geography=", paste(c("E92000001",comparators$area_code), collapse = ','),"&c2021", link_end)) %>%
+  unique() 
+
+cols <- get_indicator_col(data)
+
+data %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = cols$column, measure = MEASURES_NAME, value = OBS_VALUE) 
+
+}
+
+comparators_mean <- function(data, comparators, msre,name){
+
+test <- data %>% 
+  filter(!grepl("All", category, ignore.case=TRUE)) %>%
+  filter(measure == msre) %>%
+  filter(area_name %in% comparators$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise_all(mean) %>%
+  mutate(Percent = round(value,1)) %>%
+  mutate(area_name = name) %>%
+  select(-value)
+  
+}
+
+agregation_value <- function(data, components, msre,name){ #No "All" categories
+  
+ # data <-disability %>%
+ #   filter(!grepl(":", category, ignore.case=TRUE))
+ # 
+ # components <- gm
+ # msre <-"Value"
+ # name <- "Greater Manchester"
+  
+data %>%
+  #filter(!grepl("All", category, ignore.case=TRUE)) %>%
+  filter(measure == msre) %>%
+  filter(area_name %in% components$area_name) %>%
+  select(category,value) %>%
+  group_by(category) %>%
+  summarise_all(sum) %>%
+  mutate(`Percent` = round(value*100/filter(.,grepl("All", category, ignore.case=TRUE)) %>% pull(value),1)) %>%
+  mutate(area_name = name) %>%
+    select(-value)
+
+}
+
+bar_comparators <- function(data,mlim, plotTitle, plotSubtitle, titleSize,subtitleSize, elemSize) {
+  
+  ggplot() +
+  geom_col(data = data %>% filter(area_name == "Trafford"), aes(Percent, category), fill = "#902082") +
+  geom_errorbar(data = data %>% filter(area_name != "Trafford"),  aes(x=Percent, xmax=Percent, xmin=Percent, y = category, color = area_name), size = .7) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, mlim), labels = function(x) paste0(x, "%")) +
+  scale_color_manual(values = c("#5d77a3", "black", "grey")) +
+  labs(x = NULL, y = NULL, title = plotTitle, subtitle = plotSubtitle,
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=titleSize),
+        plot.subtitle = element_markdown(size=subtitleSize),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=elemSize),
+        axis.text.x = element_text(size=elemSize),
+        axis.line.y = element_line(colour = "#000000"),
+        legend.text = element_text(size=elemSize)) +
+  guides(color = guide_legend(nrow = 1, title=""))
+
+}
+
+double_dot <- function (data,mlim, plotTitle, plotSubtitle, titleSize,subtitleSize, elemSize){
+  #data <- health_very_bad_msoa
+  ggplot(data, aes(Percent, area_name)) +
+  geom_line( aes(color = trend), size=1) +
+  geom_point_interactive(aes(tooltip = tooltip, fill = date), shape=21, size = 3, color = "transparent") +
+  scale_x_continuous(limits = c(0, mlim)) +
+  scale_fill_manual(values = c("#5d77a3", "#902082")) +
+  scale_color_manual(values = c("grey", "#666362"), guide="none") +
+    labs(x = "% of residents", y = NULL, title = plotTitle, subtitle = plotSubtitle, caption = "", colour = NULL, fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=titleSize),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=subtitleSize),
+        plot.caption = element_text(size=elemSize, hjust = 1),
+        legend.title = element_text(size=elemSize),
+        legend.text = element_text(size=elemSize),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=elemSize),
+        axis.title.x = element_text(size=elemSize),
+        axis.text.x = element_text(size=elemSize))
+}
+
+single_dot <- function (data,mlim, plotTitle, plotSubtitle, xlab,  titleSize,subtitleSize, elemSize){
+
+ggplot(data) +
+  geom_point_interactive(aes(Value, area_name, tooltip = tooltip), color = "#5d77a3", size = 3) +
+  scale_x_continuous(limits = c(0,mlim)) +
+    labs(x = xlab, y = NULL, title = plotTitle, subtitle = plotSubtitle, caption = "", colour = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=titleSize),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=subtitleSize),
+        plot.caption = element_text(size=elemSize, hjust = 1),
+        legend.title = element_text(size=elemSize),
+        legend.text = element_text(size=elemSize),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=elemSize),
+        axis.title.x = element_text(size=elemSize),
+        axis.text.x = element_text(size=elemSize))
+}
+
+
+
+double_bar_onec <- function (data,plotTitle, plotSubtitle, xlab,  titleSize,subtitleSize, elemSize){
+
+gg <- ggplot(data) +
+  geom_col_interactive(aes(Percent, Age, fill = area_name, tooltip = tooltip), stat="identity", position = position_dodge(width = 0.5)) +
+    scale_fill_manual(values = c("grey", "#5d77a3")) +
+    labs(x = xlab, y = NULL, title = plotTitle, subtitle = plotSubtitle, caption = "", colour = NULL, fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=titleSize),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=subtitleSize),
+        plot.caption = element_text(size=elemSize, hjust = 1),
+        legend.title = element_text(size=elemSize),
+        legend.text = element_text(size=elemSize),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=elemSize),
+        axis.title.x = element_text(size=elemSize),
+        axis.text.x = element_text(size=elemSize))
+
+}
+
+map_interactive <- function(data,plotTitle, plotSubtitle, legendTitle, titleSize, subtitleSize, captionSize, elemSize){
+  
+  ggplot(data) +
+  geom_sf_interactive(aes(tooltip = tooltip,
+              fill = Percent_2021), color = "#FFFFFF", size = 0.5, alpha = 1) +
+   scale_fill_gradient(high = "#48327F",
+                             low = "#9FBBD9",
+                             na.value = "grey50",
+                       n.breaks = 5,
+                       breaks = waiver(),
+                       guide = guide_legend(keyheight = unit(4, units = "mm"),
+                                             keywidth=unit(16, units = "mm"),
+                                             label.position = "bottom",
+                                             title = legendTitle,
+                                             title.position = 'top',
+                                             nrow = 1,
+                                            aesthetics = "fill")) +
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  theme_lab() +
+      labs(x = NULL, y = NULL,
+       title = plotTitle,
+       subtitle = plotSubtitle,
+       caption = "\n\n\nContains OS data ©; Crown copyright and database right 2022\nSource: Census 2021 |  @traffordDataLab") +
+  theme(plot.title = element_text(size=titleSize),
+        plot.subtitle = element_text(size=subtitleSize),
+        plot.caption = element_text(size=captionSize, hjust = 1),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.title = element_text(size=elemSize),
+        legend.text = element_text(size=elemSize),
+        legend.position = "bottom")  
+}
+
+bar_one_g<- function(data, llim, rlim,plotTitle, plotSubtitle, plotCaption, titleSize, subtitleSize, elemSize, ySize) {
+
+ggplot(data, aes(y = category, x = Value)) +
+  geom_col(fill = "#5d77a3") +
+  geom_text(aes(x = 0, label = paste0(category, ": ", format(Value, big.mark=","), ", ", Percent, "%")),
+            hjust = 1, size = ySize, colour = "#212121") +
+    scale_x_continuous(limits = c(llim,rlim)) +
+  labs(x = NULL, y = NULL,
+       title = plotTitle,
+       subtitle = plotSubtitle,
+       caption = plotCaption,
+       fill = NULL) +
+  theme_lab() +
+  theme(panel.grid.major.y = element_blank(),
+        plot.title = element_text(size = titleSize),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size = subtitleSize),
+        plot.caption = element_text(size = elemSize),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank()
+         ) 
+  
+}
+
+
+```
+
+```{r}
+ 
+health_as <- get_census_api_comp("https://www.nomisweb.co.uk/api/v01/dataset/NM_2092_1.data.csv?date=latest&geography=645922849&c2021_health_5=0...4&measures=20100", gm_cipfa)
+
+health_as_cipfa <- comparators_mean (health_as, cipfa,"Value", "Similar Authorities")
+
+health_as_Traff <- health_as %>%
+  filter(measure == "Value") %>%
+  filter(area_name %in% c("Trafford", "England")) %>%
+  select(area_name, category, Percent = value)
+
+health_as_3 <- bind_rows(health_as_cipfa,health_as_Traff) %>%
+  filter(!grepl("All", category, ignore.case=TRUE))
+
+```
+
+```{r}
+
+health_T <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2055_1.data.csv?date=latest&geography=645922849&c2021_health_6=1...5&measures=20100,20301")
+
+health_T_p <- health_T %>%
+  pivot_wider(names_from = "measure", values_from = "value") %>%
+  mutate(category = gsub(" health", "", category)) %>%
+  mutate(category = fct_rev( factor(category, levels = pull(.,category))))
+
+
+```
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r fig.height=4}
+
+bar_one_g(health_T_p, -70000,130000, "General Health", "Trafford, 2021", "Source: Census 2021 | @traffordDataLab", 18, 16, 10, 4.5)
+
+```
+
+</div>
+</div>
+
+
+<div class = "row">
+<div class = "col-md-12">
+<div class = "row">
+<div class = "col-md-7">
+
+```{r plotBin, fig.height=4}
+health_as_plot <- health_as_3 %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) %>%
+  mutate(category = factor(category, levels = c("Very bad health", "Bad health", "Fair health", "Good health", "Very good health")))
+  
+bar_comparators(health_as_plot,55, "Age-standardised percentages of health status", "Trafford 2021", 20,17, 14)
+
+```
+</div>
+<br>
+<div class = "col-md-5  smtable">
+<br>
+
+```{r tableBin}
+health_as_plot %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"),
+          `Trafford` = paste0(`Trafford`,"%")) %>%
+  select(category, Trafford, `Similar Authorities`, `England`) %>%
+  arrange(factor(category, levels = c("Very good health", "Good health", "Fair health", "Bad health", "Very bad health"))) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+```
+</div>
+</div>
+
+```{r}
+health_2021 <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2055_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_health_6=0...5&measures=20100,20301")
+
+health_2011 <- get_census_api_2011("https://www.nomisweb.co.uk/api/v01/dataset/NM_617_1.data.csv?date=latest&geography=1245709510...1245709537,1946157089&rural_urban=0&cell=0,7...11&measures=20100,20301")
+
+health_msoa <- bind_rows(health_2011, health_2021) %>%
+  join_MSOA_names(lookup,.) %>%
+    pivot_wider(names_from = measure,values_from = value) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents"))
+
+```
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+health_very_bad_msoa <- health_msoa %>%
+  filter(category == "Very bad health") %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), ifelse(date == "2021", Percent, NA), na.rm = TRUE),
+   area_name = fct_relevel(factor(area_name), "Trafford")) %>%
+  group_by(area_name) %>%
+  mutate(trend = Percent-lag(Percent)) %>%
+  mutate(trend = ifelse(is.na(trend),lead(trend),trend)) %>%
+  mutate(trend = ifelse(trend >= 0, "Rise","Fall"))
+
+gg <- double_dot(health_very_bad_msoa, 2.5, "Very bad health", "Trafford MSOA", 17, 14, 10)
+
+  
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-5">
+<br>
+<br>
+```{r}
+
+health_very_bad_map <- health_very_bad_msoa %>%
+  select(-tooltip) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(`Difference (%)` = round(Percent_2021 - Percent_2011,1), Difference = Value_2021 - Value_2011) %>%
+  filter(area_name != "Trafford") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                          "<strong>", category,"</strong> Residents<br/>",
+      "<strong>2011: </strong>", Percent_2011, "% (", format(Value_2011, big.mark=","), ")<br/>",
+      "<strong>2021: </strong>", Percent_2021, "% (", format(Value_2021, big.mark=","), ")<br/>",
+    "<strong>Difference from 2011: </strong>", `Difference (%)`, "% (", Difference, ")<br/>"))
+
+msoa_sf_health_very_bad <- msoa_sf %>%
+  left_join(health_very_bad_map)
+
+gg <- map_interactive(msoa_sf_health_very_bad, "", "Very bad health, 2021", "% of residents in the MSOA", 19, 17, 14, 12)
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+msoa_total <- health_msoa %>%
+  filter(category == "All categories: Long-term health problem or disability") %>%
+  select(area_name,Value)
+
+health_bad_and_very_bad_msoa <- bind_rows(health_2011, health_2021) %>%
+    filter(category %in% c("Very bad health", "Bad health")) %>%
+  filter(measure == "Value") %>%
+  group_by(date, area_name, measure) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(category = "Bad and Very bad health") %>%
+  join_MSOA_names(lookup,.) %>%
+  left_join(msoa_total) %>%
+  mutate(Percent = round(value *100/Value,1)) %>%
+  select(date, area_name, category, Value = value, Percent) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents")) %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), ifelse(date == "2021", Percent, NA), na.rm = TRUE),
+   area_name = fct_relevel(factor(area_name), "Trafford")) %>%
+  group_by(area_name) %>%
+  mutate(trend = Percent-lead(Percent)) %>%
+  mutate(trend = ifelse(is.na(trend),lag(trend),trend)) %>%
+  mutate(trend = ifelse(trend >= 0, "Rise","Fall"))
+
+gg <- double_dot(health_bad_and_very_bad_msoa, 10, "Bad and Very bad health", "Trafford MSOA", 17, 14, 10)
+
+  
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-5">
+<br>
+<br>
+
+```{r}
+
+health_bad_and_very_bad_map <- health_bad_and_very_bad_msoa %>%
+  select(-tooltip) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(`Difference (%)` = round(Percent_2021 - Percent_2011,1), Difference = Value_2021 - Value_2011) %>%
+  filter(area_name != "Trafford") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                          "<strong>", category,"</strong> Residents<br/>",
+      "<strong>2011: </strong>", Percent_2011, "% (", format(Value_2011, big.mark=","), ")<br/>",
+      "<strong>2021: </strong>", Percent_2021, "% (", format(Value_2021, big.mark=","), ")<br/>",
+    "<strong>Difference from 2011: </strong>", `Difference (%)`, "% (", format(Difference, big.mark=","), ")<br/>"))
+
+
+msoa_sf_health_bad_and_very_bad <- msoa_sf %>%
+  left_join(health_bad_and_very_bad_map)
+
+gg <- map_interactive(msoa_sf_health_bad_and_very_bad, "", "Bad and Very bad health, 2021", "% of residents in the MSOA", 19, 17, 14, 12)
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
+
+```{r}
+
+age_spec_health <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/datasets/generalhealthbyagesexanddeprivationenglandandwales/2021/healthdatatables20211.xlsx", 11,4)
+
+age_spec_health_England <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/datasets/generalhealthbyagesexanddeprivationenglandandwales/2021/healthdatatables20211.xlsx", 7,4)
+
+age_spec_eng <- age_spec_health_England %>%
+    filter(Country == "England") %>%
+  filter(Year == "2021", Sex == "Persons") %>%
+  mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
+  select(date = Year, area_name = Country, category = `Health Status`, Percent, Value, Age) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>Health Status: ", category," ", "</strong><br/>",
+    "<strong>", Percent, "</strong>% of residents"))
+  
+
+age_spec_traff <- age_spec_health %>%
+  filter(`Local Authority` == "Trafford") %>%
+  filter(Year == "2021", Sex == "Persons") %>%
+  mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
+  select(date = Year, area_name = `Local Authority`, category = `Health Status`, Percent, Value, Age) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>Health Status: ", category," ", "</strong><br/>", format(Value, big.mark=","),
+    " (<strong>", Percent, "%</strong>) residents"))
+
+age_spec_health_t <- age_spec_eng %>%
+ bind_rows(age_spec_traff) %>%
+  mutate(Age = factor(Age, levels = pull(filter(.,category == "Very good", area_name == "Trafford"),Age)))
+
+age_spec_health_b <- age_spec_health_t %>%
+  filter(category == "Bad") 
+
+age_spec_health_vb <- age_spec_health_t %>%
+  filter(category == "Very bad") 
+
+```
+
+<div class = "row">
+<div class = "col-md-6">
+
+```{r}
+
+gg <- double_bar_onec(age_spec_health_b, "Bad health", "Trafford, 2021", "% of residents of age group", 20,18,10)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+
+```
+</div>
+<div class = "col-md-6">
+
+```{r}
+gg <- double_bar_onec(age_spec_health_vb, "Very Bad health", "Trafford, 2021", "% of residents of age group", 20,18,10)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+
+```
+
+</div>
+</div>
+
+## Disability
+
+```{r}
+
+disability_T <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2056_1.data.csv?date=latest&geography=645922849&c2021_disability_5=1...4&measures=20100,20301")
+
+disability_T_p <- disability_T %>%
+  pivot_wider(names_from = "measure", values_from = "value") %>%
+  mutate(category = gsub(" health", "", category)) %>%
+  mutate(category = fct_rev( factor(category, levels = pull(.,category)))) %>%
+  mutate(category = case_when(category == "Disabled under the Equality Act: Day-to-day activities limited a lot" ~ "Disabled under the Equality Act:\nDay-to-day activities limited a lot",
+                              category == "Disabled under the Equality Act: Day-to-day activities limited a little" ~ "Disabled under the Equality Act:\nDay-to-day activities limited a little",
+                              category ==  "Not disabled under the Equality Act: Has long term physical or mental condition but day-to-day activities are not limited" ~ "*Not disabled under the Equality Act:\nHas long term physical or mental condition",
+                              category == "Not disabled under the Equality Act: No long term physical or mental conditions" ~ "Not disabled under the Equality Act:\nNo long term physical or mental conditions")) %>%
+  mutate(category = fct_rev(factor(category, levels = pull(.,category))))
+
+
+```
+
+<div class = "row">
+<div class = "col-md-9">
+
+```{r fig.height=3}
+
+bar_one_g(disability_T_p, -220000,190000, "Disabled under the Equality Act", "Trafford, 2021", "* Has long term physical or mental condition but day-to-day activities are not limited \nSource: Census 2021 | @traffordDataLab", 18, 16, 10, 3)
+
+```
+
+</div>
+</div>
+
+
+```{r}
+
+disability_age_s_E_raw <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/disability/datasets/disabilityinenglandandwales2021/current/disabilitycensus2021.xlsx", 6,4)
+
+
+disability_age_s_LA_raw <-xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/disability/datasets/disabilityinenglandandwales2021/current/disabilitycensus2021.xlsx", 10,4) 
+
+disability_age_s_cipfa_two <- disability_age_s_LA_raw %>%
+  filter(Sex == "Persons", Category == "Two category") %>%
+  mutate(measure = "Value") %>%
+  select(area_name = `Local Authority`, category = `Disability status`, measure, value = `Age-standardised Percentage`) %>%
+  comparators_mean(.,cipfa,"Value", "Similar Authorities")
+
+disability_age_s_T_two <- disability_age_s_LA_raw %>%
+    filter(Sex == "Persons", Category == "Two category") %>%
+  select(area_name = `Local Authority`, category = `Disability status`, Percent = `Age-standardised Percentage`) %>%
+  filter(area_name == "Trafford")
+
+disability_age_s_E_two <- disability_age_s_E_raw %>%
+    filter(Sex == "Persons", Category == "Two category") %>%
+  select(area_name = `Country`, category = `Disability status`, Percent = `Age-standardised Percentage`) %>%
+  filter(area_name == "England")
+
+disability_as_3_two <- bind_rows(disability_age_s_T_two, disability_age_s_cipfa_two, disability_age_s_E_two)
+
+disability_age_s_cipfa_four <- disability_age_s_LA_raw %>%
+  filter(Sex == "Persons", Category == "Four category") %>%
+  mutate(measure = "Value") %>%
+  select(area_name = `Local Authority`, category = `Disability status`, measure, value = `Age-standardised Percentage`) %>%
+  comparators_mean(.,cipfa,"Value", "Similar Authorities")
+
+disability_age_s_T_four <- disability_age_s_LA_raw %>%
+    filter(Sex == "Persons", Category == "Four category") %>%
+  select(area_name = `Local Authority`, category = `Disability status`, Percent = `Age-standardised Percentage`) %>%
+  filter(area_name == "Trafford")
+
+disability_age_s_E_four <- disability_age_s_E_raw %>%
+    filter(Sex == "Persons", Category == "Four category") %>%
+  select(area_name = `Country`, category = `Disability status`, Percent = `Age-standardised Percentage`) %>%
+  filter(area_name == "England")
+
+disability_as_3_four <- bind_rows(disability_age_s_T_four, disability_age_s_cipfa_four, disability_age_s_E_four)
+
+
+
+# disability_as_f_e <-xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/disability/datasets/disabilityinenglandandwales2021/current/disabilitycensus2021.xlsx", 7,4) 
+# 
+# disability_as_ff <- disability_as_f %>%
+#   select(area_name = `Local Authority`, `Disability status`, Category, Age, Sex, Count, Population, `Age-specific Percentage`) %>%
+#   mutate(Count = as.numeric(Count), Population = as.numeric(Population), `Age-specific Percentage` = as.numeric(`Age-specific Percentage`)) %>%
+#   bind_rows(disability_as_f_e %>% select(area_name = Country, `Disability status`, Category, Age, Sex, Count, Population, `Age-specific Percentage`))
+# 
+# esp <- data.frame(Age = general_health_as_f %>% select(Age) %>% unique() %>% pull(), standard_pop = c(1000, 4000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000, 7000, 6500, 6000, 5500, 5000, 4000, 2500, 1500, 1000)) %>%
+#   mutate(standard_pop = standard_pop * 100/100000)
+#  
+# disability_as_T_two <- disability_as_ff %>% 
+#   filter(Category == "Two category", 
+#          area_name %in% c(gm_cipfa$area_name, "England")) %>%
+#   group_by(area_name, Sex, `Disability status`) %>%
+#   left_join(esp, by = "Age") %>%
+#   mutate(age_stand = sum(as.numeric(`Age-specific Percentage`) * standard_pop)) %>%
+#    select(area_name, variable, age_stand) %>%
+#   unique()
+# 
+# disability_as_T_four <- disability_as_ff %>% 
+#   filter(Category == "Four category",
+#          Sex == "Persons",
+#          area_name %in% c(gm_cipfa$area_name, "England")) %>%
+#   group_by(area_name, Sex, `Disability status`) %>%
+#   left_join(esp, by = "Age") %>%
+#   mutate(age_stand = sum(as.numeric(`Age-specific Percentage`) * standard_pop)) %>%
+#    select(area_name, variable, age_stand) %>%
+#   unique()
+# 
+# disability_as <- get_census_api_comp("https://www.nomisweb.co.uk/api/v01/dataset/NM_2056_1.data.csv?date=latest&geography=645922849&c2021_disability_5=0,1001,1,2,1002,3,4&measures=20100,20301", gm_cipfa)
+# 
+# disability_cipfa <- comparators_mean (disability, cipfa,"Percent", "Similar Authorities")
+# 
+# # disability_gm_broad <- agregation_value (disability %>%
+# #                                            filter(!grepl(":", category, ignore.case=TRUE)), gm,"Value", "Greater Manchester")
+# # 
+# # disability_gm_detail <- agregation_value (disability %>%
+# #                                            filter(grepl(":", category, ignore.case=TRUE)), gm,"Value", "Greater Manchester")
+# 
+# disability_gm <- agregation_value (disability, gm,"Value", "Greater Manchester")
+# 
+# disability_Traff <- disability %>%
+#   filter(!grepl("All", category, ignore.case=TRUE)) %>%
+#   #filter(category %in% c("No central heating", "Electric only", "Renewable energy only"))  %>%
+#   filter(measure == "Percent") %>%
+#   filter(area_name %in% c("Trafford", "England")) %>%
+#   select(area_name, category, Percent = value)
+# 
+# disability_4 <- bind_rows(disability_cipfa, disability_gm, disability_Traff) %>%
+#     filter(!grepl("All", category, ignore.case=TRUE))
+# 
+# disability_as <- get_census_api_comp("https://www.nomisweb.co.uk/api/v01/dataset/NM_2093_1.data.csv?date=latest&geography=645922849&c2021_disability_3=0...2&measures=20100", gm_cipfa)
+# 
+# disability_as_gm <- comparators_mean (disability_as, gm,"Value", "Greater Manchester")
+
+```
+
+<div class = "row">
+<div class = "col-md-12">
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=3.2}
+disability_plot_two <- disability_as_3_two %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
+  
+bar_comparators(disability_plot_two,85, "Disabled under the Equality Act", "Trafford 2021", 20,17, 14)
+
+```
+</div>
+<br>
+<br>
+<br>
+<div class = "col-md-6  smtable">
+```{r}
+disability_plot_two %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"), `Trafford` = paste0(`Trafford`,"%")) %>%
+  select(category, Trafford, `Similar Authorities`, `England`) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=3}
+
+disability_plot_disable <- disability_as_3_four %>%
+  filter(category %in% c("Disabled; limited a lot", "Disabled; limited a little")) %>%
+  mutate(category = gsub("Disabled; ", "", category)) %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
+  
+bar_comparators(disability_plot_disable,11, NULL, "Disabled", 20,17, 14)
+
+```
+</div>
+<br>
+<br>
+<br>
+<div class = "col-md-6  smtable">
+```{r}
+
+disability_plot_disable %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"), `Trafford` = paste0(`Trafford`,"%")) %>%
+  select(category, Trafford, `Similar Authorities`, `England`) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+
+```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=3}
+
+disability_plot_disable_2 <- disability_as_3_four %>%
+  filter(category %in% c("Non-disabled; with non-limiting condition", "Non-disabled; no condition")) %>%
+  mutate(category = gsub("Non-disabled; ", "", category)) %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
+  
+bar_comparators(disability_plot_disable_2,80, NULL, "Non-disabled", 20,17, 14)
+
+```
+</div>
+<br>
+<br>
+<br>
+<div class = "col-md-6  smtable">
+```{r}
+
+disability_plot_disable_2 %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"), `Trafford` = paste0(`Trafford`,"%")) %>%
+  select(category, Trafford, `Similar Authorities`, `England`) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+</div>
+</div>
+
+```{r}
+
+# msoa disability
+disability_2021 <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2056_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_disability_5=1001,1&measures=20100,20301")
+
+disability_2011 <- get_census_api_2011("https://www.nomisweb.co.uk/api/v01/dataset/NM_617_1.data.csv?date=latest&geography=1245709510...1245709537,1946157089&rural_urban=0&cell=1,2&measures=20100,20301")
+
+
+```
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+disabled_msoa <- disability_2021 %>%
+  filter(area_name != "Trafford") %>%
+  filter(category == "Disabled under the Equality Act") %>%
+  join_MSOA_names(lookup,.) %>%
+  pivot_wider(names_from = "measure", values_from = "value") %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents")) %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), Value, na.rm = TRUE))
+
+gg <- single_dot(disabled_msoa, 2050, "Disabled under the Equality Act","Trafford MSOA", "residents", 17,14,10)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-5">
+<br>
+<br>
+
+```{r}
+
+msoa_sf_disable <- msoa_sf %>%
+  left_join(disabled_msoa) %>%
+  rename(Percent_2021 = Percent)
+
+gg <- map_interactive(msoa_sf_disable, "", "", "% of residents in the MSOA", 19, 17, 14, 12)
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r}
+
+disability_msoa_ll <- bind_rows(disability_2011, disability_2021) %>%
+  mutate(category = ifelse(category == "Disabled under the Equality Act: Day-to-day activities limited a lot", "Day-to-day activities limited a lot", category)) %>%
+  filter(category == "Day-to-day activities limited a lot") %>%
+  join_MSOA_names(lookup,.) %>%
+    pivot_wider(names_from = measure,values_from = value) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents")) %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), ifelse(date == "2021", Percent, NA), na.rm = TRUE),
+   area_name = fct_relevel(factor(area_name), "Trafford")) %>%
+  group_by(area_name) %>%
+  mutate(trend = Percent-lag(Percent)) %>%
+  mutate(trend = ifelse(is.na(trend),lead(trend),trend)) %>%
+  mutate(trend = ifelse(trend >= 0, "Rise","Fall"))
+
+gg <- double_dot(disability_msoa_ll, 15, "Disabled: Day-to-day activities limited a lot", "Trafford MSOA", 17, 14, 10)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-5">
+<br>
+<br>
+```{r}
+
+ disable_ll_map <- disability_msoa_ll %>%
+  select(-tooltip) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+  mutate(`Difference (%)` = round(Percent_2021 - Percent_2011,1), Difference = Value_2021 - Value_2011) %>%
+  filter(area_name != "Trafford") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                          "<strong>", category,"</strong> Residents<br/>",
+      "<strong>2011: </strong>", Percent_2011, "% (", format(Value_2011, big.mark=","), ")<br/>",
+      "<strong>2021: </strong>", Percent_2021, "% (", format(Value_2021, big.mark=","), ")<br/>",
+    "<strong>Difference from 2011: </strong>", `Difference (%)`, "% (", Difference, ")<br/>"))
+
+msoa_sf_disable_ll <- msoa_sf %>%
+  left_join(disable_ll_map)
+
+gg <- map_interactive(msoa_sf_disable_ll, "", "Day-to-day activities limited a lot, 2021", "% of residents in the MSOA", 19, 17, 14, 12)
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
+
+```{r}
+
+age_spec_disability <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/disability/datasets/disabilityinenglandandwales2021/current/disabilitycensus2021.xlsx",11,4)
+
+age_spec_disability_England <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/disability/datasets/disabilityinenglandandwales2021/current/disabilitycensus2021.xlsx", 7,4)
+
+age_spec_d_eng <- age_spec_disability_England %>%
+    filter(Country == "England") %>%
+  filter(Year == "2021", Sex == "Persons") %>%
+  filter((Category == "Two category" & `Disability status` ==  "Disabled") | (Category == "Three category" & `Disability status` ==  "Disabled; limited a lot")) %>%
+  mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
+  select(date = Year, area_name = Country, category = `Disability status`, Percent, Value, Age) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>Health Status: ", category," ", "</strong><br/>",
+    "<strong>", Percent, "</strong>% of residents"))
+  
+
+age_spec_d_traff <- age_spec_disability %>%
+  filter(`Local Authority` == "Trafford") %>%
+  filter(Year == "2021", Sex == "Persons") %>%
+    filter((Category == "Two category" & `Disability status` ==  "Disabled") | (Category == "Three category" & `Disability status` ==  "Disabled; limited a lot")) %>%
+  mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
+  select(date = Year, area_name = `Local Authority`, category = `Disability status`, Percent, Value, Age) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>Health Status: ", category," ", "</strong><br/>", format(Value, big.mark=","),
+    " (<strong>", Percent, "%</strong>) residents"))
+
+age_spec_d_t <- age_spec_d_eng %>%
+ bind_rows(age_spec_d_traff) %>%
+  mutate(Age = factor(Age, levels = pull(filter(.,category == "Disabled", area_name == "Trafford"),Age)))
+
+age_spec_d_d <- age_spec_d_t %>%
+  filter(category == "Disabled") 
+
+age_spec_d_vl <- age_spec_d_t %>%
+  filter(category == "Disabled; limited a lot") 
+
+```
+
+<div class = "row">
+<div class = "col-md-6">
+
+```{r}
+
+gg <- double_bar_onec(age_spec_d_d, "Disabled", "Trafford, 2021", "% of residents of age group", 20,18,10)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+
+```
+</div>
+<div class = "col-md-6">
+
+```{r}
+gg <- double_bar_onec(age_spec_d_vl, "Disabled: limited a lot", "Trafford, 2021", "% of residents of age group", 20,18,10)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+
+```
+
+</div>
+</div>
+
+## Unpaid care
+
+```{r}
+
+uc_T <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2057_1.data.csv?date=latest&geography=645922849&c2021_carer_7=1,101,102,6&measures=20100,20301")
+
+uc_T_p <- uc_T %>%
+  pivot_wider(names_from = "measure", values_from = "value") %>%
+  mutate(category = gsub(" unpaid care a week", "", category)) %>%
+  mutate(category = fct_rev( factor(category, levels = pull(.,category))))
+
+
+```
+
+<div class = "row">
+<div class = "col-md-7">
+
+```{r fig.height=4}
+
+bar_one_g(uc_T_p, -150000,210000, "Provision of unpaid care", "Trafford, 2021", "Source: Census 2021 | @traffordDataLab", 18, 16, 10, 4)
+
+```
+
+</div>
+</div>
+
+```{r}
+
+unpaid_care_as_f_bin_LA <-xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx", 10, 3) 
+
+unpaid_care_as_f_bin_E <-xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx", 6, 3) 
+
+unpaid_care_age_s_cipfa_two <- unpaid_care_as_f_bin_LA %>%
+  filter(Sex == "Persons") %>%
+  mutate(measure = "Value") %>%
+  select(area_name = `Local Authority`, category = `Unpaid Carer Status`, measure, value = `Age-Standardised Percentage`) %>%
+  comparators_mean(.,cipfa,"Value", "Similar Authorities")
+
+unpaid_care_age_s_T_two <- unpaid_care_as_f_bin_LA %>%
+    filter(Sex == "Persons") %>%
+  select(area_name = `Local Authority`, category = `Unpaid Carer Status`, Percent = `Age-Standardised Percentage`) %>%
+  filter(area_name == "Trafford")
+
+unpaid_care_age_s_E_two <- unpaid_care_as_f_bin_E %>%
+    filter(Sex == "Persons") %>%
+  mutate(area_name = "England") %>%
+  select(area_name, category = `Unpaid Carer Status`, Percent = `Age-Standardised Percentage`) 
+
+unpaid_care_as_3_two <- bind_rows(unpaid_care_age_s_T_two, unpaid_care_age_s_cipfa_two, unpaid_care_age_s_E_two)
+
+unpaid_care_as_f_LA_four <-xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx", 16,3)
+
+unpaid_care_as_f_E_four <-xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx", 12,3)
+
+unpaid_care_age_s_cipfa_four <- unpaid_care_as_f_LA_four %>%
+  filter(Sex == "Persons") %>%
+  mutate(measure = "Value") %>%
+  select(area_name = `Local Authority`, category = `Unpaid Carer Status`, measure, value = `Age-Standardised Percentage`) %>%
+  comparators_mean(.,cipfa,"Value", "Similar Authorities")
+
+unpaid_care_age_s_T_four <- unpaid_care_as_f_LA_four %>%
+    filter(Sex == "Persons") %>%
+  select(area_name = `Local Authority`, category = `Unpaid Carer Status`, Percent = `Age-Standardised Percentage`) %>%
+  filter(area_name == "Trafford")
+
+unpaid_care_age_s_E_four <- unpaid_care_as_f_E_four %>%
+    filter(Sex == "Persons") %>%
+  mutate(area_name = "England") %>%
+  select(area_name, category = `Unpaid Carer Status`, Percent = `Age-Standardised Percentage`) 
+
+unpaid_care_as_3_four <- bind_rows(unpaid_care_age_s_T_four, unpaid_care_age_s_cipfa_four, unpaid_care_age_s_E_four)
+
+```
+
+<div class = "row">
+<div class = "col-md-12">
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=3.2}
+unpaid_care_plot_two <- unpaid_care_as_3_two %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
+  
+bar_comparators(unpaid_care_plot_two,95, "Provision of unpaid care", "Trafford, 2021", 20,17, 14)
+
+```
+</div>
+<br>
+<br>
+<br>
+<div class = "col-md-6  smtable">
+```{r}
+unpaid_care_plot_two %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"), `Trafford` = paste0(`Trafford`,"%")) %>%
+  select(category, Trafford, `Similar Authorities`, `England`) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+```
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-6">
+```{r fig.height=3.5}
+
+unpaid_care_plot_four <- unpaid_care_as_3_four %>%
+  filter(category != "Non-carer") %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
+  
+bar_comparators(unpaid_care_plot_four,5, NULL, "Unpaid carer", 20,17, 14)
+
+```
+</div>
+<br>
+<br>
+<br>
+<div class = "col-md-6  smtable">
+```{r}
+
+unpaid_care_plot_four %>%
+  pivot_wider(names_from = "area_name", values_from = "Percent") %>%
+  mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"), `Trafford` = paste0(`Trafford`,"%")) %>%
+  select(category, Trafford, `Similar Authorities`, `England`) %>%
+  kable(col.names = c("", "Trafford", "Similar Authorities", "England")) %>%
+  kable_styling(font_size = 12, bootstrap_options = "none") %>%
+  row_spec(0, bold = T, color = "#757575")
+
+
+```
+</div>
+</div>
+</div>
+</div>
+
+```{r}
+
+unpaid_care_2021 <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2057_1.data.csv?date=latest&geography=637535406...637535433&c2021_carer_7=0,1,101,102,6&measures=20100,20301") 
+
+```
+
+<div class = "row">
+<div class = "col-md-4">
+
+```{r}
+
+uc_19_msoa <- unpaid_care_2021 %>%
+  filter(area_name != "Trafford") %>%
+  filter(category == c("Provides 19 hours or less unpaid care a week")) %>%
+  join_MSOA_names(lookup,.) %>%
+  pivot_wider(names_from = "measure", values_from = "value") %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents")) %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), Value, na.rm = TRUE))
+
+msoa_sf_uc_19 <- msoa_sf %>%
+  left_join(uc_19_msoa) %>%
+  rename(Percent_2021 = Percent)
+
+gg <- map_interactive(msoa_sf_uc_19, "Provides 19 hours or less unpaid care a week", "", "% of residents in the MSOA", 19, 17, 14, 12)
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+```
+
+</div>
+<div class = "col-md-4">
+
+
+```{r}
+
+uc_20_msoa <- unpaid_care_2021 %>%
+  filter(area_name != "Trafford") %>%
+  filter(category == c("Provides 20 to 49 hours unpaid care a week")) %>%
+  join_MSOA_names(lookup,.) %>%
+  pivot_wider(names_from = "measure", values_from = "value") %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents")) %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), Value, na.rm = TRUE))
+
+msoa_sf_uc_20 <- msoa_sf %>%
+  left_join(uc_20_msoa) %>%
+  rename(Percent_2021 = Percent)
+
+gg <- map_interactive(msoa_sf_uc_20, "Provides 20 to 49 hours unpaid care a week", "", "% of residents in the MSOA", 19, 17, 14, 12)
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+<div class = "col-md-4">
+
+
+```{r}
+
+uc_50_msoa <- unpaid_care_2021 %>%
+  filter(area_name != "Trafford") %>%
+  filter(category == c("Provides 50 or more hours unpaid care a week")) %>%
+  join_MSOA_names(lookup,.) %>%
+  pivot_wider(names_from = "measure", values_from = "value") %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>", category," : ", "</strong>", format(Value, big.mark=","), " residents<br/>",
+    "<strong>", Percent, "</strong>% of residents")) %>%
+  mutate(date = as.character(date),
+  area_name = fct_reorder(factor(area_name), Value, na.rm = TRUE))
+
+   #area_name = fct_relevel(factor(area_name), "Trafford")) 
+msoa_sf_uc_50 <- msoa_sf %>%
+  left_join(uc_50_msoa) %>%
+  rename(Percent_2021 = Percent)
+
+gg <- map_interactive(msoa_sf_uc_50, "Provides 50 or more hours unpaid care a week", "", "% of residents in the MSOA", 19, 17, 14, 12)
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+
+
+```
+</div>
+</div>
+
+```{r}
+
+age_spec_uc <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx",17,3)
+
+age_spec_uc_England <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx", 13,3)
+
+age_spec_d_eng <- age_spec_disability_England %>%
+    filter(Country == "England") %>%
+  filter(Year == "2021", Sex == "Persons") %>%
+  filter((Category == "Two category" & `Disability status` ==  "Disabled") | (Category == "Three category" & `Disability status` ==  "Disabled; limited a lot")) %>%
+  mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
+  select(date = Year, area_name = Country, category = `Disability status`, Percent, Value, Age) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>Health Status: ", category," ", "</strong><br/>",
+    "<strong>", Percent, "</strong>% of residents"))
+  
+
+age_spec_d_traff <- age_spec_disability %>%
+  filter(`Local Authority` == "Trafford") %>%
+  filter(Year == "2021", Sex == "Persons") %>%
+    filter((Category == "Two category" & `Disability status` ==  "Disabled") | (Category == "Three category" & `Disability status` ==  "Disabled; limited a lot")) %>%
+  mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
+  select(date = Year, area_name = `Local Authority`, category = `Disability status`, Percent, Value, Age) %>%
+  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
+      "<strong>Health Status: ", category," ", "</strong><br/>", format(Value, big.mark=","),
+    " (<strong>", Percent, "%</strong>) residents"))
+
+age_spec_d_t <- age_spec_d_eng %>%
+ bind_rows(age_spec_d_traff) %>%
+  mutate(Age = factor(Age, levels = pull(filter(.,category == "Disabled", area_name == "Trafford"),Age)))
+
+age_spec_d_d <- age_spec_d_t %>%
+  filter(category == "Disabled") 
+
+age_spec_d_vl <- age_spec_d_t %>%
+  filter(category == "Disabled; limited a lot") 
+
+```
+
+
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
+
+```{css}
+
+.smtable {
+
+padding-left: 0px;
+
+}
+
+.TableCaption {
+
+font-size: 10px;
+
+}
+
+```
