@@ -35,6 +35,7 @@ source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme
 `%out%` <- function(a,b) ! a %in% b
 ```
 
+
 ## General health
 
 ```{r}
@@ -343,8 +344,6 @@ bar_one_g(health_T_p, -70000,130000, "General Health", "Trafford, 2021", "Source
 </div>
 
 
-<div class = "row">
-<div class = "col-md-12">
 <div class = "row">
 <div class = "col-md-7">
 
@@ -659,11 +658,11 @@ disability_as_3_four <- bind_rows(disability_age_s_T_four, disability_age_s_cipf
 <div class = "col-md-12">
 <div class = "row">
 <div class = "col-md-6">
-```{r fig.height=3.2}
+```{r fig.height=3.3}
 disability_plot_two <- disability_as_3_two %>%
   mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
   
-bar_comparators(disability_plot_two,85, "Disabled under the Equality Act", "Trafford 2021", 20,17, 14)
+bar_comparators(disability_plot_two,85, "Age-standardised percentages of Disability", "Disabled under the Equality Act, Trafford 2021", 20,17, 14)
 
 ```
 </div>
@@ -872,7 +871,8 @@ age_spec_d_eng <- age_spec_disability_England %>%
   mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
   select(date = Year, area_name = Country, category = `Disability status`, Percent, Value, Age) %>%
   mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Disability Status: ", category," ", "</strong><br/>",
+      "<strong>Disability
+      Status: ", category," ", "</strong><br/>",
     "<strong>", Percent, "</strong>% of residents"))
   
 
@@ -1003,11 +1003,11 @@ unpaid_care_as_3_four <- bind_rows(unpaid_care_age_s_T_four, unpaid_care_age_s_c
 <div class = "col-md-12">
 <div class = "row">
 <div class = "col-md-6">
-```{r fig.height=3.2}
+```{r fig.height=3.4}
 unpaid_care_plot_two <- unpaid_care_as_3_two %>%
   mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
   
-bar_comparators(unpaid_care_plot_two,95, "Provision of unpaid care", "Trafford, 2021", 20,17, 14)
+bar_comparators(unpaid_care_plot_two,95, "Age-standardised percentages of\nProvision of unpaid care", "Trafford, 2021", 20,17, 14)
 
 ```
 </div>
@@ -1192,7 +1192,9 @@ age_spec_d_vl <- age_spec_d_t %>%
 
 ```
 
+<br>
 
+</main>
 
 <div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
 
