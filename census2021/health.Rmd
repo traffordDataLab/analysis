@@ -653,62 +653,6 @@ disability_age_s_E_four <- disability_age_s_E_raw %>%
 disability_as_3_four <- bind_rows(disability_age_s_T_four, disability_age_s_cipfa_four, disability_age_s_E_four)
 
 
-
-# disability_as_f_e <-xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/disability/datasets/disabilityinenglandandwales2021/current/disabilitycensus2021.xlsx", 7,4) 
-# 
-# disability_as_ff <- disability_as_f %>%
-#   select(area_name = `Local Authority`, `Disability status`, Category, Age, Sex, Count, Population, `Age-specific Percentage`) %>%
-#   mutate(Count = as.numeric(Count), Population = as.numeric(Population), `Age-specific Percentage` = as.numeric(`Age-specific Percentage`)) %>%
-#   bind_rows(disability_as_f_e %>% select(area_name = Country, `Disability status`, Category, Age, Sex, Count, Population, `Age-specific Percentage`))
-# 
-# esp <- data.frame(Age = general_health_as_f %>% select(Age) %>% unique() %>% pull(), standard_pop = c(1000, 4000, 5500, 5500, 5500, 6000, 6000, 6500, 7000, 7000, 7000, 7000, 6500, 6000, 5500, 5000, 4000, 2500, 1500, 1000)) %>%
-#   mutate(standard_pop = standard_pop * 100/100000)
-#  
-# disability_as_T_two <- disability_as_ff %>% 
-#   filter(Category == "Two category", 
-#          area_name %in% c(gm_cipfa$area_name, "England")) %>%
-#   group_by(area_name, Sex, `Disability status`) %>%
-#   left_join(esp, by = "Age") %>%
-#   mutate(age_stand = sum(as.numeric(`Age-specific Percentage`) * standard_pop)) %>%
-#    select(area_name, variable, age_stand) %>%
-#   unique()
-# 
-# disability_as_T_four <- disability_as_ff %>% 
-#   filter(Category == "Four category",
-#          Sex == "Persons",
-#          area_name %in% c(gm_cipfa$area_name, "England")) %>%
-#   group_by(area_name, Sex, `Disability status`) %>%
-#   left_join(esp, by = "Age") %>%
-#   mutate(age_stand = sum(as.numeric(`Age-specific Percentage`) * standard_pop)) %>%
-#    select(area_name, variable, age_stand) %>%
-#   unique()
-# 
-# disability_as <- get_census_api_comp("https://www.nomisweb.co.uk/api/v01/dataset/NM_2056_1.data.csv?date=latest&geography=645922849&c2021_disability_5=0,1001,1,2,1002,3,4&measures=20100,20301", gm_cipfa)
-# 
-# disability_cipfa <- comparators_mean (disability, cipfa,"Percent", "Similar Authorities")
-# 
-# # disability_gm_broad <- agregation_value (disability %>%
-# #                                            filter(!grepl(":", category, ignore.case=TRUE)), gm,"Value", "Greater Manchester")
-# # 
-# # disability_gm_detail <- agregation_value (disability %>%
-# #                                            filter(grepl(":", category, ignore.case=TRUE)), gm,"Value", "Greater Manchester")
-# 
-# disability_gm <- agregation_value (disability, gm,"Value", "Greater Manchester")
-# 
-# disability_Traff <- disability %>%
-#   filter(!grepl("All", category, ignore.case=TRUE)) %>%
-#   #filter(category %in% c("No central heating", "Electric only", "Renewable energy only"))  %>%
-#   filter(measure == "Percent") %>%
-#   filter(area_name %in% c("Trafford", "England")) %>%
-#   select(area_name, category, Percent = value)
-# 
-# disability_4 <- bind_rows(disability_cipfa, disability_gm, disability_Traff) %>%
-#     filter(!grepl("All", category, ignore.case=TRUE))
-# 
-# disability_as <- get_census_api_comp("https://www.nomisweb.co.uk/api/v01/dataset/NM_2093_1.data.csv?date=latest&geography=645922849&c2021_disability_3=0...2&measures=20100", gm_cipfa)
-# 
-# disability_as_gm <- comparators_mean (disability_as, gm,"Value", "Greater Manchester")
-
 ```
 
 <div class = "row">
@@ -928,7 +872,7 @@ age_spec_d_eng <- age_spec_disability_England %>%
   mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
   select(date = Year, area_name = Country, category = `Disability status`, Percent, Value, Age) %>%
   mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Health Status: ", category," ", "</strong><br/>",
+      "<strong>Disability Status: ", category," ", "</strong><br/>",
     "<strong>", Percent, "</strong>% of residents"))
   
 
@@ -939,7 +883,7 @@ age_spec_d_traff <- age_spec_disability %>%
   mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
   select(date = Year, area_name = `Local Authority`, category = `Disability status`, Percent, Value, Age) %>%
   mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Health Status: ", category," ", "</strong><br/>", format(Value, big.mark=","),
+      "<strong>Disability Status: ", category," ", "</strong><br/>", format(Value, big.mark=","),
     " (<strong>", Percent, "%</strong>) residents"))
 
 age_spec_d_t <- age_spec_d_eng %>%
