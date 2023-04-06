@@ -35,9 +35,12 @@ source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme
 `%out%` <- function(a,b) ! a %in% b
 ```
 
+The [CENSUS 2021](https://census.gov.uk) in England and Wales published data about [Health, disability, and unpaid care](https://www.ons.gov.uk/releases/healthdisabilityandunpaidcarecensus2021inenglandandwales). The release included three publications: [General health](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/bulletins/generalhealthenglandandwales/census2021), [Disability](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/bulletins/disabilityenglandandwales/census2021) and [Unpaid care](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/bulletins/unpaidcareenglandandwales/census2021).
 
 ## General health
-
+<br>
+According to the Census 2021 53.1% (124,806) and 31% (72,803) of Trafford residents reported a very good health and good health respectively, 2.1% up and 0.6% down from 2011 when the proportions were 51% and 31.6% respectively. Reports of bad health for 2021 counted for 3.6% (9,273)  of the residents, 0.5% up from 2011 when the proportion was 4.1%. There was no change in the proportion of residents reporting very bad health, for both 2011 and 2021 Censuses the proportion was 1.1%.
+<br>
 ```{r}
 
 girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
@@ -168,7 +171,7 @@ bar_comparators <- function(data,mlim, plotTitle, plotSubtitle, titleSize,subtit
   theme(plot.title = element_text(size=titleSize),
         plot.subtitle = element_markdown(size=subtitleSize),
         plot.title.position = "plot",
-        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.margin = unit(c(0,0.1,0,0), "cm"),
         panel.grid.major.y = element_blank(),
         axis.text.y = element_text(hjust = 0, size=elemSize),
         axis.text.x = element_text(size=elemSize),
@@ -291,7 +294,7 @@ ggplot(data, aes(y = category, x = Value)) +
   theme_lab() +
   theme(panel.grid.major.y = element_blank(),
         plot.title = element_text(size = titleSize),
-        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.margin = unit(c(0,0.1,0,0), "cm"),
         plot.subtitle = element_text(size = subtitleSize),
         plot.caption = element_text(size = elemSize),
         axis.text.y = element_blank(),
@@ -303,21 +306,6 @@ ggplot(data, aes(y = category, x = Value)) +
 
 ```
 
-```{r}
- 
-health_as <- get_census_api_comp("https://www.nomisweb.co.uk/api/v01/dataset/NM_2092_1.data.csv?date=latest&geography=645922849&c2021_health_5=0...4&measures=20100", gm_cipfa)
-
-health_as_cipfa <- comparators_mean (health_as, cipfa,"Value", "Similar Authorities")
-
-health_as_Traff <- health_as %>%
-  filter(measure == "Value") %>%
-  filter(area_name %in% c("Trafford", "England")) %>%
-  select(area_name, category, Percent = value)
-
-health_as_3 <- bind_rows(health_as_cipfa,health_as_Traff) %>%
-  filter(!grepl("All", category, ignore.case=TRUE))
-
-```
 
 ```{r}
 
@@ -342,7 +330,28 @@ bar_one_g(health_T_p, -70000,130000, "General Health", "Trafford, 2021", "Source
 
 </div>
 </div>
+<br>
+General health vary largely across age groups, [Age-standardised percentages ](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following bar chart and table present general health age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
 
+Compared to the mean of similar authorities and England, Trafford had 4.4% and 4% (ASP) more residents reporting very good health respectively. Trafford has less proportion of residents reporting good and fair health compared to similar authorities and England. The proportion (ASP) of residents reporting bad health is slightly lower than similar authorities (0.3% less) and England (0.4% less). The proportion (ASP) of residents reporting very bad health is the same for Trafford than for similar authorities and only 0.1% lower than for England. 
+
+<br>
+
+```{r}
+ 
+health_as <- get_census_api_comp("https://www.nomisweb.co.uk/api/v01/dataset/NM_2092_1.data.csv?date=latest&geography=645922849&c2021_health_5=0...4&measures=20100", gm_cipfa)
+
+health_as_cipfa <- comparators_mean (health_as, cipfa,"Value", "Similar Authorities")
+
+health_as_Traff <- health_as %>%
+  filter(measure == "Value") %>%
+  filter(area_name %in% c("Trafford", "England")) %>%
+  select(area_name, category, Percent = value)
+
+health_as_3 <- bind_rows(health_as_cipfa,health_as_Traff) %>%
+  filter(!grepl("All", category, ignore.case=TRUE))
+
+```
 
 <div class = "row">
 <div class = "col-md-7">
@@ -374,6 +383,12 @@ health_as_plot %>%
 </div>
 </div>
 
+<br>
+
+Among Trafford MSOAs, Partington had the largest percent of residents reporting very bad health both in 2021 (2.3%) and 2011(2.2%), a 0.6% difference to the second highest MSOA on very bad health reports, Timperley East, with 1.7%. There were three MSOAs that increase 0.4% on residents reporting very bad health from 2011 to 2021, Timperley East, Davyhulme, and Sale North. Conversely, there were three MSOAs that decreased 0.4% or more on residents reporting very bad health from 2011 to 2021, Firswood, Trafford Park East & Sevenways, and Altrincham West, Dunham & Warburton.
+
+<br>
+
 ```{r}
 health_2021 <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2055_1.data.csv?date=latest&geography=637535406...637535433,645922849&c2021_health_6=0...5&measures=20100,20301")
 
@@ -403,7 +418,7 @@ health_very_bad_msoa <- health_msoa %>%
   mutate(trend = ifelse(is.na(trend),lead(trend),trend)) %>%
   mutate(trend = ifelse(trend >= 0, "Rise","Fall"))
 
-gg <- double_dot(health_very_bad_msoa, 2.5, "Very bad health", "Trafford MSOA", 17, 14, 10)
+gg <- double_dot(health_very_bad_msoa, 2.5, "Very bad health", "Trafford MSOAs", 17, 14, 10)
 
   
 girafe(ggobj = gg, height_svg = 7,
@@ -440,6 +455,11 @@ girafe(ggobj = gg, height_svg = 9,
 ```
 </div>
 </div>
+<br>
+
+When considering very bad health and bad health together, The MSOA Partington had the largest percent among all MSOA with 8.4% (701) of residents reporting very bad or bad health, representing 0.6% decrease when compared to the 2011 proportion. For most MSOAs the percentage of residents reporting very bad or bad health has decreased or increased less than 0.3% when compared to the percentage in 2011.
+
+<br>
 
 <div class = "row">
 <div class = "col-md-7">
@@ -472,7 +492,7 @@ health_bad_and_very_bad_msoa <- bind_rows(health_2011, health_2021) %>%
   mutate(trend = ifelse(is.na(trend),lag(trend),trend)) %>%
   mutate(trend = ifelse(trend >= 0, "Rise","Fall"))
 
-gg <- double_dot(health_bad_and_very_bad_msoa, 10, "Bad and Very bad health", "Trafford MSOA", 17, 14, 10)
+gg <- double_dot(health_bad_and_very_bad_msoa, 10, "Bad and Very bad health", "Trafford MSOAs", 17, 14, 10)
 
   
 girafe(ggobj = gg, height_svg = 7,
@@ -512,6 +532,12 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 </div>
 
+<br>
+
+The percentage of residents reporting very bad and bad health vary greatly according to age. The 5-year age groups of 60 and above years had over 2% and 7% of people reporting very bad and bad health respectively, and the 85 to 89 and 90+ years age groups reaching 15.3% and 17.6% of bad health respectively and 5.1% and 6.4% of very bad health respectively.
+
+<br>
+
 ```{r}
 
 age_spec_health <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/datasets/generalhealthbyagesexanddeprivationenglandandwales/2021/healthdatatables20211.xlsx", 11,4)
@@ -523,8 +549,8 @@ age_spec_eng <- age_spec_health_England %>%
   filter(Year == "2021", Sex == "Persons") %>%
   mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
   select(date = Year, area_name = Country, category = `Health Status`, Percent, Value, Age) %>%
-  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Health Status: ", category," ", "</strong><br/>",
+  mutate(tooltip = paste0("<strong>", area_name, " ", date, ", ", Age, " years</strong><br/>",
+      "Health Status: <strong>", category," ", "</strong><br/>",
     "<strong>", Percent, "</strong>% of residents"))
   
 
@@ -533,8 +559,8 @@ age_spec_traff <- age_spec_health %>%
   filter(Year == "2021", Sex == "Persons") %>%
   mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
   select(date = Year, area_name = `Local Authority`, category = `Health Status`, Percent, Value, Age) %>%
-  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Health Status: ", category," ", "</strong><br/>", format(Value, big.mark=","),
+  mutate(tooltip = paste0("<strong>", area_name, " ", date, ", ", Age, " years</strong><br/>",
+      "Health Status: <strong>", category," ", "</strong><br/>", format(Value, big.mark=","),
     " (<strong>", Percent, "%</strong>) residents"))
 
 age_spec_health_t <- age_spec_eng %>%
@@ -570,13 +596,16 @@ gg <- double_bar_onec(age_spec_health_vb, "Very Bad health", "Trafford, 2021", "
 girafe(ggobj = gg, height_svg = 7,
        options = girafe_options)
 
-
 ```
 
 </div>
 </div>
 
 ## Disability
+
+According to the Census 2021 16% (37,550) of Trafford residents reported to be disabled under the Equality Act. The disabled whose day-to-day activities were limited a lot represented 6.8% (15,919) of Trafford's residents and the disabled whose day-to-day activities were limited a little represented 9.2% (21,631) of Trafford's residents. From the people that were not disabled under the Equality Act, 7.2% (16,996) has a long term physical or mental condition.
+
+<br>
 
 ```{r}
 
@@ -607,6 +636,14 @@ bar_one_g(disability_T_p, -220000,190000, "Disabled under the Equality Act", "Tr
 </div>
 </div>
 
+<br>
+
+
+Disability vary largely across age groups, [Age-standardised percentages ](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following bar chart and table present disability proportions age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
+
+Compared to the mean of 15 similar authorities and England, Trafford had 0.9% and 1.1% (ASP) less residents reporting to be disabled respectively. The proportion (ASP) of residents reporting a disability that limit them a lot is slightly lower than similar authorities (0.3% less) and England (0.5% less). The proportion (ASP) of residents reporting a disability that limit them a little is the same for England than for similar authorities, 0.6% higher than the Trafford's proportion.
+
+<br>
 
 ```{r}
 
@@ -660,7 +697,8 @@ disability_as_3_four <- bind_rows(disability_age_s_T_four, disability_age_s_cipf
 <div class = "col-md-6">
 ```{r fig.height=3.3}
 disability_plot_two <- disability_as_3_two %>%
-  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) %>%
+  mutate(category = factor(category, levels = c("Non-disabled","Disabled")))
   
 bar_comparators(disability_plot_two,85, "Age-standardised percentages of Disability", "Disabled under the Equality Act, Trafford 2021", 20,17, 14)
 
@@ -675,6 +713,7 @@ disability_plot_two %>%
   pivot_wider(names_from = "area_name", values_from = "Percent") %>%
   mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"), `Trafford` = paste0(`Trafford`,"%")) %>%
   select(category, Trafford, `Similar Authorities`, `England`) %>%
+  arrange(desc(factor(category, levels = levels(disability_plot_two$category)))) %>%
   kable(col.names = c("", "Trafford", "Similar Authorities", "England")) %>%
   kable_styling(font_size = 12, bootstrap_options = "none") %>%
   row_spec(0, bold = T, color = "#757575")
@@ -705,6 +744,7 @@ disability_plot_disable %>%
   pivot_wider(names_from = "area_name", values_from = "Percent") %>%
   mutate(`Similar Authorities` = paste0(`Similar Authorities`,"%"), England = paste0(England,"%"), `Trafford` = paste0(`Trafford`,"%")) %>%
   select(category, Trafford, `Similar Authorities`, `England`) %>%
+  arrange(desc(factor(category, levels = levels(disability_plot_disable$category)))) %>%
   kable(col.names = c("", "Trafford", "Similar Authorities", "England")) %>%
   kable_styling(font_size = 12, bootstrap_options = "none") %>%
   row_spec(0, bold = T, color = "#757575")
@@ -720,6 +760,7 @@ disability_plot_disable %>%
 disability_plot_disable_2 <- disability_as_3_four %>%
   filter(category %in% c("Non-disabled; with non-limiting condition", "Non-disabled; no condition")) %>%
   mutate(category = gsub("Non-disabled; ", "", category)) %>%
+  mutate(category = ifelse(category == "with non-limiting condition", "with non-limiting\ncondition", category)) %>%
   mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
   
 bar_comparators(disability_plot_disable_2,80, NULL, "Non-disabled", 20,17, 14)
@@ -745,6 +786,12 @@ disability_plot_disable_2 %>%
 </div>
 </div>
 </div>
+
+<br>
+
+Among the MSOA's in Trafford, Partington and Old Trafford had the largest number of disabled residents, with 2,000 and 1,983 residents respectively. The MSOAs with the highest proportion of residents with a disability were Partington (24.4%), Urmston East (20.8%) and Lostock & Stretford Meadows (20.1%)
+
+<br>
 
 ```{r}
 
@@ -772,7 +819,7 @@ disabled_msoa <- disability_2021 %>%
   mutate(date = as.character(date),
   area_name = fct_reorder(factor(area_name), Value, na.rm = TRUE))
 
-gg <- single_dot(disabled_msoa, 2050, "Disabled under the Equality Act","Trafford MSOA", "residents", 17,14,10)
+gg <- single_dot(disabled_msoa, 2050, "Disabled under the Equality Act","Trafford MSOAs", "residents", 17,14,10)
 
 girafe(ggobj = gg, height_svg = 7,
        options = girafe_options)
@@ -800,6 +847,12 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 </div>
 
+<br>
+
+Partington (972, 11.9%) was the MSOA with the highest proportion of residents with a disability that limit their day-to-day activities a lot. From 2011 to 2021 Trafford has decreased 1.2% the proportion of residents whose disability limit them a lot, from 8% (18,165) to 6.8% (15,919). All MSOAs decreased or maintain their proportion of disabled people limited a lot.
+
+<br>
+
 <div class = "row">
 <div class = "col-md-7">
 
@@ -821,7 +874,7 @@ disability_msoa_ll <- bind_rows(disability_2011, disability_2021) %>%
   mutate(trend = ifelse(is.na(trend),lead(trend),trend)) %>%
   mutate(trend = ifelse(trend >= 0, "Rise","Fall"))
 
-gg <- double_dot(disability_msoa_ll, 15, "Disabled: Day-to-day activities limited a lot", "Trafford MSOA", 17, 14, 10)
+gg <- double_dot(disability_msoa_ll, 15, "Disabled: Day-to-day activities limited a lot", "Trafford MSOAs", 17, 14, 10)
 
 girafe(ggobj = gg, height_svg = 7,
        options = girafe_options)
@@ -858,6 +911,12 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 </div>
 
+<br>
+
+The proportion of disable people becomes larger for older age groups, reaching up to 63% (1,285) for the 90+ years group. The percentage of disabled with day-to-day activities limited a lot increase rapidly for groups after 75 years, reaching 44.1% (900) for the 90+ years group.
+
+<br>
+
 ```{r}
 
 age_spec_disability <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/disability/datasets/disabilityinenglandandwales2021/current/disabilitycensus2021.xlsx",11,4)
@@ -870,9 +929,8 @@ age_spec_d_eng <- age_spec_disability_England %>%
   filter((Category == "Two category" & `Disability status` ==  "Disabled") | (Category == "Three category" & `Disability status` ==  "Disabled; limited a lot")) %>%
   mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
   select(date = Year, area_name = Country, category = `Disability status`, Percent, Value, Age) %>%
-  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Disability
-      Status: ", category," ", "</strong><br/>",
+  mutate(tooltip = paste0("<strong>", area_name, " ", date, ", ", Age, " years</strong><br/>",
+      "Disability Status: <strong>", category," ", "</strong><br/>",
     "<strong>", Percent, "</strong>% of residents"))
   
 
@@ -882,8 +940,8 @@ age_spec_d_traff <- age_spec_disability %>%
     filter((Category == "Two category" & `Disability status` ==  "Disabled") | (Category == "Three category" & `Disability status` ==  "Disabled; limited a lot")) %>%
   mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
   select(date = Year, area_name = `Local Authority`, category = `Disability status`, Percent, Value, Age) %>%
-  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Disability Status: ", category," ", "</strong><br/>", format(Value, big.mark=","),
+  mutate(tooltip = paste0("<strong>", area_name, " ", date, ", ", Age, " years</strong><br/>",
+      "Disability Status: <strong>", category," ", "</strong><br/>", format(Value, big.mark=","),
     " (<strong>", Percent, "%</strong>) residents"))
 
 age_spec_d_t <- age_spec_d_eng %>%
@@ -926,6 +984,10 @@ girafe(ggobj = gg, height_svg = 7,
 </div>
 
 ## Unpaid care
+
+According to the Census 2021 8.5% (18,822) of Trafford residents provide unpaid care, 1.9% down from 2011 when the proportions was 10.4%. 4.5% (10,054) provides 19 hours or less of unpaid care, 2.4% down from 2011 when the proportions was 6.9%. 1.7% (3,681) provides 20 to 49 hours of unpaid care, 0.4% up from 2011 when the proportions was 1.3%. 2.4% down from 2011 when the proportions was 6.9%. 2.3% (5,087) provides 50 or more hours of unpaid care, 0.1% up from 2011 when the proportions was 2.2%. 
+
+<br>
 
 ```{r}
 
@@ -999,6 +1061,14 @@ unpaid_care_as_3_four <- bind_rows(unpaid_care_age_s_T_four, unpaid_care_age_s_c
 
 ```
 
+<br>
+
+The provision of unpaid care vary largely across age groups, [Age-standardised percentages ](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following bar chart and table present disability proportions age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
+
+Compared to the mean of 15 similar authorities and England, Trafford had a similar proportion, 0.1% and 0.2% (ASP) more residents reporting to provide unpaid care respectively. There was a slightly higher proportion of residents providing 19 hours or less unpaid care compared to similar authorities and England. Conversely there were slightly lower proportions of residents providing 20 to 49 hours and 50 or more hours unpaid care compared to similar authorities and England.
+
+<br>
+
 <div class = "row">
 <div class = "col-md-12">
 <div class = "row">
@@ -1033,7 +1103,8 @@ unpaid_care_plot_two %>%
 
 unpaid_care_plot_four <- unpaid_care_as_3_four %>%
   filter(category != "Non-carer") %>%
-  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) 
+  mutate(area_name = factor(area_name, levels = c("Trafford", "Similar Authorities", "England"))) %>%
+  mutate(category = factor(category, levels = c("50 or more hours","20 to 49 hours", "19 hours or less")))
   
 bar_comparators(unpaid_care_plot_four,5, NULL, "Unpaid carer", 20,17, 14)
 
@@ -1059,6 +1130,12 @@ unpaid_care_plot_four %>%
 </div>
 </div>
 </div>
+
+<br>
+
+There was a higher proportion of residents providing more hours of unpaid care in the MSOAs at the north of the borough specially in Partington, and Timperley East and Sale Moor.
+
+<br>
 
 ```{r}
 
@@ -1153,46 +1230,87 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 </div>
 
+<br>
+
+The age distriburion of the unpaid carers vary greatly depending on the number of hours of unpaid care provided.
+
+<br>
+
 ```{r}
 
-age_spec_uc <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx",17,3)
+age_spec_uc <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx",15,3)
 
-age_spec_uc_England <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx", 13,3)
+age_spec_uc_England <- xlsx_from_link("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/socialcare/datasets/unpaidcarebyagesexanddeprivationengland/2021/sc012021reftablesengland1.xlsx", 11,3)
 
-age_spec_d_eng <- age_spec_disability_England %>%
-    filter(Country == "England") %>%
-  filter(Year == "2021", Sex == "Persons") %>%
-  filter((Category == "Two category" & `Disability status` ==  "Disabled") | (Category == "Three category" & `Disability status` ==  "Disabled; limited a lot")) %>%
-  mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
-  select(date = Year, area_name = Country, category = `Disability status`, Percent, Value, Age) %>%
-  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Health Status: ", category," ", "</strong><br/>",
+age_spec_uc_eng <- age_spec_uc_England %>%
+    mutate(area_name = "England", date = "2021") %>%
+  filter(Sex == "Persons") %>%
+  mutate(Percent = as.numeric(`Age-Specific Percentage`), Value = as.numeric(Count)) %>%
+  select(date, area_name, category = `Unpaid Carer Status`, Percent, Value, Age) %>%
+  mutate(tooltip = paste0("<strong>", area_name, " ", date, ", ", Age, " years</strong><br/>",
+      "Provides Unpaid Care: <strong>", category," ", "</strong><br/>",
     "<strong>", Percent, "</strong>% of residents"))
   
 
-age_spec_d_traff <- age_spec_disability %>%
+age_spec_uc_traff <- age_spec_uc %>%
+  mutate(date = "2021") %>%
   filter(`Local Authority` == "Trafford") %>%
-  filter(Year == "2021", Sex == "Persons") %>%
-    filter((Category == "Two category" & `Disability status` ==  "Disabled") | (Category == "Three category" & `Disability status` ==  "Disabled; limited a lot")) %>%
-  mutate(Percent = as.numeric(`Age-specific Percentage`), Value = as.numeric(Count)) %>%
-  select(date = Year, area_name = `Local Authority`, category = `Disability status`, Percent, Value, Age) %>%
-  mutate(tooltip = paste0("<strong>", area_name, ", ", date, "</strong><br/>",
-      "<strong>Health Status: ", category," ", "</strong><br/>", format(Value, big.mark=","),
+  filter(Sex == "Persons") %>%
+  mutate(Percent = as.numeric(`Age-Specific Percentage`), Value = as.numeric(Count)) %>%
+  select(date, area_name = `Local Authority`, category = `Unpaid Carer Status`, Percent, Value, Age) %>%
+  mutate(tooltip = paste0("<strong>", area_name, " ", date, ", ", Age, " years</strong><br/>",
+      "Provides Unpaid Care: <strong>", category," ", "</strong><br/>", format(Value, big.mark=","),
     " (<strong>", Percent, "%</strong>) residents"))
 
-age_spec_d_t <- age_spec_d_eng %>%
- bind_rows(age_spec_d_traff) %>%
-  mutate(Age = factor(Age, levels = pull(filter(.,category == "Disabled", area_name == "Trafford"),Age)))
+age_spec_uc_t <- age_spec_uc_eng %>%
+ bind_rows(age_spec_uc_traff) %>%
+  mutate(Age = factor(Age, levels = pull(filter(.,category == "19 hours or less", area_name == "Trafford"),Age)))
 
-age_spec_d_d <- age_spec_d_t %>%
-  filter(category == "Disabled") 
+age_spec_uc_19 <- age_spec_uc_t %>%
+  filter(category == "19 hours or less") 
 
-age_spec_d_vl <- age_spec_d_t %>%
-  filter(category == "Disabled; limited a lot") 
+age_spec_health_49 <- age_spec_uc_t %>%
+  filter(category == "20 to 49 hours") 
+
+age_spec_health_50 <- age_spec_uc_t %>%
+  filter(category == "50 or more hours") 
 
 ```
 
-<br>
+<div class = "row">
+<div class = "col-md-4">
+
+```{r}
+
+gg <- double_bar_onec(age_spec_uc_19, "Provides 19 hours or less unpaid care a week", "Trafford, 2021", "% of residents of age group", 20,18,15)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+
+```
+</div>
+<div class = "col-md-4">
+
+```{r}
+gg <- double_bar_onec(age_spec_health_49, "Provides 20 to 49 hours unpaid care a week", "Trafford, 2021", "% of residents of age group", 20,18,15)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+</div>
+
+<div class = "col-md-4">
+
+```{r}
+gg <- double_bar_onec(age_spec_health_50, "Provides 50 or more hours unpaid care", "Trafford, 2021", "% of residents of age group", 20,18,15)
+
+girafe(ggobj = gg, height_svg = 7,
+       options = girafe_options)
+
+```
+</div>
 
 </main>
 

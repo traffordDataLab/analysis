@@ -489,7 +489,69 @@ accom_type4_plot %>%
 ```
 </div>
 </div>
-<p class = "TableCaption">\*In a purpose-built block of flats or tenement. \** For example, in an office building, hotel or over a shop. \***For example, former school, church or warehouse.<br>Source: Census 2021 |  @traffordDataLab</p>
+
+```{r}
+
+accType_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_618_1.data.csv?date=latest&geography=1946157089&rural_urban=0&cell=7...13&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+accType2011 <- accType_2011 %>%
+  mutate(category = sub(".*: ", "", category)) %>%
+    filter(category != "Total: All households") %>%
+  mutate(category = case_when(category == "Part of a converted or shared house (including bed-sits)" ~ "Part of a converted or shared house,\nincluding bedsits",
+                              category == "Terraced (including end-terrace)" ~ "Terraced",
+                              category == "In a commercial building" ~ "**In a commercial building",
+                              category == "Purpose-built block of flats or tenement" ~ "*Flats",
+                              category == "Caravan or other mobile or temporary structure" ~ "A caravan or other mobile or temporary structure",
+                               TRUE ~ category
+                               )) %>%
+  pivot_wider(names_from = "measure", values_from = "value")
+  
+
+accType <- accom_type4_plot %>%
+  filter(area_name == "Trafford") %>% 
+  mutate(date=2021) %>%
+  bind_rows(accType2011) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+    mutate(`Difference (%)` = round(Percent_2021 - Percent_2011,1), Difference = Value_2021 - Value_2011) %>%
+  mutate(category = fct_reorder(factor(category), Percent_2021)) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                          "<strong>", category,"</strong> households<br/>",
+      "<strong>2011: </strong>", Percent_2011, "% (", format(Value_2011, big.mark=","), ")<br/>",
+      "<strong>2021: </strong>", Percent_2021, "% (", format(Value_2021, big.mark=","), ")<br/>",
+    "<strong>Difference from 2011: </strong>", `Difference (%)`, "% (", Difference, ")<br/>"
+    ))
+
+```
+
+<div class = "row">
+<div class = "col-md-9">
+```{r}
+gg <- ggplot() +
+  geom_col_interactive(data = accType, aes(Percent_2021,category, tooltip = tooltip), fill = "#902082") +
+  geom_errorbar(data = accType,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category), color = "#5d77a3", size = 0.7) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 45), labels = function(x) paste0(x, "%")) +
+  labs(x = NULL, y = NULL, title = "Accomodation Type", subtitle = "<span style = 'color:#5d77a3;'>2011</span> and <span style = 'color:#902082;'>2021</span>",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_markdown(size=12),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1, size=10),
+        axis.text.x = element_text(size=10),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+
+girafe(ggobj = gg, height_svg = 4,
+       options = girafe_options)
+
+```
+</div>
+</div>
+
+<p class = "TableCaption">\*In a purpose-built block of flats or tenement. \** For example, in an office building, hotel or over a shop. \***For example, former school, church or warehouse (category added in 2021).<br>Source: Census 2021 | @traffordDataLab</p>
 
 ## Tenure
 
@@ -591,6 +653,69 @@ tenure_plot %>%
 ```
 </div>
 </div>
+
+```{r}
+
+tenure_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_619_1.data.csv?date=latest&geography=1946157089&rural_urban=0&cell=0...3,200,300,8&measures=20100,20301") %>%
+  select(date = DATE, area_name = GEOGRAPHY_NAME, category = CELL_NAME, measure = MEASURES_NAME, value = OBS_VALUE)
+
+tenure2011 <- tenure_2011 %>%
+  mutate(category = sub(".*: ", "", category)) %>%
+    filter(category != "All households") %>%
+  mutate(category = case_when(category == "Owned with a mortgage or loan" ~ "Owns with\na mortgage or loan",
+                              category == "Shared ownership (part owned and part rented)" ~ "Shared ownership",
+                              category == "Owned outright" ~ "Owns outright",
+                              category == "Living rent free" ~ "Lives rent free",
+                               TRUE ~ category
+                               )) %>%
+  #mutate(category = sub("ing ", "es ", category)) %>%
+  pivot_wider(names_from = "measure", values_from = "value")
+  
+
+tenure <- tenure_plot %>%
+  filter(area_name == "Trafford") %>% 
+  mutate(date=2021) %>%
+  bind_rows(tenure2011) %>%
+  pivot_wider(names_from = date, values_from = c(Value,Percent)) %>%
+    mutate(`Difference (%)` = round(Percent_2021 - Percent_2011,1), Difference = Value_2021 - Value_2011) %>%
+  mutate(category = fct_reorder(factor(category), Percent_2021)) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                          "<strong>", category,"</strong> households<br/>",
+      "<strong>2011: </strong>", Percent_2011, "% (", format(Value_2011, big.mark=","), ")<br/>",
+      "<strong>2021: </strong>", Percent_2021, "% (", format(Value_2021, big.mark=","), ")<br/>",
+    "<strong>Difference from 2011: </strong>", `Difference (%)`, "% (", Difference, ")<br/>"
+    ))
+
+```
+
+<div class = "row">
+<div class = "col-md-9">
+```{r}
+gg <- ggplot() +
+  geom_col_interactive(data = tenure, aes(Percent_2021,category, tooltip = tooltip), fill = "#902082") +
+  geom_errorbar(data = tenure,  aes(x=Percent_2011, xmax=Percent_2011, xmin=Percent_2011, y = category), color = "#5d77a3", size = 0.7) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 45), labels = function(x) paste0(x, "%")) +
+  labs(x = NULL, y = NULL, title = "Tenure", subtitle = "<span style = 'color:#5d77a3;'>2011</span> and <span style = 'color:#902082;'>2021</span>",
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_markdown(size=12),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1, size=10),
+        axis.text.x = element_text(size=10),
+        axis.line.y = element_line(colour = "#000000")) +
+  guides(color = guide_legend(nrow = 1))
+
+girafe(ggobj = gg, height_svg = 3.5,
+       options = girafe_options)
+
+```
+</div>
+</div>
+
+
 
 <br>
 
@@ -822,7 +947,6 @@ br_occupancy_2021_MSOA <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/N
   pivot_wider(names_from = measure, values_from = value) %>%
   select(-date)
   
-
 br_occupancy_2021_cipfa <- br_occupancy_2021_raw %>%
   filter(measure == "Percent") %>%
   filter(area_name %in% cipfa$area_name) %>%
