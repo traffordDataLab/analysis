@@ -38,9 +38,13 @@ source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme
 The [CENSUS 2021](https://census.gov.uk) in England and Wales published data about [Health, disability, and unpaid care](https://www.ons.gov.uk/releases/healthdisabilityandunpaidcarecensus2021inenglandandwales). The release included three publications: [General health](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/bulletins/generalhealthenglandandwales/census2021), [Disability](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/bulletins/disabilityenglandandwales/census2021) and [Unpaid care](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandwellbeing/bulletins/unpaidcareenglandandwales/census2021).
 
 ## General health
+
 <br>
-According to the Census 2021 53.1% (124,806) and 31% (72,803) of Trafford residents reported a very good health and good health respectively, 2.1% up and 0.6% down from 2011 when the proportions were 51% and 31.6% respectively. Reports of bad health for 2021 counted for 3.6% (9,273)  of the residents, 0.5% up from 2011 when the proportion was 4.1%. There was no change in the proportion of residents reporting very bad health, for both 2011 and 2021 Censuses the proportion was 1.1%.
+
+According to the Census 2021 53.1% (124,806) and 31% (72,803) of Trafford residents reported very good and good health respectively, 2.1% up and 0.6% down from 2011 when the proportions were 51% and 31.6%. Reports of bad health for 2021 accounted for 3.6% (9,273) of the residents, 0.5% up from 2011 when the proportion was 4.1%. There was no change in the proportion of residents reporting very bad health, for both 2011 and 2021 Censuses the proportion was 1.1%.
+
 <br>
+
 ```{r}
 
 girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
@@ -331,9 +335,9 @@ bar_one_g(health_T_p, -70000,130000, "General Health", "Trafford, 2021", "Source
 </div>
 </div>
 <br>
-General health vary largely across age groups, [Age-standardised percentages ](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following bar chart and table present general health age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
+General health vary greatly across age groups, [Age-standardised percentages ](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following paragraph, bar chart, and table present general health, age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
 
-Compared to the mean of similar authorities and England, Trafford had 4.4% and 4% (ASP) more residents reporting very good health respectively. Trafford has less proportion of residents reporting good and fair health compared to similar authorities and England. The proportion (ASP) of residents reporting bad health is slightly lower than similar authorities (0.3% less) and England (0.4% less). The proportion (ASP) of residents reporting very bad health is the same for Trafford than for similar authorities and only 0.1% lower than for England. 
+Compared to the mean of similar authorities and England, Trafford had 4.4% and 4.0% more residents reporting very good health respectively. Trafford has a lower proportion of residents reporting good and fair health compared to similar authorities and England. The proportion of residents reporting bad health is slightly lower than similar authorities (0.3% less) and England (0.4% less). The proportion of residents reporting very bad health is the same for Trafford as for similar authorities and only 0.1% lower than for England.
 
 <br>
 
@@ -385,7 +389,7 @@ health_as_plot %>%
 
 <br>
 
-Among Trafford MSOAs, Partington had the largest percent of residents reporting very bad health both in 2021 (2.3%) and 2011(2.2%), a 0.6% difference to the second highest MSOA on very bad health reports, Timperley East, with 1.7%. There were three MSOAs that increase 0.4% on residents reporting very bad health from 2011 to 2021, Timperley East, Davyhulme, and Sale North. Conversely, there were three MSOAs that decreased 0.4% or more on residents reporting very bad health from 2011 to 2021, Firswood, Trafford Park East & Sevenways, and Altrincham West, Dunham & Warburton.
+Among Trafford MSOAs, Partington had the largest percent of residents reporting very bad health both in 2021 (2.3%) and 2011 (2.2%). There is a 0.6% difference to the second highest MSOA on very bad health reports, Timperley East, with 1.7%. There were three MSOAs that increase 0.4% on residents reporting very bad health from 2011 to 2021, Timperley East, Davyhulme, and Sale North. Conversely, there were three MSOAs that decreased 0.4% or more of residents reporting very bad health from 2011 to 2021, Firswood, Trafford Park East & Sevenways, and Altrincham West, Dunham & Warburton.
 
 <br>
 
@@ -457,7 +461,7 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 <br>
 
-When considering very bad health and bad health together, The MSOA Partington had the largest percent among all MSOA with 8.4% (701) of residents reporting very bad or bad health, representing 0.6% decrease when compared to the 2011 proportion. For most MSOAs the percentage of residents reporting very bad or bad health has decreased or increased less than 0.3% when compared to the percentage in 2011.
+When considering very bad health and bad health together, the MSOA Partington had the largest percent among all MSOA with 8.4% (701) of residents reporting very bad or bad health, representing 0.6% decrease when compared to the 2011 proportion. For most MSOAs the percentage of residents reporting very bad or bad health has decreased or increased less than 0.3% when compared to the percentage in 2011.
 
 <br>
 
@@ -534,7 +538,7 @@ girafe(ggobj = gg, height_svg = 9,
 
 <br>
 
-The percentage of residents reporting very bad and bad health vary greatly according to age. The 5-year age groups of 60 and above years had over 2% and 7% of people reporting very bad and bad health respectively, and the 85 to 89 and 90+ years age groups reaching 15.3% and 17.6% of bad health respectively and 5.1% and 6.4% of very bad health respectively.
+The percentage of residents reporting very bad and bad health vary greatly according to age. All of the 5-year age groups of 60 years and above had over 2% and 7% of people reporting very bad and bad health respectively. For the 85 to 89 and 90+ years age groups these reached 15.3% and 17.6% of bad health, and 5.1% and 6.4% of very bad health respectively.         
 
 <br>
 
@@ -603,7 +607,7 @@ girafe(ggobj = gg, height_svg = 7,
 
 ## Disability
 
-According to the Census 2021 16% (37,550) of Trafford residents reported to be disabled under the Equality Act. The disabled whose day-to-day activities were limited a lot represented 6.8% (15,919) of Trafford's residents and the disabled whose day-to-day activities were limited a little represented 9.2% (21,631) of Trafford's residents. From the people that were not disabled under the Equality Act, 7.2% (16,996) has a long term physical or mental condition.
+According to the Census 2021 16% (37,550) of Trafford residents reported to be disabled under the Equality Act. Those whose day-to-day activities were limited a lot represented 6.8% (15,919) of Trafford’s residents and those whose day-to-day activities were limited a little represented 9.2% (21,631) of Trafford’s residents. Of the people that were not disabled under the Equality Act, 7.2% (16,996) report a long term physical or mental condition.
 
 <br>
 
@@ -639,9 +643,9 @@ bar_one_g(disability_T_p, -220000,190000, "Disabled under the Equality Act", "Tr
 <br>
 
 
-Disability vary largely across age groups, [Age-standardised percentages ](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following bar chart and table present disability proportions age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
+Disability vary largely across age groups, [Age-standardised percentages](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following paragraph, bar chart, and table present disability proportions age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
 
-Compared to the mean of 15 similar authorities and England, Trafford had 0.9% and 1.1% (ASP) less residents reporting to be disabled respectively. The proportion (ASP) of residents reporting a disability that limit them a lot is slightly lower than similar authorities (0.3% less) and England (0.5% less). The proportion (ASP) of residents reporting a disability that limit them a little is the same for England than for similar authorities, 0.6% higher than the Trafford's proportion.
+Compared to the mean of 15 similar authorities and England, Trafford had 0.9% and 1.1% less residents reporting to be disabled respectively. The proportion of residents reporting a disability that limit their activities a lot is slightly lower than similar authorities (0.3% less) and England (0.5% less). The proportion of residents reporting a disability that limit them a little is the same for England and for similar authorities, 0.6% higher than Trafford’s proportion.
 
 <br>
 
@@ -789,7 +793,7 @@ disability_plot_disable_2 %>%
 
 <br>
 
-Among the MSOA's in Trafford, Partington and Old Trafford had the largest number of disabled residents, with 2,000 and 1,983 residents respectively. The MSOAs with the highest proportion of residents with a disability were Partington (24.4%), Urmston East (20.8%) and Lostock & Stretford Meadows (20.1%)
+Among the MSOA’s in Trafford, Partington and Old Trafford had the highest number of disabled residents, with 2,000 and 1,983 residents respectively. The MSOAs with the highest proportion of residents with a disability were Partington (24.4%), Urmston East (20.8%) and Lostock & Stretford Meadows (20.1%).
 
 <br>
 
@@ -849,7 +853,7 @@ girafe(ggobj = gg, height_svg = 9,
 
 <br>
 
-Partington (972, 11.9%) was the MSOA with the highest proportion of residents with a disability that limit their day-to-day activities a lot. From 2011 to 2021 Trafford has decreased 1.2% the proportion of residents whose disability limit them a lot, from 8% (18,165) to 6.8% (15,919). All MSOAs decreased or maintain their proportion of disabled people limited a lot.
+Partington (972, 11.9%) was the MSOA with the highest proportion of residents with a disability that limit their day-to-day activities a lot. From 2011 to 2021 Trafford has seen a decrease of 1.2% of residents whose disability limit them a lot, from 8% (18,165) to 6.8% (15,919). All MSOAs decreased or maintained their proportion of disabled people limited a lot.
 
 <br>
 
@@ -913,7 +917,7 @@ girafe(ggobj = gg, height_svg = 9,
 
 <br>
 
-The proportion of disable people becomes larger for older age groups, reaching up to 63% (1,285) for the 90+ years group. The percentage of disabled with day-to-day activities limited a lot increase rapidly for groups after 75 years, reaching 44.1% (900) for the 90+ years group.
+The proportion of disabled residents increases for older age groups, reaching 63% (1,285) for the 90+ years group. The percentage of disabled with day-to-day activities limited a lot increase rapidly for groups after 75 years, going from 15% to 44.1% (900) for the 90+ years group.
 
 <br>
 
@@ -985,7 +989,7 @@ girafe(ggobj = gg, height_svg = 7,
 
 ## Unpaid care
 
-According to the Census 2021 8.5% (18,822) of Trafford residents provide unpaid care, 1.9% down from 2011 when the proportions was 10.4%. 4.5% (10,054) provides 19 hours or less of unpaid care, 2.4% down from 2011 when the proportions was 6.9%. 1.7% (3,681) provides 20 to 49 hours of unpaid care, 0.4% up from 2011 when the proportions was 1.3%. 2.4% down from 2011 when the proportions was 6.9%. 2.3% (5,087) provides 50 or more hours of unpaid care, 0.1% up from 2011 when the proportions was 2.2%. 
+According to the Census 2021 8.5% (18,822) of Trafford residents provide unpaid care, down 1.9% from 2011 when the proportions was 10.4%. 4.5% (10,054) provide 19 hours or less of unpaid care, 2.4% down from 2011 when the proportions was 6.9%. 1.7% (3,681) provide 20 to 49 hours of unpaid care, 0.4% up from 2011 when the proportions was 1.3%. 2.3% (5,087) provides 50 or more hours of unpaid care, 0.1% up from 2011 when the proportions was 2.2%. (TOM NOTE: image above)
 
 <br>
 
@@ -1063,9 +1067,9 @@ unpaid_care_as_3_four <- bind_rows(unpaid_care_age_s_T_four, unpaid_care_age_s_c
 
 <br>
 
-The provision of unpaid care vary largely across age groups, [Age-standardised percentages ](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following bar chart and table present disability proportions age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
+The provision of unpaid care varies across age groups, [Age-standardised percentages ](https://blog.ons.gov.uk/2023/01/19/age-standardising-data-what-does-this-mean-and-why-does-it-matter/) (ASP) enable comparison between areas with differences in age structure and population size. The following paragraph, bar chart and table present disability proportions age-standardised to the [European Standard Population](https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines/-/ks-ra-13-028).
 
-Compared to the mean of 15 similar authorities and England, Trafford had a similar proportion, 0.1% and 0.2% (ASP) more residents reporting to provide unpaid care respectively. There was a slightly higher proportion of residents providing 19 hours or less unpaid care compared to similar authorities and England. Conversely there were slightly lower proportions of residents providing 20 to 49 hours and 50 or more hours unpaid care compared to similar authorities and England.
+Compared to the mean of 15 similar authorities and England, Trafford had a similar proportion, 0.1% and 0.2% more residents reporting to provide unpaid care respectively. There was a slightly higher proportion of residents providing 19 hours or less unpaid care compared to similar authorities and England. Conversely there were slightly lower proportions of residents providing 20 to 49 hours and 50 or more hours of unpaid care compared to similar authorities and England.
 
 <br>
 
@@ -1133,7 +1137,7 @@ unpaid_care_plot_four %>%
 
 <br>
 
-There was a higher proportion of residents providing more hours of unpaid care in the MSOAs at the north of the borough specially in Partington, and Timperley East and Sale Moor.
+There was a higher proportion of residents providing more hours of unpaid care in the MSOAs in the north of the borough as well as Partington, Timperley East and Sale Moor.
 
 <br>
 
@@ -1232,7 +1236,7 @@ girafe(ggobj = gg, height_svg = 9,
 
 <br>
 
-The age distriburion of the unpaid carers vary greatly depending on the number of hours of unpaid care provided.
+The age distribution of the unpaid carers vary greatly depending on the number of hours of unpaid care provided.
 
 <br>
 
