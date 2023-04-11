@@ -989,7 +989,7 @@ girafe(ggobj = gg, height_svg = 7,
 
 ## Unpaid care
 
-According to the Census 2021 8.5% (18,822) of Trafford residents provide unpaid care, down 1.9% from 2011 when the proportions was 10.4%. 4.5% (10,054) provide 19 hours or less of unpaid care, 2.4% down from 2011 when the proportions was 6.9%. 1.7% (3,681) provide 20 to 49 hours of unpaid care, 0.4% up from 2011 when the proportions was 1.3%. 2.3% (5,087) provides 50 or more hours of unpaid care, 0.1% up from 2011 when the proportions was 2.2%. (TOM NOTE: image above)
+According to the Census 2021 8.5% (18,822) of Trafford residents provide unpaid care, down 1.9% from 2011 when the proportions was 10.4%. 4.5% (10,054) provide 19 hours or less of unpaid care, 2.4% down from 2011 when the proportions was 6.9%. 1.7% (3,681) provide 20 to 49 hours of unpaid care, 0.4% up from 2011 when the proportions was 1.3%. 2.3% (5,087) provides 50 or more hours of unpaid care, 0.1% up from 2011 when the proportions was 2.2%.
 
 <br>
 
