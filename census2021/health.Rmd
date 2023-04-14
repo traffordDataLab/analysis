@@ -142,13 +142,6 @@ test <- data %>%
 
 agregation_value <- function(data, components, msre,name){ #No "All" categories
   
- # data <-disability %>%
- #   filter(!grepl(":", category, ignore.case=TRUE))
- # 
- # components <- gm
- # msre <-"Value"
- # name <- "Greater Manchester"
-  
 data %>%
   #filter(!grepl("All", category, ignore.case=TRUE)) %>%
   filter(measure == msre) %>%

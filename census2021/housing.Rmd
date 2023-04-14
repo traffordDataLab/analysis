@@ -34,6 +34,62 @@ source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme
 
 ```
 
+```{r}
+
+get_indicator_col <- function(data){
+  
+  data.frame(column = colnames(data)) %>%
+  filter(grepl("(C2021.*NAME)", column, ignore.case=TRUE))
+  
+}
+
+get_census_api_2021_mv2 <- function(link){
+
+data <- read_csv(link) 
+
+cols <- get_indicator_col(data)
+
+data %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category1 = cols$column[1], category2 = cols$column[2], measure = MEASURES_NAME, value = OBS_VALUE) %>% 
+  mutate(Percent = round(value *100/value[1],1)) %>%
+  group_by(category1) %>%
+  mutate(Percent1 = round(value *100/value[1],1)) %>%
+  ungroup() %>%
+  group_by(category2) %>%
+  mutate(Percent2 = round(value *100/value[1],1)) %>%
+  ungroup()
+}
+
+
+mv2_plot <- function(data, plotTitle, plotSubtitle, plotCaption, titleSize,subtitleSize, elemSize, stripSize){
+
+gg<- ggplot(data, aes(Percent, category1)) +
+  geom_col_interactive(aes(tooltip = tooltip), fill = "#902082") +
+facet_grid(~category2, space = "free_y", scales = "free_y") +
+    theme_lab() +
+  labs(title = plotTitle,
+       subtitle = plotSubtitle,
+       caption = plotCaption,
+       x = "% of Trafford households",
+       y = "") +
+    theme(plot.title = element_text(size=titleSize),
+        plot.subtitle = element_text(size=subtitleSize, margin=margin(0,0,20,0)),
+        plot.caption = element_text(size=6, hjust = 1),
+        plot.title.position = "plot",
+        axis.text.y = element_text(hjust = 1, size=elemSize),
+        axis.text.x = element_text(size=elemSize),
+        axis.title.x = element_text(size=elemSize),
+        legend.position = "none",
+        panel.grid.major.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.text.x = element_text(size = stripSize, face = "bold", hjust = 1, margin=margin(0,0,5,0))
+        )
+
+}
+
+```
+
 
 The [CENSUS 2021](https://census.gov.uk) in England and Wales published data about [housing](https://www.ons.gov.uk/releases/housingcensus2021inenglandandwales). The release included three publications: [People with second addresses](https://www.ons.gov.uk/peoplepopulationandcommunity/housing/bulletins/peoplewithsecondaddressesenglandandwales/census2021), [Housing](https://www.ons.gov.uk/peoplepopulationandcommunity/housing/bulletins/housingenglandandwales/census2021) and [Communal establishment residents](https://www.ons.gov.uk/peoplepopulationandcommunity/housing/bulletins/communalestablishmentresidentsenglandandwales/census2021).
 
@@ -378,9 +434,6 @@ girafe(ggobj = gg, height_svg = 9,
 </div>
 </div>
 
-
-
-
 ## Accommodation type 
 
 According to the Census 2021, 43.8% (42,193) of households in Trafford reported to live in a semi-detached property, which is more than the double of any other type of accommodation in Trafford. Terraced (20.8%, 19,976), Flats in a purpose-built block (16.9%, 16,236) and detached (15.2%, 14,601) constitute most of the rest of the accommodation properties.
@@ -465,8 +518,10 @@ ggplot() +
   guides(color = guide_legend(nrow = 1, title=""))
 
 ```
+
 </div>
 </div>
+
 <br>
 
 <div class = "row">
@@ -489,6 +544,10 @@ accom_type4_plot %>%
 ```
 </div>
 </div>
+
+<br>
+
+Between 2011-2021 each accommodation type for Trafford households has changed its share by up to 0.7%. 
 
 ```{r}
 
@@ -654,6 +713,10 @@ tenure_plot %>%
 </div>
 </div>
 
+<br>
+
+Comparing the tenure status of Trafford household’s from 2011 to 2021, the proportion of households that owned with a mortgage or loan and those that social rented deceased while the proportion of household that owned outright and those that private rented increased.
+
 ```{r}
 
 tenure_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_619_1.data.csv?date=latest&geography=1946157089&rural_urban=0&cell=0...3,200,300,8&measures=20100,20301") %>%
@@ -714,8 +777,6 @@ girafe(ggobj = gg, height_svg = 3.5,
 ```
 </div>
 </div>
-
-
 
 <br>
 
@@ -822,8 +883,141 @@ girafe(ggobj = gg, height_svg = 5,
 </div>
 </div>
 
+<br>
 
+When comparing tenure by household composition in 2021 in the one-person household and single family household categories the larger proportion of households that owned outright were aged 66 years and over. The larger proportion of households that owned with a mortgage were married or civil partnership couples with dependent children. One-person households aged under 66 years had a similar proportion of all tenure categories. The largest proportion of lone parent family with dependent children social rented their accommodation. 
 
+<div class = "row">
+<div class = "col-md-12">
+
+```{r}
+
+mv_tenure_hcomp_raw <- get_census_api_2021_mv2("https://www.nomisweb.co.uk/api/v01/dataset/NM_2235_1.data.csv?date=latest&geography=645922849&c2021_hhfamcomp_15=0...14&c2021_hhtenure_5=0...4&measures=20100")
+
+mv_tenure_hcomp <- mv_tenure_hcomp_raw %>%
+  filter(category1 != "Total", category2 != "Total") %>%
+  mutate(subcategory11 = sub(": .*", "", category1)) %>%
+  mutate(subcategory12 = sub(".*?: ", "", category1)) %>%
+  mutate(subcategory12 = sub(": ", "\n", subcategory12)) %>%
+  mutate(subcategory12 = sub("students ", "students\n", subcategory12)) %>%
+  mutate(category2 = case_when(category2 == "Private rented or lives rent free" ~ "**Private rented",
+                          category2 == "Owned: Owns with a mortgage or loan or shared ownership" ~ "*Owns with a\nmortgage",
+                          category2 == "Owned: Owns outright" ~ "Owns outright",
+                          category2 == "Private rented or lives rent freePrivate rented or lives rent free" ~ "**Private rented",
+                          TRUE ~category2
+                          )) %>%
+  mutate(category2 = factor(category2, levels = c("Owns outright", "*Owns with a\nmortgage", "**Private rented", "Social rented"))) %>%
+  mutate(subcategory11 = factor(subcategory11, levels = c("One-person household", "Single family household", "Other household types"))) %>%
+  mutate(subcategory12 = fct_rev(factor(subcategory12, levels = unique(subcategory12)))) %>%
+  mutate(tooltip = paste0(Percent, "% (", format(value, big.mark=","),") of ", "<strong>", area_name,"</strong> households<br/>",
+                          Percent2, "% of <strong>", category2,"</strong><br/>",
+                          Percent1, "% of <strong>", subcategory11,":</strong><br/>",
+                          "<strong>", subcategory12, "</strong>"
+    ))
+  
+
+gg<- ggplot(mv_tenure_hcomp, aes(Percent, subcategory12)) +
+  geom_col_interactive(aes(tooltip = tooltip), fill = "#5d77a3") +
+facet_grid(subcategory11~category2, space = "free_y", scales = "free_y", switch = "y") +
+    theme_lab() +
+  labs(title = "Tenure by household composition",
+       subtitle = "Trafford 2021",
+       caption = "*Owns with a mortgage or loan or shared ownership. **Private rented or lives rent free.\nSource: Census 2021  |  @traffordDataLab",
+       x = "% of Trafford households",
+       y = "") +
+    theme(plot.title = element_text(size=11, margin=margin(0,0,5,0)),
+        plot.subtitle = element_text(size=9, margin=margin(0,0,10,0)),
+        plot.caption = element_text(size=6, hjust = 1),
+        plot.title.position = "plot",
+        axis.text.y = element_text(hjust = 1, size=7),
+        axis.text.x = element_text(size=7),
+        axis.title.x = element_text(size=7),
+        legend.position = "none",
+        panel.grid.major.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.text.x = element_text(size = 8, face = "bold", hjust = 1, margin=margin(0,0,5,0)),
+        strip.placement = "outside",
+        strip.text.y.left = element_text(size = 8, face = "bold", vjust = 1, hjust = 0, angle = 0),
+        strip.switch.pad.grid =  unit('-3.4', "cm")
+        )
+
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
+```
+
+</div>
+</div>
+
+<br>
+According to the Census 2021, when considering the ethnicity of the household reference person, the largest proportion of those who are of Asian ethnicity owns their house with a mortgage compared to the other tenure statuses. The largest proportion of those who are of Black ethnicity social rented their accommodation. The largest proportion of those who are of Mixed ethnicity owns their house with a mortgage. The largest proportion of those who are of White ethnicity owns their house outright.
+
+<div class = "row">
+<div class = "col-md-9">
+
+```{r}
+
+mv_tenure_ethnic_raw <- get_census_api_2021_mv2("https://www.nomisweb.co.uk/api/v01/dataset/NM_2234_1.data.csv?date=latest&geography=645922849&c2021_eth_8=0...3,1001,7&c2021_hhtenure_5=0...4&measures=20100")
+
+mv_tenure_ethnic <- mv_tenure_ethnic_raw %>%
+  filter(category1 != "Total", category2 != "Total") %>%
+  mutate(category1 = case_when(category1 == "Asian, Asian British or Asian Welsh" ~ "Asian, Asian British\nor Asian Welsh",
+                               category1 == "Black, Black British, Black Welsh, Caribbean or African" ~ "Black, Black British,\nBlack Welsh, Caribbean or African",
+                               TRUE ~ category1
+                               )) %>%
+  mutate(category2 = case_when(category2 == "Private rented or lives rent free" ~ "**Private rented",
+                          category2 == "Owned: Owns with a mortgage or loan or shared ownership" ~ "*Owns with a\nmortgage",
+                          category2 == "Owned: Owns outright" ~ "Owns outright",
+                          category2 == "Private rented or lives rent freePrivate rented or lives rent free" ~ "**Private rented",
+                          TRUE ~category2
+                          )) %>%
+  mutate(category2 = fct_rev(factor(category2, levels = c("Owns outright", "*Owns with a\nmortgage", "**Private rented", "Social rented")))) %>%
+  mutate(category1 = fct_rev(factor(category1, levels = unique(category1)))) %>%
+  mutate(tooltip = paste0(Percent, "% (", format(value, big.mark=","),") of ", "<strong>", area_name,"</strong> households<br/>",
+                          Percent2, "% of <strong>", category2,"</strong><br/>",
+                          Percent1, "% of <strong>", category1, "</strong>"
+    ))
+
+gg <- ggplot(mv_tenure_ethnic, aes(category1, Percent1, fill = category2, tooltip = tooltip)) + 
+  geom_col_interactive(position = "stack", colour = "#757575", size = 0.2, alpha = 1) +
+  scale_fill_manual(values = c("#48327F","#7987BA","#53478C","#9FBBD9"), #"#6665A2",
+                     guide = guide_legend(keyheight = unit(3, units = "mm"),
+                                             keywidth = unit(3, units = "mm"),
+                                             label.position = "right",
+                                             title = NULL,
+                                             nrow = 1,
+                                            aesthetics = "fill",
+                                          reverse = TRUE)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+    labs(title = "Tenure by ethnicity",
+       subtitle = "Trafford 2021",
+       caption = "*Owns with a mortgage or loan or shared ownership. **Private rented or lives rent free.\nSource: Census 2021  |  @traffordDataLab",
+       x = NULL,
+       y = "% of ethnic group",
+       fill = NULL) +
+  coord_flip() +
+    theme_lab() +
+  theme(panel.grid.major.x = element_blank(),
+        legend.position = "top",
+        plot.title = element_text(size=14),
+        plot.title.position = "plot",
+        plot.subtitle = element_text(size=12),
+        plot.caption = element_text(size=8, hjust = 1),
+        legend.title = element_text(size=7),
+        legend.text = element_text(size=7),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1, size=9),
+        axis.title.x = element_text(hjust = 1, size=9),
+        axis.text.x = element_text(size=7, angle = 90, vjust = 0.5, hjust=1),
+        strip.text = element_blank()) 
+
+girafe(ggobj = gg, height_svg = 4.5,
+       options = girafe_options)
+
+```
+
+</div>
+</div>
 
 ## Number of bedrooms
 
