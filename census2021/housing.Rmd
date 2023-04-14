@@ -885,7 +885,7 @@ girafe(ggobj = gg, height_svg = 5,
 
 <br>
 
-When comparing tenure by household composition in 2021 in the one-person household and single family household categories the larger proportion of households that owned outright were aged 66 years and over. The larger proportion of households that owned with a mortgage were married or civil partnership couples with dependent children. One-person households aged under 66 years had a similar proportion of all tenure categories. The largest proportion of lone parent family with dependent children social rented their accommodation. 
+When comparing tenure by household composition, the highest proportion of households that were owned outright, in both the one-person household and single family household categories, were by those aged 66 years and over. The larger proportion of households that owned with a mortgage were married or civil partnership couples with dependent children. One-person households aged under 66 years had a similar proportion of all tenure categories. The largest proportion of lone parent families with dependent children were in social rented accommodation.
 
 <div class = "row">
 <div class = "col-md-12">
@@ -950,7 +950,8 @@ girafe(ggobj = gg, height_svg = 6,
 </div>
 
 <br>
-According to the Census 2021, when considering the ethnicity of the household reference person, the largest proportion of those who are of Asian ethnicity owns their house with a mortgage compared to the other tenure statuses. The largest proportion of those who are of Black ethnicity social rented their accommodation. The largest proportion of those who are of Mixed ethnicity owns their house with a mortgage. The largest proportion of those who are of White ethnicity owns their house outright.
+
+According to the Census 2021, when considering the ethnicity of the household reference person, the largest proportion of those who are of Asian ethnicity own their house with a mortgage, compared to the other tenure statuses. The largest proportion of those who are of Black ethnicity were in social rented accommodation. The largest proportion of those who are of Mixed ethnicity owns their house with a mortgage. The largest proportion of those who are of White ethnicity owns their house outright.
 
 <div class = "row">
 <div class = "col-md-9">
@@ -993,7 +994,7 @@ gg <- ggplot(mv_tenure_ethnic, aes(category1, Percent1, fill = category2, toolti
        subtitle = "Trafford 2021",
        caption = "*Owns with a mortgage or loan or shared ownership. **Private rented or lives rent free.\nSource: Census 2021  |  @traffordDataLab",
        x = NULL,
-       y = "% of ethnic group",
+       y = "% of household reference person's ethnic group",
        fill = NULL) +
   coord_flip() +
     theme_lab() +
