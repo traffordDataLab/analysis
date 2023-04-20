@@ -92,6 +92,16 @@ data.frame("area_name" = filter(data_raw, name == "observations.dimensions.optio
 
 }
 
+ons_api_2var <- function(url) {
+
+responseONS <- fromJSON(url, simplifyVector = TRUE) 
+
+data_raw <- enframe(unlist(responseONS))
+
+data.frame("area_name" = filter(data_raw, name == "observations.dimensions.option1") %>% pull(value), "category1" = filter(data_raw, name == "observations.dimensions.option2") %>% pull(value), "category2" = filter(data_raw, name == "observations.dimensions.option3") %>% pull(value), "value" = filter(data_raw, grepl("observations.observation", name, ignore.case=TRUE)) %>% pull(value))
+
+}
+
 
 
 ```
@@ -450,10 +460,48 @@ girafe(ggobj = gg, height_svg = 5,
 </div>
 </div>
 
+The largest proportion of residents in Trafford are of White ethnicity, however, this demographic is not evenly distributed across different age groups. White residents make up 66.3% of all residents aged 15 and under, 77.35% of all residents aged 16 to 64 years, and 92.72% of all residents aged 65 years and over. The second largest group for all age groups are residents of Asian ethnicity, with 17.6%, 13.33%, and 4.03% respectively. Mixed or Multiple ethnicity residents were the third largest group of all residents aged 15 and under, representing 8.96%, which is more than double the proportion of Black ethnicity residents (3.8%) and residents of other ethnicity (3.34%). However, for the two age groups over 15 years, residents of Black ethnicity were the third largest group with 3.77% and 1.85%, a slightly higher proportion than residents of Mixed or Multiple ethnicity (2.94% and 0.94%) and residents of other ethnicity (2.60% and 0.46%).
+
+Across all ethnic groups, for residents aged 15 and under, there were more males than females. However, for residents aged 16 to 64 years and residents aged 65 years and over, there were more females than males, except for the "Other ethnic group" in the 65+ age category. Among residents aged 65 years and over, there was the largest difference between female and male numbers among different ethnicities. Specifically, among Asian residents, females represented 52.4% and males 47.6%; among Black residents, females represented 58.3% and males 41.7%; among Mixed residents, females represented 59.6% and males 40.4%; among White residents, females represented 55.3% and males 44.7%; and among "Other ethnic group" residents, females represented 43.2% and males 56.8%.
+
+The plot below shows a more detailed distribution of age and sex for each ethnic group. The age distribution vary greatly among ethnicity groups. 
 <div class = "row">
 <div class = "col-md-12">
 
 ```{r}
+
+urlc <- "https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=ethnic_group_tb_6a,resident_age_3a,sex"
+
+ethnicity_agec_sex_Trafford <- ons_api_3var(urlc) %>%
+  filter(category1 != "Does not apply") %>%
+  mutate(value = as.numeric(value))
+
+ethnicity_age_sex_Trafford_pc <- ethnicity_agec_sex_Trafford %>% 
+  mutate(Percent = round(value *100/sum(value),2)) %>%
+  group_by(category1) %>%
+  mutate(Percent1 = round(value *100/sum(value),2)) %>%
+  ungroup() %>%
+  group_by(category2) %>%
+  mutate(Percent2 = round(value *100/sum(value),2)) %>%
+  ungroup() %>%
+  group_by(category1,category2) %>%
+  mutate(Percent3 = round(value *100/sum(value),1)) %>%
+  ungroup()
+
+urlt <- "https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=ethnic_group_tb_6a,resident_age_3a"
+
+ethnicity_aget_sex_Trafford <- ons_api_2var(urlt) %>%
+  filter(category1 != "Does not apply") %>%
+  mutate(value = as.numeric(value))
+
+ethnicity_age_sex_Trafford_pt <- ethnicity_aget_sex_Trafford %>% 
+  mutate(Percent = round(value *100/sum(value),2)) %>%
+  group_by(category1) %>%
+  mutate(Percent1 = round(value *100/sum(value),2)) %>%
+  ungroup() %>%
+  group_by(category2) %>%
+  mutate(Percent2 = round(value *100/sum(value),2)) %>%
+  ungroup() 
 
 url <- "https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=ethnic_group_tb_6a,resident_age_18b,sex"
 
@@ -473,6 +521,7 @@ ethnicity_age_sex_Trafford_p <- ethnicity_age_sex_Trafford %>%
   mutate(Percent3 = round(value *100/sum(value),2)) %>%
   ungroup() %>%
   mutate(value2 = ifelse(category3 == "Male", -value,value)) %>%
+  mutate(Percent12 = ifelse(category3 == "Male", -Percent1,Percent1)) %>%
   mutate(category2b = gsub("Aged ", "", category2)) %>%
   mutate(category2b = gsub(" years", "", category2b)) %>%
   mutate(category2b = gsub(" and over", "+", category2b)) %>%
@@ -485,39 +534,28 @@ ethnicity_age_sex_Trafford_p <- ethnicity_age_sex_Trafford %>%
       "<strong>", category3,"</strong> ", Percent3, "%<br/>",
     "<strong>", "Residents: </strong>", format(value, big.mark=","), " (", Percent, "%) of Trafford<br/>"))
 
-  
-
-
-plotTitle <- "Ethnicity by age and sex"
-plotSubtitle<- "Trafford 2021"
-xlab<- "count"
-titleSize<- 12
-subtitleSize<- 10
-elemSize<- 6
-stripSize <- 7
-
 gg <- ggplot(ethnicity_age_sex_Trafford_p ) + #%>% filter(category1 != "White")
-  geom_col_interactive(aes(value2, category2b, fill = category3, tooltip = tooltip), alpha = 0.8) +
-  facet_wrap(~category1, scales = "free_x", nrow = 3) +
+  geom_col_interactive(aes(Percent12, category2b, fill = category3, tooltip = tooltip), alpha = 0.8) +
+  facet_wrap(~category1,nrow = 3) + # scales = "free_x", 
   scale_x_continuous(labels = function (x, ...) {
   format(abs(x), ..., big.mark = ",", scientific = FALSE, trim = TRUE)
 }) +
     scale_fill_manual(values = c("#8E2681", "#5d77a3"),
                       guide = guide_legend(reverse = TRUE)) +
-    labs(x = xlab, y = NULL, title = plotTitle, subtitle = plotSubtitle, caption = "", colour = NULL, fill = NULL) +
+    labs(x = "% of residents of ethnic group", y = NULL, title = "Ethnicity by age and sex", subtitle = "Trafford 2021", caption = "", colour = NULL, fill = NULL) +
   theme_lab() +
-    theme(plot.title = element_text(size=titleSize),
-        plot.subtitle = element_text(size=subtitleSize, margin=margin(0,0,20,0)),
+    theme(plot.title = element_text(size=12),
+        plot.subtitle = element_text(size=10, margin=margin(0,0,20,0)),
         plot.caption = element_text(size=6, hjust = 1),
         plot.title.position = "plot",
-        axis.text.y = element_text(hjust = 1, size=elemSize),
-        axis.text.x = element_text(size=elemSize),
-        axis.title.x = element_text(size=elemSize),
+        axis.text.y = element_text(hjust = 1, size=6),
+        axis.text.x = element_text(size=6),
+        axis.title.x = element_text(size=7),
         legend.position = "none",
         panel.grid.major.y = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        strip.text.x = element_text(size = stripSize, face = "bold", hjust = 0, margin=margin(0,0,5,0))
+        strip.text.x = element_text(size = 7, face = "bold", hjust = 0, margin=margin(0,0,5,0))
         )
 
 girafe(ggobj = gg, height_svg = 7,
