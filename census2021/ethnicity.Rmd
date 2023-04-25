@@ -464,7 +464,7 @@ The largest proportion of residents in Trafford are of White ethnicity, however,
 
 Across all ethnic groups, for residents aged 15 and under, there were more males than females. However, for residents aged 16 to 64 years and residents aged 65 years and over, there were more females than males, except for the "Other ethnic group" in the 65+ age category. Among residents aged 65 years and over, there was the largest difference between female and male numbers among different ethnicities. Specifically, among Asian residents, females represented 52.4% and males 47.6%; among Black residents, females represented 58.3% and males 41.7%; among Mixed residents, females represented 59.6% and males 40.4%; among White residents, females represented 55.3% and males 44.7%; and among "Other ethnic group" residents, females represented 43.2% and males 56.8%.
 
-The plot below shows a more detailed distribution of age and sex for each ethnic group. The age distribution vary greatly among ethnicity groups. 
+The plot below shows a more detailed distribution of age and sex for each ethnic group, also including 2011 proportions. The age distribution vary greatly among ethnicity groups. 
 <div class = "row">
 <div class = "col-md-12">
 
@@ -503,6 +503,40 @@ ethnicity_age_sex_Trafford_pt <- ethnicity_aget_sex_Trafford %>%
   mutate(Percent2 = round(value *100/sum(value),2)) %>%
   ungroup() 
 
+ethnicity_age_sex_Trafford_2011 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_651_1.data.csv?date=latest&geography=1946157089&c_sex=1,2&c_age=1...21&c_ethpuk11=1,6,11,17,21&measures=20100") %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category1 = C_ETHPUK11_NAME, category2 = C_AGE_NAME, category3 = C_SEX_NAME, measure = MEASURES_NAME, value = OBS_VALUE) %>%
+  mutate(category1 = case_when(category1 == "White: Total" ~ "White",
+                               category1 == "Mixed/multiple ethnic group: Total" ~ "Mixed or Multiple ethnic groups",
+                               category1 == "Asian/Asian British: Total" ~ "Asian, Asian British or\nAsian Welsh",
+                               category1 == "Black/African/Caribbean/Black British: Total" ~ "Black, Black British,\nBlack Welsh, Caribbean or African",
+                               category1 == "Other ethnic group: Total" ~ "Other ethnic group",
+                               TRUE ~ category1)) %>%
+  mutate(category2b = gsub("Age ", "", category2)) %>%
+  mutate(category3 = gsub("s", "", category3)) %>%
+  mutate(category2b = gsub(" and over", "+", category2b)) %>%
+  mutate(category2b = case_when( category2b == "5 to 7" |  category2b =="8 to 9" ~ "5 to 9",
+                                 
+                           category2b == "15" |  category2b =="16 to 17" |  category2b =="18 to 19" ~ "15 to 19",
+                                 TRUE ~ category2b)) %>% 
+  select(area_name,category1, category2b,category3, value) %>%
+  group_by(area_name,category1, category2b,category3) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  #mutate(category2b = ifelse(category2b == "4 and under", "0 to 4",category2b)) %>%
+  mutate(category2b = factor(category2b, levels = c("0 to 4", "5 to 9", "10 to 14", "15 to 19", "20 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49",  "50 to 54", "55 to 59", "60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 to 84", "85+"))) %>%
+  mutate(Percent = round(value *100/sum(value),2)) %>%
+  group_by(category1) %>%
+  mutate(Percent1 = round(value *100/sum(value),2)) %>%
+  ungroup() %>%
+  group_by(category2b) %>%
+  mutate(Percent2 = round(value *100/sum(value),2)) %>%
+  ungroup() %>%
+  group_by(category1,category2b) %>%
+  mutate(Percent3 = round(value *100/sum(value),2)) %>%
+  ungroup() %>%
+  mutate(Percent12 = ifelse(category3 == "Male", -Percent1,Percent1)) %>%
+mutate(value2 = ifelse(category3 == "Male", -value,value))
+
 url <- "https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=ethnic_group_tb_6a,resident_age_18b,sex"
 
 ethnicity_age_sex_Trafford <- ons_api_3var(url) %>%
@@ -529,29 +563,36 @@ ethnicity_age_sex_Trafford_p <- ethnicity_age_sex_Trafford %>%
   mutate(category2b = factor(category2b, levels = c("0 to 4", "5 to 9", "10 to 14", "15 to 19", "20 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49",  "50 to 54", "55 to 59", "60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 to 84", "85+"))) %>%
   mutate(category1 = ifelse(category1 == "Asian, Asian British or Asian Welsh","Asian, Asian British or\nAsian Welsh",category1)) %>%
   mutate(category1 = ifelse(category1 == "Black, Black British, Black Welsh, Caribbean or African","Black, Black British,\nBlack Welsh, Caribbean or African",category1)) %>%
+  left_join(ethnicity_age_sex_Trafford_2011 %>% select(area_name,category1,category2b,category3,value_2011 = value,Percent_2011 = Percent), by = c("area_name","category1","category2b","category3")) %>%
   mutate(tooltip = paste0(      "<strong>", category2,"</strong><br/>",
                                 Percent1, "% of <strong>", category1,"</strong><br/>",
       "<strong>", category3,"</strong> ", Percent3, "%<br/>",
-    "<strong>", "Residents: </strong>", format(value, big.mark=","), " (", Percent, "%) of Trafford<br/>"))
+    "<strong>", "Residents: </strong>", format(value, big.mark=","), " (", Percent, "%) of Trafford<br/>",
+    "<strong>", "2011: </strong>", format(value_2011, big.mark=","), " (", Percent_2011, "%) of Trafford<br/>"))
 
-gg <- ggplot(ethnicity_age_sex_Trafford_p ) + #%>% filter(category1 != "White")
+gg <- ggplot(ethnicity_age_sex_Trafford_p ) + 
   geom_col_interactive(aes(Percent12, category2b, fill = category3, tooltip = tooltip), alpha = 0.8) +
+  geom_errorbar(data = ethnicity_age_sex_Trafford_2011,  aes(x=Percent12, xmax=Percent12, xmin=Percent12, y = category2b), color = "grey", size = 0.3) +
   facet_wrap(~category1,nrow = 3) + # scales = "free_x", 
   scale_x_continuous(labels = function (x, ...) {
   format(abs(x), ..., big.mark = ",", scientific = FALSE, trim = TRUE)
 }) +
     scale_fill_manual(values = c("#8E2681", "#5d77a3"),
-                      guide = guide_legend(reverse = TRUE)) +
-    labs(x = "% of residents of ethnic group", y = NULL, title = "Ethnicity by age and sex", subtitle = "Trafford 2021", caption = "", colour = NULL, fill = NULL) +
+                      guide = guide_legend(reverse = TRUE,
+                                           keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(3, units = "mm"))) +
+    labs(x = "% of residents of ethnic group", y = NULL, title = "Ethnicity by age and sex", subtitle = "Trafford 2021", caption = "Census 2011(line), Census 2021(bar)\nSource: ONS  |  @traffordDataLab",
+         colour = NULL, fill = NULL) +
   theme_lab() +
     theme(plot.title = element_text(size=12),
-        plot.subtitle = element_text(size=10, margin=margin(0,0,20,0)),
+        plot.subtitle = element_text(size=10, margin=margin(0,0,0,0)),
         plot.caption = element_text(size=6, hjust = 1),
         plot.title.position = "plot",
         axis.text.y = element_text(hjust = 1, size=6),
         axis.text.x = element_text(size=6),
         axis.title.x = element_text(size=7),
-        legend.position = "none",
+        legend.position = "top",
+        legend.text = element_text(size=6),
         panel.grid.major.y = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
