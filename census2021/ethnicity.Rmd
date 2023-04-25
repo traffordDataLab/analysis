@@ -563,9 +563,9 @@ ethnicity_age_sex_Trafford_p <- ethnicity_age_sex_Trafford %>%
   mutate(category2b = factor(category2b, levels = c("0 to 4", "5 to 9", "10 to 14", "15 to 19", "20 to 24", "25 to 29", "30 to 34", "35 to 39", "40 to 44", "45 to 49",  "50 to 54", "55 to 59", "60 to 64", "65 to 69", "70 to 74", "75 to 79", "80 to 84", "85+"))) %>%
   mutate(category1 = ifelse(category1 == "Asian, Asian British or Asian Welsh","Asian, Asian British or\nAsian Welsh",category1)) %>%
   mutate(category1 = ifelse(category1 == "Black, Black British, Black Welsh, Caribbean or African","Black, Black British,\nBlack Welsh, Caribbean or African",category1)) %>%
-  left_join(ethnicity_age_sex_Trafford_2011 %>% select(area_name,category1,category2b,category3,value_2011 = value,Percent_2011 = Percent), by = c("area_name","category1","category2b","category3")) %>%
+  left_join(ethnicity_age_sex_Trafford_2011 %>% select(area_name,category1,category2b,category3,value_2011 = value,Percent_2011 = Percent, Percent1_2011 = Percent1), by = c("area_name","category1","category2b","category3")) %>%
   mutate(tooltip = paste0(      "<strong>", category2,"</strong><br/>",
-                                Percent1, "% of <strong>", category1,"</strong><br/>",
+                                Percent1, "% of <strong>", category1,"</strong> (", Percent1_2011, "% in 2011)<br/>",
       "<strong>", category3,"</strong> ", Percent3, "%<br/>",
     "<strong>", "Residents: </strong>", format(value, big.mark=","), " (", Percent, "%) of Trafford<br/>",
     "<strong>", "2011: </strong>", format(value_2011, big.mark=","), " (", Percent_2011, "%) of Trafford<br/>"))
