@@ -969,7 +969,6 @@ mv_tenure_ethnic <- mv_tenure_ethnic_raw %>%
   mutate(category2 = case_when(category2 == "Private rented or lives rent free" ~ "**Private rented",
                           category2 == "Owned: Owns with a mortgage or loan or shared ownership" ~ "*Owns with a\nmortgage",
                           category2 == "Owned: Owns outright" ~ "Owns outright",
-                          category2 == "Private rented or lives rent freePrivate rented or lives rent free" ~ "**Private rented",
                           TRUE ~category2
                           )) %>%
   mutate(category2 = fct_rev(factor(category2, levels = c("Owns outright", "*Owns with a\nmortgage", "**Private rented", "Social rented")))) %>%
