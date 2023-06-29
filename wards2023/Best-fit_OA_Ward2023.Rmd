@@ -1,0 +1,67 @@
+---
+title: "ONS Best-fit 2021 Output Areas (OA) to 2023 Wards"
+lang: "en-GB"
+output:
+  html_document:
+    theme: flatly
+    self_contained: TRUE
+    toc: false
+    df_print: paged
+---
+
+
+<main>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(cowplot)
+library(jsonlite)
+```
+<h2>Trafford</h2>
+
+The maps below present the Trafford 2023 wards (black line) and the corresponding 2021 OAs (purple areas) that best fit each ward according to the [ONS best-fit lookup](https://geoportal.statistics.gov.uk/datasets/ons::output-area-to-ward-to-local-authority-district-may-2023-lookup-in-england-and-wales/explore). OAs are the smallest [geography](https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeographies/census2021geographies) used by ONS to publish Census 2021 results.
+
+<div class = "row">
+<div class = "col-md-12">
+```{r fig.height=12, fig.width=10}
+lookup_ons <- fromJSON("https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/OA21_WD23_LAD23_EW_LU/FeatureServer/0/query?where=LAD23NM%20%3D%20'TRAFFORD'&outFields=*&outSR=4326&f=json", flatten = TRUE) %>% 
+  pluck("features") %>% 
+  as_tibble() %>% 
+  select(OA21CD = attributes.OA21CD, area_name = attributes.WD23NM)
+
+
+oas_ward <- st_read("https://www.trafforddatalab.io/spatial_data/oa/2021/trafford_oa_generalised.geojson", quiet = TRUE) %>%
+  left_join(lookup_ons, by = c("area_code"= "OA21CD")) %>%
+  mutate(area_name = str_wrap(area_name, 18))
+
+boundary <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2023/trafford_ward_full_resolution.geojson", quiet = TRUE) %>%
+  mutate(area_name = str_wrap(gsub(" Ward", "", area_name),width = 18)) %>%
+  arrange(area_name)
+
+plots <- map(boundary$area_name,
+         function(x) {
+           ggplot() +
+             geom_sf(data = filter(oas_ward, area_name == x), colour = "#7e478b", fill = "#7e478b", alpha = 0.3, linewidth = 0.1) +
+             geom_sf(data = filter(boundary, area_name == x), colour = "#212121", fill = "transparent", linewidth = 0.8) +
+             labs(title = x, subtitle = NULL, caption = NULL, x = NULL, y = NULL) +
+             coord_sf(crs = st_crs(4326), datum = NA) +
+             theme_void() +
+             theme(plot.margin = unit(c(0.2,0.2,0.2,0.2), "cm"),
+                   strip.text = element_text(family = "Open Sans", size = 10, colour = "#757575", face = "plain"))
+         })
+plot_grid(plotlist = plots, ncol = 4)
+
+```
+</div>
+</div>
+<p class= "rightPar">Contains National Statistics data © and Ordnance Survey data © Crown copyright and database right 2023</p>
+</main>
+
+```{css}
+.rightPar {
+text-align:right;
+color: grey;
+font-size: 14px;
+}
+```
