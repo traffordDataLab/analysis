@@ -23,18 +23,9 @@ knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, results=FALSE)
 library(tidyverse) ;
 library(httr) ; 
 library(readxl) ;
-library(scales) ; 
-library(ggiraph) ;
-
-
-source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
-
-`%out%` <- function(a,b) ! a %in% b
-
-girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
-                      opts_toolbar(saveaspng = FALSE),
-                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
-                      )
+library(scales) ;
+library(ggpol) ;
+library(ggiraph)
 
 ```
 
@@ -85,6 +76,10 @@ census2021 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2029_1.dat
 
 <p>The median age in Trafford was 41 years, 0.2 years more than the median age in Mid-Year 2021. Trafford had the third highest median age among GM authorities. GM median age is 37.3 years and England’s median age is 40.5 years.</p>
 
+<p>Comparing the change from Census 2021 to Mid 2022, Females under 5 years had the largest decrease in growth and number of residents with -5.6% and -376 respectively. Males aged 45 to 49 had the largest decrease in growth and number of residents with -3.1% and -250 respectively.</p>
+
+<p>Females aged 75 to 79 had the largest increase in growth and number of residents at 10.5% and 460 respectively. Males aged 75 to 79 had the largest increase in growth at 8.8%, however, the largest increase in number of residents for Males was age band 10 to 14 at 428.</p>
+
 <div class = "row">
 <div class = "col-md-2">
 </div>
@@ -93,6 +88,10 @@ census2021 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2029_1.dat
 
 temp <- bind_rows(mid2022Trafford, census2021) %>%
   mutate(value = case_when(gender == "Male" ~ value * -1, TRUE ~ value))
+
+temp2 <- bind_rows(mid2022Trafford, census2021) %>%
+  pivot_wider(names_from = "year", values_from = "value") %>%
+  mutate(percChange = ((`2022`-`2021`)/`2021`) *100, difference = `2022`-`2021`)
 
 ggplot() +
   geom_col(data = filter(temp, year == "2022"), 
@@ -107,28 +106,25 @@ ggplot() +
        title = "Trafford population pyramid, Census 2021 to Mid year 2022",
        caption = "Census 2021 (line), Mid-year 2022 (bar)\nSource: ONS | @traffordDataLab") +
   theme(
-        plot.title = element_text(size=16, face = "bold", hjust = 0),
-        plot.subtitle = element_markdown(size=14, hjust = 0),
-      plot.caption = element_text(size = 8, hjust = 1, margin = margin(t = 15)),
-        plot.title.position = "plot",
-        #plot.margin = unit(c(0,0,0,0), "cm"),
-        #panel.grid.major.y = element_blank(),
-        axis.text.y = element_text(hjust = 1, size=8),
-        axis.text.x = element_text(size=8),
-        axis.line.y = element_line(colour = "#000000"),
-        
-              plot.background = element_blank(),
-      panel.background = element_blank(),
-      panel.border = element_blank(),
-            #panel.grid.major.x = element_blank(),
-      panel.grid.major.x = element_line(size = 0.3, color = "#cbcbcb"),
-      #panel.grid.minor = element_blank(),
-      legend.position = "none",
-            axis.ticks.x=element_line(size=0.1, color = "transparent"),
-      axis.ticks.y=element_line(size=0.1, color = "transparent"),
-      axis.line = element_blank(),
-      strip.background = element_rect(fill = "transparent", colour = NA),
-      strip.text = element_text(size = 9, face = "bold", hjust = .5))
+    plot.title = element_text(size=16, face = "bold", hjust = 0),
+    plot.subtitle = element_text(size=14, hjust = 0),
+    plot.caption = element_text(size = 8, hjust = 1, margin = margin(t = 15)),
+    plot.title.position = "plot",
+    axis.text.y = element_text(hjust = 1, size=8),
+    axis.text.x = element_text(size=8),
+    axis.line.y = element_line(colour = "#000000"),
+    panel.background = element_blank(),
+    plot.background = element_rect(fill = 'white'),
+    panel.border = element_blank(),
+    panel.grid.major.x = element_line(size = 0.3, color = "#cbcbcb"),
+    legend.position = "none",
+    axis.ticks.x=element_line(size=0.1, color = "transparent"),
+    axis.ticks.y=element_line(size=0.1, color = "transparent"),
+    axis.line = element_blank(),
+    strip.background = element_rect(fill = "transparent", colour = NA),
+    strip.text = element_text(size = 9, face = "bold", hjust = .5))
+
+#ggsave("pop_pyramid_2022.png", dpi = 300, scale = 1)
 
 ```
 </div>
@@ -224,7 +220,7 @@ ggplot(mid2022d %>% filter(measure %in% c("natchange_", "internal_net_", "intern
   ) +
   guides(fill = "none")
 
-
+#ggsave("migration_components.png", dpi = 300, scale = 1)
 
 ```
 </div>
@@ -232,22 +228,3 @@ ggplot(mid2022d %>% filter(measure %in% c("natchange_", "internal_net_", "intern
 </div>
 </div>
 
-
-```{css}
-.smtable {
-padding-left: 0px;
-}
-.TableCaption {
-font-size: 10px;
-}
-
-#popTable td {
-padding: 2px 2px;
-}
-
-.rightPar {
-text-align:right;
-color: grey;
-font-size: 14px;
-}
-```
