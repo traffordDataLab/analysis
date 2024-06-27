@@ -23,7 +23,7 @@ basech <- "January 2020"
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS51-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
+cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS52-latest&gender=0&age=0&measure=1,2&measures=20100") %>%
     select(period = DATE_NAME,
          area_code = GEOGRAPHY_CODE,
          area_name = GEOGRAPHY_NAME,
@@ -33,8 +33,8 @@ cc_trafford <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.dat
 latest <- as.character(max(as.yearmon(cc_trafford$period)))
 latestm12 <- as.character(max(as.yearmon(cc_trafford$period))-1)
 
-latestch <- "April 2024"
-latestm12ch <- "April 2023"
+latestch <- "May 2024"
+latestm12ch <- "May 2023"
 
 cc_traf <- cc_trafford %>%
   mutate(period=as.yearmon(period, "%b %Y"),
@@ -196,7 +196,7 @@ c_rate <- c_count %>%
 
 ```
  
-The Trafford MSOA with the largest share of claims in `r latestch` was `r filter(c_count, Share == max(Share)) %>% pull(area_name)` with `r filter(c_count, Share == max(Share))$Share`% of all claimants within Trafford, almost the double of claims than Gorse Hill, the MSOA with the second largest number of claims. 13 MSOAs out of 28 have more claims in `r latestch`  compared to `r latestm12ch`. `r arrange(c_count, desc(additional_claims))$area_name[1]` have the largest increase in number of claims with `r abs(arrange(c_count, desc(additional_claims))$additional_claims[1])` more, followed by `r arrange(c_count, desc(additional_claims))$area_name[2]` (`r arrange(c_count, desc(additional_claims))$additional_claims[2]`). `r arrange(c_count, additional_claims)$area_name[1]`  has the largest reduction in number of claims with `r abs(arrange(c_count, additional_claims)$additional_claims[1])` less, followed by `r arrange(c_count, additional_claims)$area_name[2]` (`r arrange(c_count, additional_claims)$additional_claims[2]`) and `r arrange(c_count, additional_claims)$area_name[3]` (`r arrange(c_count, additional_claims)$additional_claims[3]`).
+The Trafford MSOA with the largest share of claims in `r latestch` was `r filter(c_count, Share == max(Share)) %>% pull(area_name)` with `r filter(c_count, Share == max(Share))$Share`% of all claimants within Trafford, more the double of claims than Gorse Hill, the MSOA with the second largest number of claims. 11 MSOAs out of 28 have more claims in `r latestch`  compared to `r latestm12ch`. `r arrange(c_count, desc(additional_claims))$area_name[1]` have the largest increase in number of claims with `r abs(arrange(c_count, desc(additional_claims))$additional_claims[1])` more, followed by `r arrange(c_count, desc(additional_claims))$area_name[2]` (`r arrange(c_count, desc(additional_claims))$additional_claims[2]`). `r arrange(c_count, additional_claims)$area_name[1]`  has the largest reduction in number of claims with `r abs(arrange(c_count, additional_claims)$additional_claims[1])` less, followed by `r arrange(c_count, additional_claims)$area_name[2]` (`r arrange(c_count, additional_claims)$additional_claims[2]`) and `r arrange(c_count, additional_claims)$area_name[3]` (`r arrange(c_count, additional_claims)$additional_claims[3]`).
 
 
 ```{r CCMSOATable}
@@ -241,7 +241,7 @@ tbl2 <- reactable(
         cell_function(value,table2$additional_claims)
       }
     ),
-    Share = colDef(name = "Share Apr 24", maxWidth = 80, align = "left"),
+    Share = colDef(name = "Share May 24", maxWidth = 80, align = "left"),
     percentage_change = colDef(name = "% Change", maxWidth = 80, align = "right"),
     latestm12_r = colDef(name = latestm12, maxWidth = 60, align = "left"),
     latest_r = colDef(name = latest, maxWidth = 60, align = "left"),
@@ -267,7 +267,7 @@ tbl2
 
 ```
 
-The MSOAs with higher claimant rate in `r latestch` were `r arrange(table2, desc(latest_r))$area_name[1]` with `r arrange(table2, desc(latest_r))$latest_r[1]`%,  `r arrange(table2, desc(latest_r))$area_name[2]` with `r arrange(table2, desc(latest_r))$latest_r[2]`% and  `r arrange(table2, desc(latest_r))$area_name[3]` with `r arrange(table2, desc(latest_r))$latest_r[3]`%. From the top 5 MSOAs with the highest rates, Partington and Old Trafford had a lower rate when comparing `r latestm12ch` to `r latestch`. The MSOAs where the claimant rate have decreased more from `r latestm12ch` to `r latestch` were `r arrange(table2, Change)$area_name[1]` with `r arrange(table2, Change)$Change[1]`% points decrease, followed by  `r arrange(table2, Change)$area_name[2]` with `r arrange(table2, Change)$Change[2]`% and `r arrange(table2, Change)$area_name[3]` with `r arrange(table2, Change)$Change[3]`%.
+The MSOAs with higher claimant rate in `r latestch` were `r arrange(table2, desc(latest_r))$area_name[1]` with `r arrange(table2, desc(latest_r))$latest_r[1]`%,  `r arrange(table2, desc(latest_r))$area_name[2]` with `r arrange(table2, desc(latest_r))$latest_r[2]`% and  `r arrange(table2, desc(latest_r))$area_name[3]` with `r arrange(table2, desc(latest_r))$latest_r[3]`%. From the top 5 MSOAs with the highest rates, only Partington had a lower rate when comparing `r latestm12ch` to `r latestch`. The MSOAs where the claimant rate have decreased more from `r latestm12ch` to `r latestch` were `r arrange(table2, Change)$area_name[1]` with `r arrange(table2, Change)$Change[1]`% points decrease, followed by  `r arrange(table2, Change)$area_name[2]` with `r arrange(table2, Change)$Change[2]`%.
 
 
   <div class="row">
@@ -366,7 +366,7 @@ ggplot() +
 # URL: https://www.nomisweb.co.uk/sources/cc
 # Licence: Open Government Licence
 
-raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS51-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
+raw_cc_age <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1811939363&date=latestMINUS52-latest&gender=0&age=0,2,10,11,3,12...16,4,17...20&measure=1&measures=20100") 
 
 
 cc_age <- raw_cc_age %>%
@@ -399,7 +399,7 @@ table4 <- age_bands %>% select(Age, `latestm12`= latestm12, `latest` = latest, a
 ```
 
 
-In Trafford, from  `r latestm12ch` to `r latestch` 6 out of 11 of the age bands has decreased the number of claimants. The age band 40 to 44 had the most increase with 35 more claimants. When considering the reduction of claims the age band `r filter(table3, additional_claims == min(additional_claims)) %>% pull(Age)` years had the largest reduction with `r filter(table3, additional_claims == min(additional_claims)) %>% pull(additional_claims)` less claims.
+In Trafford, from  `r latestm12ch` to `r latestch` 3 out of 11 of the age bands has decreased the number of claimants. The age band `r filter(table3, additional_claims == max(additional_claims)) %>% pull(Age)`  had the most increase with `r filter(table3, additional_claims == max(additional_claims)) %>% pull(additional_claims)` more claimants. When considering the reduction of claims the age band `r filter(table3, additional_claims == min(additional_claims)) %>% pull(Age)` years had the largest reduction with `r filter(table3, additional_claims == min(additional_claims)) %>% pull(additional_claims)` less claims.
 
   <div class="row">
    <div class = "col-sm-6">
@@ -746,7 +746,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202209,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402,202403,202404))))
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202209,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402,202403,202404,202405))))
               )) %>% toJSON()
 request <- POST(
   url = path,
@@ -771,7 +771,7 @@ mutate(period=as.yearmon(`Month`, "%B %Y")) %>%
 
 ```
 
-The [Universal Credit](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html) claims in Trafford have increased `r filter(trafford_uc, period == latest) %>% pull(change)`% from `r basech` to `r latestch`. The rate of claims as a proportion of people age 16 to 64 increased form `r filter(trafford_uc, period == base) %>% pull(rate)`% to `r filter(trafford_uc, period == latest) %>% pull(rate)`% from `r basech` to `r latestch`.
+The [Universal Credit](https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html) claims in Trafford have increased `r filter(trafford_uc, period == latest) %>% pull(change)`% from `r basech` to `r latestch`. The rate of claims as a proportion of people age 16 to 64 increased form `r filter(trafford_uc, period == base) %>% pull(rate)`% to `r filter(trafford_uc, period == latest) %>% pull(rate)`% from `r basech` to `r latestch`. Claimants are migrating from legacy benefits to Universal Credit which replace six means-tested benefits for working-age people: Working Tax Credit, Child Tax Credit, Housing Benefit, Income Support, income-based Jobseeker’s Allowance, and income-related Employment band Support Allowance (ESA). 
 
 
   <div class="row">
@@ -869,7 +869,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202304,202404))))
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202305,202405))))
               )) %>% toJSON()
 request <- POST(
   url = path,
@@ -927,7 +927,7 @@ tbl7 <- reactable(
       }
     ),
     percentage_change = colDef(name = "% Change", maxWidth = 80),
-    Share = colDef(name = "Share Apr 24", maxWidth = 80, align = "left"),
+    Share = colDef(name = "Share May 24", maxWidth = 80, align = "left"),
     latestm12_rate = colDef(name = latestm12, maxWidth = 60, align = "left"),
     latest_rate = colDef(name = latest, maxWidth = 60, align = "left"),
     `Change` = colDef(
@@ -1046,7 +1046,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402,202403,202404)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402,202403,202404,202405)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:AGE_CODE:C_UC_AGE_BAND:",c(1,2,3,4,5,6,7,8,9,10,999))))
 
@@ -1245,7 +1245,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_MSOA_TO_LA:E0", seq(2001259, 2001286, 1)))),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202404)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202405)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME:C_UC_CONDITIONALITY_REGIME:",c("AA","AB","BC","BD","DF","CE"))))
 
@@ -1321,7 +1321,7 @@ query <- list(database = unbox("str:database:UC_Monthly"),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE` = list(
                   map = list("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
                 `str:field:UC_Monthly:F_UC_DATE:DATE_NAME` = list(
-                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402,202403,202404)))),
+                  map = as.list(paste0("str:value:UC_Monthly:F_UC_DATE:DATE_NAME:C_UC_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402,202403,202404,202405)))),
                 `str:field:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME` = list(
                   map = as.list(paste0("str:value:UC_Monthly:V_F_UC_CASELOAD_FULL:CCCONDITIONALITY_REGIME:C_UC_CONDITIONALITY_REGIME:",c("AA","AB","BC","BD","DF","CE"))))
 
@@ -1382,6 +1382,245 @@ uc_plot_conditionality_c <- uc_condition_trend %>%
         panel.grid.minor = element_blank(),
         axis.ticks.x = element_line(colour = "#333333", size = 0.5))  +
   coord_cartesian(clip = "off") 
+
+```
+
+</div>
+</div>
+
+```{r UCEntitlementsDataTrend}
+
+#Universal Credit
+# Source: DWP
+# URL: https://stat-xplore.dwp.gov.uk/webapi/metadata/UC_Monthly/UC_Monthly.html
+# Licence: Open Government Licence
+
+query <- list(database = unbox("str:database:UC_Households"),
+              measures = "str:count:UC_Households:V_F_UC_HOUSEHOLDS",
+              dimensions = c("str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE",
+                             "str:field:UC_Households:F_UC_HH_DATE:DATE_NAME",
+                             "str:field:UC_Households:V_F_UC_HOUSEHOLDS:HCLCW_ENTITLEMENT") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE` = list(
+                  map = list("str:value:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
+                `str:field:UC_Households:F_UC_HH_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Households:F_UC_HH_DATE:DATE_NAME:C_UC_HH_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402)))),
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:HCLCW_ENTITLEMENT` = list(
+                  map = as.list(paste0("str:value:UC_Households:V_F_UC_HOUSEHOLDS:HCLCW_ENTITLEMENT:C_UC_LCW_ENTITLEMENT:",c(0,1,2,3))))
+                
+              )) %>% toJSON()
+
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% purrr::map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+ent_wa <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value"))  %>%
+   mutate(indicator="Limited Capability for Work Entitlement") %>%
+  rename(category = `Limited Capability for Work Entitlement`)
+
+query <- list(database = unbox("str:database:UC_Households"),
+              measures = "str:count:UC_Households:V_F_UC_HOUSEHOLDS",
+              dimensions = c("str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE",
+                             "str:field:UC_Households:F_UC_HH_DATE:DATE_NAME",
+                             "str:field:UC_Households:V_F_UC_HOUSEHOLDS:TENURE") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE` = list(
+                  map = list("str:value:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
+                `str:field:UC_Households:F_UC_HH_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Households:F_UC_HH_DATE:DATE_NAME:C_UC_HH_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402)))),
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:TENURE` = list(
+                  map = as.list(paste0("str:value:UC_Households:V_F_UC_HOUSEHOLDS:TENURE:C_UC_HOUSING_ENTITLEMENT:",c(0,1))))
+                
+              )) %>% toJSON()
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% purrr::map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+ent_hous <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value")) %>%
+  mutate(indicator = "Housing Entitlement") %>%
+  rename(category = `Housing Entitlement - Tenure`) 
+
+
+query <- list(database = unbox("str:database:UC_Households"),
+              measures = "str:count:UC_Households:V_F_UC_HOUSEHOLDS",
+              dimensions = c("str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE",
+                             "str:field:UC_Households:F_UC_HH_DATE:DATE_NAME",
+                             "str:field:UC_Households:V_F_UC_HOUSEHOLDS:HCDISABLED_CHILD_ENTITLEMENT") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE` = list(
+                  map = list("str:value:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
+                `str:field:UC_Households:F_UC_HH_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Households:F_UC_HH_DATE:DATE_NAME:C_UC_HH_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402)))),
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:HCDISABLED_CHILD_ENTITLEMENT` = list(
+                  map = as.list(paste0("str:value:UC_Households:V_F_UC_HOUSEHOLDS:HCDISABLED_CHILD_ENTITLEMENT:C_UC_DISABLED_CHILD_ENTITLEMENT:",c(0,1))))
+                
+              )) %>% toJSON()
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% purrr::map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+ent_dis_child <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value")) %>%
+  mutate(indicator = "Disabled Child Entitlement")%>%
+  rename(category = `Disabled Child Entitlement`) 
+
+
+
+query <- list(database = unbox("str:database:UC_Households"),
+              measures = "str:count:UC_Households:V_F_UC_HOUSEHOLDS",
+              dimensions = c("str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE",
+                             "str:field:UC_Households:F_UC_HH_DATE:DATE_NAME",
+                             "str:field:UC_Households:V_F_UC_HOUSEHOLDS:HCCHILD_ENTITLEMENT") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE` = list(
+                  map = list("str:value:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
+                `str:field:UC_Households:F_UC_HH_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Households:F_UC_HH_DATE:DATE_NAME:C_UC_HH_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402)))),
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:HCCHILD_ENTITLEMENT` = list(
+                  map = as.list(paste0("str:value:UC_Households:V_F_UC_HOUSEHOLDS:HCCHILD_ENTITLEMENT:C_UC_CHILD_ENTITLEMENT:",c(0,1))))
+                
+              )) %>% toJSON()
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% purrr::map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+ent_child <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value")) %>%
+  mutate(indicator = "Child Entitlement") %>%
+  rename(category = `Child Entitlement`)
+
+
+
+
+query <- list(database = unbox("str:database:UC_Households"),
+              measures = "str:count:UC_Households:V_F_UC_HOUSEHOLDS",
+              dimensions = c("str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE",
+                             "str:field:UC_Households:F_UC_HH_DATE:DATE_NAME",
+                             "str:field:UC_Households:V_F_UC_HOUSEHOLDS:HCCARER_ENTITLEMENT") %>% matrix(),
+              recodes = list(
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE` = list(
+                  map = list("str:value:UC_Households:V_F_UC_HOUSEHOLDS:COA_CODE:V_C_MASTERGEOG11_LA_TO_REGION:E08000009")),
+                `str:field:UC_Households:F_UC_HH_DATE:DATE_NAME` = list(
+                  map = as.list(paste0("str:value:UC_Households:F_UC_HH_DATE:DATE_NAME:C_UC_HH_DATE:",c(202001,202002,202003,202004,202005,202006,202007,202008,202009,202010,202011,202012,202101,202102,202103,202104,202105,202106,202107,202108,202109,202110,202111,202112,202201,202202,202203,202204,202205,202206,202207,202208,202210,202211,202212,202301,202302,202303,202304,202305,202306,202307,202308,202309,202310,202311,202312,202401,202402)))),
+                `str:field:UC_Households:V_F_UC_HOUSEHOLDS:HCCARER_ENTITLEMENT` = list(
+                  map = as.list(paste0("str:value:UC_Households:V_F_UC_HOUSEHOLDS:HCCARER_ENTITLEMENT:C_UC_CARER_ENTITLEMENT:",c(0,1))))
+                
+              )) %>% toJSON()
+request <- POST(
+  url = path,
+  body = query,
+  config = add_headers(APIKey = api_key),
+  encode = "json")
+response <- fromJSON(content(request, as = "text"), flatten = TRUE)
+# extract list items and convert to a dataframe
+tabnames <- response$fields$items %>% purrr::map(~.$labels %>% unlist)
+values <- response$cubes[[1]]$values
+dimnames(values) <- tabnames
+
+ent_carer <- as.data.frame.table(values, stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  set_names(c(response$fields$label,"value")) %>%
+  mutate(indicator = "Carer Entitlement") %>%
+  rename(category = `Carer Entitlement`)
+
+uc_entitlement_trend <- bind_rows(ent_wa,ent_hous,ent_dis_child, ent_child, ent_carer) %>%
+  mutate(category = ifelse(category %in% c("LCW", "LCWRA"), "LCW or LCWRA",category)) %>%
+  select(area_name = `National - Regional - LA - OAs`, date = Month, everything()) %>%
+  group_by(area_name, date, category, indicator) %>%
+  summarise(value = sum (value)) %>%
+  ungroup() %>%
+  group_by(area_name, date, indicator) %>%
+  mutate(percentage = round(value/sum(value)*100,1)) %>%
+  filter(!category %in% c("None", "No"))%>%
+  ungroup() %>%
+  mutate(date = as.Date(paste('01', date), format='%d %B %Y')) %>%
+  pivot_longer(value:percentage, names_to = "measure", values_to = "value") %>%
+  mutate(measure = ifelse(measure == "value", "Count", "Percentage"))
+
+entitlement_stats <- uc_entitlement_trend %>%
+  filter(date %in% c("2024-02-01", "2023-02-01", "2022-02-01")) %>%
+  group_by(indicator, measure) %>%
+  mutate(prev_year = value - lag(value),
+         prev_baseYear = value - value[1]) %>%
+  filter(measure == "Percentage")
+
+```
+
+Households on Universal Credit can access additional entitlements for children, health and disabilities, housing, and carers, at the top of the standard allowance. Each household can receive more then one entitlement. As a consequence of the Covid-19 pandemic the number of entitlements showed a sudden increase whilst at the same time the proportion of household receiving entitlements decreased indicating a larger number of claims not receiving additional entitlements. 
+
+As claimants are migrating from legacy benefits to Universal Credit and new claims are reported, the number of household receiving an entitlement have been increasing. From Feb 2023 to Feb 2024, both the proportion of household receiving Limited Capability for Work Entitlement and Child Entitlement have increased 1.8% points. The previous year, from Feb 2022 to Feb 2023, the Limited Capability for Work Entitlement proportion increased 3.7% points whilst the Child Entitlement proportion increased 1.5% points.
+
+
+<div class="row">
+<div class = "col-sm-12">
+   
+```{r UCEntitlementLine, fig.height= 5, fig.width=12}
+
+uc_plot_entitlement_c <- uc_entitlement_trend %>%
+  mutate(indicator = ordered(indicator, levels = pull(arrange(filter(., date == "2024-02-01", measure == "Count"), desc(value)),indicator))) 
+
+  
+
+ ggplot(uc_plot_entitlement_c, aes(x = date, y = value, colour = indicator)) +
+  geom_hline(yintercept = 0, size = 0.3, colour = "#333333") +
+  geom_line(size = 1) +
+   geom_text(uc_plot_entitlement_c %>% filter(date == max(date)), mapping = aes(x = max(date) + 120, label = value, fontface = "bold", hjust = 1), direction = "y", show.legend = FALSE) +
+  facet_wrap(~measure, scales = "free") +
+   scale_color_brewer(palette = "Set2") +
+  scale_x_date(breaks = c(min(uc_plot_entitlement_c$date), as.Date(as.yearmon("Jan 2021"),format="%b %Y"), as.Date(as.yearmon("Jan 2022"),format="%b %Y"),  as.Date(as.yearmon("Jan 2023"),format="%b %Y"), as.Date(as.yearmon("Jan 2024"),format="%b %Y")), date_labels = "%b %y") +
+  scale_y_continuous(expand = c(0.005, 0.005)) +
+  labs(title = "Households on Universal Credit by entitlements",
+       subtitle = paste("Trafford, ", base, " - ",format(max(uc_plot_entitlement_c$date),format="%b %Y")),
+       caption = "Source: DWP",
+       x = NULL,
+       y = NULL,
+       colour = NULL) +
+  theme_minimal(base_size = 10) +
+  theme(plot.title = element_text(size=14,face = "bold"),
+        plot.subtitle = element_text(size=10),
+    plot.margin = unit(rep(0.5,4), "cm"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks.x = element_line(colour = "#333333", size = 0.5),
+    panel.spacing = unit(2, "lines"),
+    legend.position = "top",
+    strip.text = element_text(size=12,face = "bold", hjust = 0),
+    strip.position = "left") +
+  coord_cartesian(clip = "off")
 
 ```
 
