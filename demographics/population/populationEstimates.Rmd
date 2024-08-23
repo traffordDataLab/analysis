@@ -19,7 +19,7 @@ output:
 
 <main>
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, results=FALSE)
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
 library(tidyverse) ;
 library(httr) ; 
 library(readxl) ;
@@ -29,7 +29,7 @@ library(ggiraph)
 
 ```
 
-```{r}
+```{r, results=FALSE}
 
 source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
 
@@ -44,6 +44,12 @@ theme_labP <- function () {
       legend.text = element_text(size=8)
     )
 }
+
+girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      )
+
 
 tmp <- tempfile(fileext = ".xlsx") 
  
@@ -119,7 +125,7 @@ mid2022_23_5y <- mid2022_23 %>%
 
 <p>In Mid-year 2023, the Trafford population was 237,480, which is 829 more than the population in Mid-year 2022.</p>
 
-<p>From Mid-year 2022 to Mid-year 2023, the population has grown by 0.4%, this is 0.9% less than GM at 1.3% growth and 0.6% less than England at 1%. Trafford has the lowest growth compared to the rest of GM authorities and the second lowest growth of 15 similar local Authorities.</p>
+<p>From Mid-year 2022 to Mid-year 2023, the population has grown by 0.4%, this is 0.9% less than Greater Manchester (GM) at 1.3% growth and 0.6% less than England at 1%. Trafford has the lowest growth compared to the rest of GM authorities and the second lowest growth of the average of 15 similar local authorities (Similar Authorities).</p>
 
 <p>The median age in Trafford was 40.9 years, 0.1 years less than the median age in Mid-year 2022. Trafford had the third highest median age among GM authorities. GM's median age is 37.2 years, and England’s median age is 40.4 years.</p>
 
@@ -155,11 +161,11 @@ ggplot(gmCompP, aes(x = `% Change`, y = area_name)) +
 </div>
 </div>
 
-### Females aged 15 to 19 and Males aged 75 to 79 had the largest increase in growth
+### Females 15 to 19 and Males 75 to 79 age bands had the largest increase in growth
 
-<p>Comparing the change from Mid-2022 to Mid-2023, females aged 15 to 19 had the largest increase in growth and number of residents at 5.7% and 372, respectively. Males aged 75 to 79 had the largest increase in growth at 5.2%; however, the largest increase in number of residents for Males was age band 15 to 19 at 199.</p>
+<p>Comparing the change from Mid-2022 to Mid-2023, females 15 to 19 age band had the largest increase in growth and number of residents at 5.7% and 372, respectively. Males 75 to 79 age band had the largest increase in growth at 5.2%; however, the largest increase in number of residents for Males was age band 15 to 19 at 199.</p>
 
-<p>Three age bands had the largest decrease, 20 to 24 years with -3.2 (170 fewer females),  70 to 74 years with -3 (162 fewer females), and under 5 years with -2.9 (184 fewer females). Males aged 70 to 74 had the largest decrease in growth and number of residents with -4.3% and -211, respectively.</p>
+<p>Three age bands had the largest decrease, 20 to 24 years with -3.2% (170 fewer females),  70 to 74 years with -3% (162 fewer females), and under 5 years with -2.9% (184 fewer females). Males aged 70 to 74 had the largest decrease in growth and number of residents with -4.3% and -211, respectively.</p>
 
 <p>Female population grew 0.27% while male population grew 0.44%</p>
 
@@ -171,13 +177,18 @@ ggplot(gmCompP, aes(x = `% Change`, y = area_name)) +
 
 temp <- mid2022_23_5y %>%
   mutate(value = case_when(sex == "Female" ~ value * -1, TRUE ~ value)) %>%
-  mutate(sex = factor(sex, levels = c("Female", "Male")))
+  mutate(sex = factor(sex, levels = c("Female", "Male"))) %>%
+  pivot_wider(names_from = year,values_from = value) %>%
+    mutate(tooltip = paste0("<strong>", sex, " ", age, "</strong><br/>",
+                          "<strong>2022: </strong> ", format(abs(`2022`),big.mark = ","), "<br/>",
+                          "<strong>2023: </strong> ", format(abs(`2023`),big.mark = ","))) 
+ 
 
-ggplot() +
-  geom_col(data = filter(temp, year == "2023"), 
-           aes(x = age, y = value, fill = sex), alpha = 0.8, width = 0.9)+ 
-  geom_step(data = filter(temp, year == "2022"), 
-            aes(x = age, y = value, group = sex, colour = sex), stat = "identity", size = 1, direction = "mid") +
+gg <- ggplot(temp) +
+  geom_col_interactive(
+           aes(x = age, y = `2023`, fill = sex, tooltip = tooltip), alpha = 0.8, width = 0.9)+ 
+  geom_step( 
+            aes(x = age, y = `2022`, group = sex, colour = sex), stat = "identity", size = 1, direction = "mid") +
   scale_fill_manual(values = c("#1d85a5", "#194a81")) +
   scale_colour_manual(values = c("#1d85a5", "#194a81")) +
   facet_share(~sex, dir = "h", scales = "free",reverse_num = TRUE) +
@@ -204,6 +215,9 @@ ggplot() +
     strip.background = element_rect(fill = "transparent", colour = NA),
     strip.text = element_text(size = 9, face = "bold", hjust = .5))
 
+  girafe(ggobj = gg, height_svg = 5,
+       options = girafe_options)
+
 #ggsave("pop_pyramid_2022.png", dpi = 300, scale = 1)
 
 ```
@@ -217,7 +231,11 @@ change <- mid2022_23_5y %>%
   pivot_wider(names_from = year, values_from = value) %>%
     mutate(Difference = `2023` - `2022`) %>%
   mutate(`% Change` = round(Difference*100/`2022`,1)) %>%
-  mutate(sex = factor(sex, levels = c("Female", "Male")))
+  mutate(sex = factor(sex, levels = c("Female", "Male"))) %>%
+      mutate(tooltip = paste0("<strong>", sex, " ", age, "</strong><br/>",
+                          "<strong>% Change: </strong> ", `% Change`, "%<br/>",
+                          "<strong>Difference: </strong> ", Difference)) 
+
 
 stats <- change %>%
   group_by(sex) %>%
@@ -237,10 +255,10 @@ stats2 <- stats %>%
 <div class = "col-md-10">
 
 ```{r fig.height=6}
-#gg <- 
+gg <- 
   ggplot(change) +
   geom_hline(yintercept = 0, size = 1, colour = "black") +
-  geom_col(aes(age,`% Change`, fill = sex), position = "dodge", width = 0.7) +
+  geom_col_interactive(aes(age,`% Change`, fill = sex, tooltip = tooltip), position = "dodge", width = 0.7) +
   scale_fill_manual(values = c("#1d85a5", "#194a81"),
                     guide = guide_legend(keyheight = unit(3, units = "mm"),
                                              keywidth=unit(3, units = "mm"))) +
@@ -259,6 +277,10 @@ stats2 <- stats %>%
        axis.text.y = element_text(size = 8, hjust = 0),
       legend.position = "top",
        legend.text = element_text(size = 8))
+
+  girafe(ggobj = gg, height_svg = 5,
+       options = girafe_options)
+
 ```
 </div>
 <div class = "col-md-1">
@@ -267,9 +289,9 @@ stats2 <- stats %>%
 
 ### Population under 5 is decreasing in Trafford but increasing in GM
 
-<p>In Trafford, from Mid-2022 to Mid-2023, the population under 5 decreased 2.2%, while in Greater Manchester (GM) it increased 0.4%, England remained unchanged at 0% change, and in Similar authorities decreased 0.3%. Trafford's decrease of 1.4% for the age band 20 to 24 showed the largest difference with GM's 3% increase. 35 to 39 year olds decreased 0.7% for Trafford  while England (2.4%), GM (2.8%), and Similar authorities (2.8%) all increased. Similarly, 85 to 89 year olds decreased 0.1% for Trafford, while England (2.3%), GM (2.9%), and Similar authorities (2.6%) all increased.</p>
+<p>In Trafford, from Mid-2022 to Mid-2023, the population under 5 decreased 2.2%, while in Greater Manchester (GM) it increased 0.4%, England remained unchanged at 0% change, and in Similar Authorities decreased 0.3%. Trafford's decrease of 1.4% for the age band 20 to 24 showed the largest difference with GM's 3% increase. 35 to 39 year olds decreased 0.7% for Trafford  while England (2.4%), GM (2.8%), and Similar Authorities (2.8%) all increased. Similarly, 85 to 89 year olds decreased 0.1% for Trafford, while England (2.3%), GM (2.9%), and Similar Authorities (2.6%) all increased.</p>
 
-<p>Trafford's population increased for all broad age bands but at different rates than England, GM, and Similar authorities. The 18 to 64 year olds slightly increased for Trafford at 0.1% while in GM the increase was 1.5%. The 65+ year olds increased 0.6% while in England and Similar authorities increased 1.4% and 1.5%, respectively.</p>
+<p>Trafford's population increased for all broad age bands but at different rates than England, GM, and Similar Authorities. The 18 to 64 year olds slightly increased for Trafford at 0.1% while in GM the increase was 1.5%. The 65+ year olds increased 0.6% while in England and Similar Authorities increased 1.4% and 1.5%, respectively.</p>
 
 <div class = "row">
 
