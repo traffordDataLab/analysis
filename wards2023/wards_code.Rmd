@@ -1,0 +1,1573 @@
+---
+title: "Trafford Wards 2023: Old Trafford"
+lang: "en-GB"
+output:
+  html_document:
+  highlight: null
+  mathjax: null
+  theme: flatly
+  self_contained: TRUE
+  df_print: paged
+---
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.2.1/css/all.css">
+
+<main>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(tidyverse) ;
+library(sf) ;
+library(ggiraph)
+library(jsonlite)
+library(ggspatial)
+library(httr)
+library(readxl)
+
+
+source("https://github.com/traffordDataLab/assets/raw/master/theme/ggplot2/theme_lab.R")
+
+ward_name <- "Old Trafford"
+
+legMap <- case_when(ward_name %in% c("Altrincham","Urmston", "Longford", "Old Trafford", "Lostock & Barton") ~ c(0, 0.9),
+                    ward_name %in% c("Timperley Central", "Timperley North", "Brooklands", "Bowdon", "Gorse Hill & Cornbrook") ~ c(0.1, 1),
+                    ward_name %in% c("Broadheath", "Ashton upon Mersey") ~ c(0, 1),
+                    ward_name == "Stretford & Humphrey Park" ~ c(0, 0.95),
+                    TRUE ~ c(0.1, 0.9))
+
+
+
+girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "background-color: #e7e6e1; color: #212121; padding: 0.1em; border-radius: 0.25em;"),
+                      opts_toolbar(saveaspng = FALSE),
+                      opts_hover(css = "fill-opacity: 1; stroke:white; stroke-opacity: 1; r: 2.5pt;")
+                      )
+
+ons_api_2var <- function(url) {
+
+responseONS <- fromJSON(url, simplifyVector = TRUE) 
+
+data_raw <- enframe(unlist(responseONS))
+
+data.frame("area_name" = filter(data_raw, name == "observations.dimensions.option1") %>% pull(value), "category1" = filter(data_raw, name == "observations.dimensions.option2") %>% pull(value), "category2" = filter(data_raw, name == "observations.dimensions.option3") %>% pull(value), "value" = filter(data_raw, grepl("observations.observation", name, ignore.case=TRUE)) %>% pull(value))
+
+}
+
+ons_api_1var <- function(url) {
+
+responseONS <- fromJSON(url, simplifyVector = TRUE) 
+
+data_raw <- enframe(unlist(responseONS))
+
+data.frame("area_name" = filter(data_raw, name == "observations.dimensions.option1") %>% pull(value), "category1" = filter(data_raw, name == "observations.dimensions.option2") %>% pull(value), "value" = filter(data_raw, grepl("observations.observation", name, ignore.case=TRUE)) %>% pull(value))
+
+}
+
+get_indicator_col <- function(data){
+  
+  data.frame(column = colnames(data)) %>%
+  filter(grepl("(C2021.*NAME)", column, ignore.case=TRUE))
+  
+}
+
+get_census_api_2021 <- function(link){
+
+data <- read_csv(link) 
+
+cols <- get_indicator_col(data)
+
+data %>%
+   select(date = DATE, area_name = GEOGRAPHY_NAME, category = cols$column, measure = MEASURES_NAME, value = OBS_VALUE)
+  
+}
+
+
+```
+
+<div class = "row">
+<div class = "col-md-9 padZ">
+```{r detailsMapData}
+
+#mapPosX <- ifelse(ward_name %in% c("Altrincham", ))
+boundary <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2023/trafford_ward_full_resolution.geojson", quiet = TRUE) %>%
+  mutate(area_name = gsub(" Ward", "", area_name))
+
+# load user chosen ward boundary
+ward <- boundary %>% 
+  filter(area_name == ward_name)
+
+# load buildings and clip to ward boundary 
+bldgs <- st_read("https://www.traffordDataLab.io/open_data/buildings/trafford_buildings.geojson", quiet = TRUE) %>% 
+  select(-area_code, -area_name) %>% 
+  st_intersection(ward)
+
+# load roads and clip to ward boundary 
+roads <- st_read("https://www.traffordDataLab.io/open_data/open_roads/trafford_roadLink.geojson", quiet = TRUE) %>% 
+  select(identifier, class, roadNumber, name1) %>% 
+  st_intersection(ward)
+
+# load built-up areas
+urban <- st_read("https://www.traffordDataLab.io/open_data/built_up_areas/gm_built_up_areas.geojson", quiet = TRUE) %>% 
+  select(-area_code, -area_name) %>%
+  st_intersection(ward)
+
+schools <- st_read("https://www.traffordDataLab.io/open_data/schools_and_colleges/trafford_schools_and_colleges.geojson", quiet = TRUE) %>%
+  mutate(type= ifelse(type == "Academies", "Academy",type)) %>%
+  mutate(type = gsub("schools|Schools","school", type)) %>%
+  mutate(type = gsub("es","e", type)) %>%
+  st_intersection(ward) %>%
+  mutate(point_type = "School")
+
+gp_registrations <- st_read("https://www.traffordDataLab.io/open_data/general_practice/patient_registrations/trafford_gp_patient_registrations.csv", quiet = TRUE) %>%
+  filter(ward_name == ward_name)
+
+gp <- st_read("https://www.traffordDataLab.io/open_data/general_practice/trafford_general_practices.geojson", quiet = TRUE) %>% 
+  st_intersection(ward) %>%
+  mutate(point_type = "GP") %>%
+  mutate(practice_name = toupper(name)) %>%
+  left_join(gp_registrations %>% select(practice_name, registered_patients))
+
+libraries <- st_read("https://www.traffordDataLab.io/open_data/libraries/trafford_libraries.geojson", quiet = TRUE) %>% 
+  st_intersection(ward) %>%
+  mutate(point_type = "Library")
+
+if(nrow(libraries) != 0){
+  st_geometry(libraries) <- st_sfc(
+    ifelse(libraries$Name == "Old Trafford Library at Limelight", st_sfc(st_point(c(-2.262622, 53.46141))), libraries$geometry),
+    crs = st_crs(libraries$geometry))
+}
+
+leisure_centre <- st_read("https://www.trafforddatalab.io/council_open_data/assets/leisure_centres/trafford_leisure_centres.geojson", quiet = TRUE) %>%
+  st_centroid() %>%
+  st_intersection(ward) %>%
+  mutate(point_type = "Leisure centre")
+
+green_space <- st_read("https://www.traffordDataLab.io/open_data/greenspaces/trafford_greenspace_sites.geojson", quiet = TRUE) %>% 
+  st_intersection(ward) %>%
+  filter(site_type != "Religious Grounds", site_type != "Cemetery") %>%
+  mutate(tooltip = ifelse(is.na(site_name), site_type, paste0("<strong>", site_name, "</strong><br>", site_type)))
+
+
+
+woodland <- st_read("https://www.traffordDataLab.io/open_data/woodland/trafford_woodland.geojson", quiet = TRUE) %>%
+  st_intersection(ward) %>%
+  mutate(tooltip2 = "Woodland") %>%
+  st_make_valid()
+
+amenities <- schools %>%
+  bind_rows(gp) %>%
+  bind_rows(libraries %>% select(name = Name, point_type)) %>%
+  bind_rows(leisure_centre %>% select(name, facilities, point_type)) %>%
+  mutate(tooltip = case_when(point_type == "School" ~ paste0("<strong>", name,"</strong><br/>", type, "<br/><strong>Capacity:</strong> ", format(capacity, big.mark=","),"<br/><strong>Free School Meal Eligibility:</strong> ", percent_fsm, "%<br/><strong>Ofsted rating:</strong> ", ofsted_rating ),
+                             point_type == "GP" ~ paste0("<strong>", name,"</strong><br/><strong>Registered patients:</strong> ", format(as.numeric(registered_patients), big.mark=",")),
+                             point_type == "Library" ~ paste0("<strong>", name,"</strong>"),
+                             point_type == "Leisure centre" ~ paste0("<strong>", name,"</strong><br><strong>Facilities:</strong><br>", str_wrap(facilities, 50)))) 
+
+```
+
+```{r detailsMap}
+
+# plot data
+ggm <- 
+  ggplot() +
+  geom_sf(data = ward, colour = NA, fill = "#8AA37B", alpha = 0.7) +
+  geom_sf(data = urban, colour = NA, fill = "#d9d9d9") +
+  geom_sf(data = bldgs, colour = "#757575", fill = NA, alpha = 1, linewidth = 0.3) +
+  geom_sf(data = subset(roads, class == "A Road"), linewidth = 1.2, colour = "#ffffff", alpha = 1) +
+  geom_sf(data = subset(roads, class != "A Road"), linewidth = 0.5, colour = "#ffffff", alpha = 1) +
+  geom_sf_interactive(data = woodland, aes(tooltip = tooltip2), colour = "#357a38", fill = "#357a38", alpha = 0.7) +
+  geom_sf_interactive(aes(tooltip = tooltip), data = green_space, colour = NA, fill = "#357a38", alpha = 0.7) +
+  geom_point_interactive(data = amenities, aes(geometry = geometry, fill = point_type, tooltip = tooltip), colour = "black", stroke = 0.5, shape = 21,
+    stat = "sf_coordinates", size = 3) +
+  geom_sf(data = ward, colour = "#212121", fill = "transparent", linewidth = 0.5) +
+  scale_fill_manual(values = c("School" = "#328BB5", "GP" = "#BE0027", "Library" = "#91C0DF", "Leisure centre" = "#FEEE8A")) +
+  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL,
+       caption = "Contains National Statistics data © and Ordnance Survey data © Crown copyright and database right 2023  |  @traffordDataLab") +
+  theme_lab() +
+  theme(plot.title = element_text(size = 14, colour = "#757575", hjust = 0.5),
+        plot.subtitle = element_text(size = 8, colour = "#757575", hjust = 0.5),
+        plot.caption = element_text(size = 6, colour = "#757575", hjust = 0, margin = margin(b = 2)),
+        legend.position=legMap,
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10)) +
+  coord_sf(datum = NA) +
+  ggspatial::annotation_scale(
+    
+    unit_category = "imperial",
+    location = "br",
+    bar_cols = c("grey60", "white"),
+    style = "ticks",
+    width_hint = 0.5)#+
+  #scalebar(data = ward, location = "bottomright", 
+  #         dist = 0.5, height = 0.01, st.dist = 0.02, dist_unit = "km",border.size = 0.4,# st.bottom = FALSE,
+  #         st.size = 3, transform = TRUE, model = "WGS84",
+  #         st.color = "#212121", box.color = "#212121", box.fill = c("#757575", "#ffffff"))
+
+
+girafe(ggobj = ggm, height_svg = 5,
+       options = girafe_options)
+
+```
+</div>
+<div class = "col-md-3 padZ">
+```{r wardInTrafford}
+
+ggs <- ggplot() +
+  geom_sf_interactive(data = boundary, aes(tooltip= paste0("<strong>", area_name, "</strong>")), colour = "#212121", fill = "#ffffff", linewidth = 0.5) +
+  geom_sf_interactive(data = ward, aes(tooltip= paste0("<strong>", area_name, "</strong>")), colour = "#7e478b", fill = "#7e478b", alpha = 0.3, linewidth = 1) +
+  labs(x = NULL, y = NULL, title = NULL, subtitle = NULL,
+       caption = NULL) +
+  theme_lab() +
+  theme(plot.margin = unit(c(0,0,0,0), "cm"),
+        legend.position="none") +
+  coord_sf(datum = NA)
+
+girafe(ggobj = ggs, height_svg = 7,
+       options = girafe_options)
+
+```
+</div>
+</div>
+
+```{r forComments}
+lookup_ons <- fromJSON("https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/OA21_WD23_LAD23_EW_LU/FeatureServer/0/query?where=LAD23NM%20%3D%20'TRAFFORD'&outFields=*&outSR=4326&f=json", flatten = TRUE) %>% 
+  pluck("features") %>% 
+  as_tibble() %>% 
+  select(OA21CD = attributes.OA21CD, WD23NM = attributes.WD23NM)
+
+lookup_ward <- lookup_ons %>%
+  filter(WD23NM == ward_name)
+
+url <- paste0("https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=resident_age_3a")
+
+ageBroad <-  ons_api_1var(url) %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  mutate(Percent = round(value *100 /sum(value),1))
+
+urlT <- paste0("https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=resident_age_3a")
+
+ageBroadT <-  ons_api_1var(urlT) %>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(Percent = round(value *100 /sum(value),1))
+
+#hh
+url <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=hh_family_composition_8a")
+
+hh_comp_ward <- ons_api_1var(url)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = ward_name)
+
+urlt <- "https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=ltla,E08000009&dimensions=hh_family_composition_8a"
+
+hh_comp_t <- ons_api_1var(urlt)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = "Trafford")
+
+hh_3_cat <- bind_rows(hh_comp_ward, hh_comp_t) %>%
+  mutate(subcategory11 = sub(": .*", "", category1)) %>%
+  group_by(subcategory11,area_name) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  group_by(area_name) %>%
+  mutate(Percent = round(value *100 /sum(value),1))
+
+#disability
+
+url <- paste0("https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=disability_4a")
+
+disability_ward <- ons_api_1var(url) %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = ward_name)
+
+urlt <- "https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=disability_4a"
+
+disability_t <- ons_api_1var(urlt)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = "Trafford")
+
+disability_2_cat <- bind_rows(disability_ward, disability_t) %>%
+  group_by(area_name) %>%
+  mutate(Percent = round(value *100 /sum(value),1))
+
+#deprivation
+
+oa_dep_dim <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2031_1.data.csv?date=latest&geography=629174437...629175131,629304895...629304912,629315184...629315186,629315192...629315198,629315220,629315233,629315244,629315249,629315255,629315263,629315265,629315274,629315275,629315278,629315281,629315290,629315295,629315317,629315327,645922849&c2021_dep_6=1...5&measures=20100")
+
+dep_dim_T <- oa_dep_dim %>%
+  filter(area_name == "Trafford") %>%
+  mutate(Percent = round(value *100/sum(value),1))
+
+dep_dim_w <- oa_dep_dim %>%
+  filter(area_name != "Trafford") %>%
+  left_join(lookup_ons, by = c("area_name" = "OA21CD")) %>%
+  select(area_name = WD23NM, category, value) %>%
+  group_by(area_name, category) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  group_by(area_name) %>%
+  mutate(Percent = round(value *100/sum(value),1)) %>%
+  bind_rows(dep_dim_T) %>%
+  mutate(category = ifelse(category %in% c("Household is deprived in three dimensions", "Household is deprived in four dimensions"), "Household is deprived in three or four dimensions", category)) %>%
+  group_by(category,area_name) %>%
+  summarise(Percent = sum(Percent))
+```
+
+```{r ethiData}
+
+oa_etnicity <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2041_1.data.csv?date=latest&geography=629174437...629175131,629304895...629304912,629315184...629315186,629315192...629315198,629315220,629315233,629315244,629315249,629315255,629315263,629315265,629315274,629315275,629315278,629315281,629315290,629315295,629315317,629315327,645922849&c2021_eth_20=1001...1005&measures=20100")
+
+ethnicity_T <- oa_etnicity %>% #from comments
+  filter(area_name == "Trafford") %>%
+  mutate(Percent = round(value *100/sum(value),1))
+
+ethnicity_w <- oa_etnicity %>%
+  filter(area_name != "Trafford") %>%
+  left_join(lookup_ons, by = c("area_name" = "OA21CD")) %>%
+  select(area_name = WD23NM, category, value) %>%
+  group_by(area_name, category) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  group_by(area_name) %>%
+  mutate(Percent = round(value *100/sum(value),1)) %>%
+  bind_rows(ethnicity_T) %>%
+  select(-date, -measure) %>%
+  mutate(categoryb = word(category, 1, 1)) %>%
+  mutate(categoryb = gsub(",","",categoryb)) %>%
+  mutate(categoryb = paste0(categoryb, " ", Percent, "%")) %>%
+  mutate(categoryc = case_when(category == "Asian, Asian British or Asian Welsh" ~ "Asian, A. British or A. Welsh",
+                               category == "Black, Black British, Black Welsh, Caribbean or African" ~ "Black, B. British, B. Welsh, Caribbean or African",
+                               TRUE ~ category)) %>%
+  mutate(type = case_when(area_name == ward_name ~ "rep_ward",
+                          area_name == "Trafford" ~ "LA",
+                          TRUE ~ "ward")) %>%
+  mutate(tooltip = paste0("<strong>",area_name,"</strong><br>",category, "<br>", Percent, "%")) %>%
+  mutate(tooltip2 = paste0("<strong>",area_name,"</strong> ", Percent, "%"))
+```
+
+```{r qualifData}
+
+oa_education <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2084_1.data.csv?date=latest&geography=629174437...629175131,629304895...629304912,629315184...629315186,629315192...629315198,629315220,629315233,629315244,629315249,629315255,629315263,629315265,629315274,629315275,629315278,629315281,629315290,629315295,629315317,629315327,645922849&c2021_hiqual_8=1...7&measures=20100")
+
+education_T <- oa_education %>%
+  filter(area_name == "Trafford") %>%
+  mutate(Percent = round(value *100/sum(value),1))
+
+education_w <- oa_education %>%
+  filter(area_name != "Trafford") %>%
+  left_join(lookup_ons, by = c("area_name" = "OA21CD")) %>%
+  select(area_name = WD23NM, category, value) %>%
+  group_by(area_name, category) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  group_by(area_name) %>%
+  mutate(Percent = round(value *100/sum(value),1)) %>%
+  bind_rows(education_T) %>%
+  left_join(education_T %>% select(category,Traf_P = Percent), by = "category") %>%
+  select(-date, -measure) %>%
+  mutate(categoryb = sub("(\\w+\\s+\\w+).*", "\\1", category)) %>%
+  mutate(categoryb = ifelse(categoryb == "No qualifications", "None",categoryb)) %>%
+  mutate(categoryb = ifelse(categoryb == "Other qualifications", "Other",categoryb)) %>%
+  mutate(type = case_when(area_name == ward_name ~ "rep_ward",
+                          area_name == "Trafford" ~ "LA",
+                          TRUE ~ "ward")) %>%
+  mutate(tooltip = paste0("<strong>",area_name,"</strong><br>",category, "<br>", Percent, "%<br> Trafford: ", Traf_P,"%")) %>%
+  mutate(tooltip2 = paste0("<strong>",area_name,"</strong> ", Percent, "%")) %>%
+  ungroup()
+```
+
+```{r TenureData}
+
+url <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=hh_tenure_5a")
+
+tenure_ward <- ons_api_1var(url)%>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = ward_name)
+
+tenure_wardT <- tenure_ward %>%
+  mutate(category = case_when(category1 == "Private rented or lives rent free" ~ "**Private rented",
+                              category1 == "Owned: Owns with a mortgage or loan or shared ownership" ~ "*Owns with a\nmortgage",
+                              category1 == "Owned: Owns outright" ~ "Owns outright",
+                              category1 == "Rented: Social rented" ~ "Social rented",
+                              TRUE ~category1
+  )) %>%
+  mutate(Percent = round(value *100 /sum(value),1)) %>%
+  filter(value != 0) %>%
+  mutate(tooltip = area_name)
+
+
+urlT <- "https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=ltla,E08000009&dimensions=hh_tenure_5a"
+
+tenure_T <- ons_api_1var(urlT)  %>%
+  mutate(value = as.numeric(value)) 
+
+tenure_TT <- tenure_T %>%
+  mutate(category = case_when(category1 == "Private rented or lives rent free" ~ "**Private rented",
+                              category1 == "Owned: Owns with a mortgage or loan or shared ownership" ~ "*Owns with a\nmortgage",
+                              category1 == "Owned: Owns outright" ~ "Owns outright",
+                              category1 == "Rented: Social rented" ~ "Social rented",
+                              TRUE ~category1
+  )) %>%
+  mutate(Percent = round(value *100 /sum(value),1)) %>%
+  filter(value != 0)
+
+tenure <- tenure_wardT %>%
+  left_join(tenure_TT %>% select(category1,Percent_T = Percent), by = "category1") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br><strong>", category,"</strong><br/>",
+                          Percent, "% of households<br>Trafford: ", Percent_T, "%"))
+
+tenureOwn<- tenure %>%
+  filter(grepl("Own", category1)) %>%
+  summarise(Percent = sum(Percent), Percent_T = sum(Percent_T))
+
+
+```
+
+```{r AccTypeData}
+
+url <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=accommodation_type_5a")
+
+AccType_W <- ons_api_1var(url)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = ward_name)
+
+AccType_wardT <- AccType_W %>%
+  mutate(category1 = ifelse(category1 == "A caravan or other mobile or temporary structure","Flat, maisonette or apartment",category1)) %>%
+  group_by(category1,area_name) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(category = gsub(".*\\: ", "", category1)) %>%
+  mutate(category = ifelse(category == "Flat, maisonette or apartment", "*Flat",category)) %>%
+  mutate(Percent = round(value *100 /sum(value),1)) %>%
+  filter(value != 0) %>%
+  mutate(tooltip = area_name)
+
+
+urlT <- "https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=ltla,E08000009&dimensions=accommodation_type_5a"
+
+AccType_T <- ons_api_1var(urlT)  %>%
+  mutate(value = as.numeric(value)) 
+
+AccType_TT <- AccType_T %>%
+  mutate(category1 = ifelse(category1 == "A caravan or other mobile or temporary structure","Flat, maisonette or apartment",category1)) %>%
+  group_by(category1,area_name) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(category = gsub(".*\\: ", "", category1)) %>%
+  mutate(category = ifelse(category == "Flat, maisonette or apartment", "*Flat",category)) %>%
+  mutate(Percent = round(value *100 /sum(value),1)) %>%
+  filter(value != 0)
+
+AccType <- AccType_wardT %>%
+  left_join(AccType_TT %>% select(category1,Percent_T = Percent), by = "category1") %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br><strong>", category,"</strong><br/>",
+                          Percent, "% of households<br>Trafford: ", Percent_T, "%"))
+
+accTypeHouse <- AccType %>%
+  filter(grepl("house", category1)) %>%
+  summarise(Percent = sum(Percent), Percent_T = sum(Percent_T))
+
+
+```
+
+**Notice:** The figures for `r ward_name` ward presented in this report are Census 2021 data aggregated according to the [ONS best-fit Output Area (OA) to Ward lookup](https://geoportal.statistics.gov.uk/datasets/ons::output-area-to-ward-to-local-authority-district-may-2023-lookup-in-england-and-wales). This is because [Trafford's wards changed in 2023](https://www.trafforddatalab.io/charticles/2023-04-20-traffords-changing-wards/) and ONS published ward level data for the 2021 wards. The `r nrow(lookup_ward)` OAs that correspond to `r ward_name` and how they fit to the ward can be seen on the [Best-fit OA to ward maps](https://www.trafforddatalab.io/analysis/wards2023/Best-fit_OA_Ward2023.html). Additionally, Census data is subject to [disclosure control methods](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/methodologies/protectingpersonaldataincensus2021results) e.g. record swapping and data perturbation, more likely affecting small counts such as the OA figures. Therefore, the proportions presented here are indicative and not exact. 
+
+<h2>Summary</h2>
+  
+  <ul>
+  <li>In `r ward_name`, according to the Census 2021, `r ageBroad %>% filter(category1 == "Aged 15 years and under") %>% select(Percent) %>% pull()`% of the population were aged 15 years and under, `r ageBroad %>% filter(category1 == "Aged 16 to 64 years") %>% select(Percent) %>% pull()`% were aged 16 to 64 years and `r ageBroad %>% filter(category1 == "Aged 65 years and over") %>% select(Percent) %>% pull()`% were aged 65 years and over. The equivalent figures for Trafford were `r ageBroadT %>% filter(category1 == "Aged 15 years and under") %>% select(Percent) %>% pull()`%, `r ageBroadT %>% filter(category1 == "Aged 16 to 64 years") %>% select(Percent) %>% pull()`% and `r ageBroadT %>% filter(category1 == "Aged 65 years and over") %>% select(Percent) %>% pull()`% respectively.</li>
+  <li>`r hh_3_cat %>% filter(subcategory11 == "One-person household", area_name == ward_name) %>% select(Percent) %>% pull()`% of the households were one-person households, `r hh_3_cat %>% filter(subcategory11 == "Single family household", area_name == ward_name) %>% select(Percent) %>% pull()`% were single family households and `r hh_3_cat %>% filter(subcategory11 == "Other household types", area_name == ward_name) %>% select(Percent) %>% pull()`% were other household types. The equivalent figures for Trafford were `r hh_3_cat %>% filter(subcategory11 == "One-person household", area_name == "Trafford") %>% select(Percent) %>% pull()`%, `r hh_3_cat %>% filter(subcategory11 == "Single family household", area_name == "Trafford") %>% select(Percent) %>% pull()`% and `r hh_3_cat %>% filter(subcategory11 == "Other household types", area_name == "Trafford") %>% select(Percent) %>% pull()`% respectively.</li>
+  <li>`r 100 - (ethnicity_w %>% filter(category == "White", area_name == ward_name) %>% select(Percent) %>% pull())`% of the residents were of a non-white ethnicity. The equivalent figure for Trafford was `r 100 - (ethnicity_w %>% filter(category == "White", area_name == "Trafford") %>% select(Percent) %>% pull())`%.</li>
+  <li>`r education_w %>% filter(categoryb == "None", area_name == ward_name) %>% select(Percent) %>% pull()`% of the residents had no qualifications. The equivalent figure for Trafford was `r education_w %>% filter(categoryb == "None", area_name == "Trafford") %>% select(Percent) %>% pull()`%.</li>
+  <li>`r tenureOwn %>% select(Percent) %>% pull()`% of the households own their property they live in, either outright or with a mortgage or loan. The equivalent figure for Trafford was `r tenureOwn %>% select(Percent_T) %>% pull()`%.</li>
+  <li>`r accTypeHouse %>% select(Percent) %>% pull()`% of the households were whole houses (detached, semi-detached, or terraced). The equivalent figure for Trafford was `r accTypeHouse %>% select(Percent_T) %>% pull()`%.</li>
+  <li>`r disability_2_cat %>% filter(category1 == "Disabled under the Equality Act: Day-to-day activities limited a little", area_name == ward_name) %>% select(Percent) %>% pull()`% of the residents were disabled with day-to-day activities limited a little whilst `r disability_2_cat %>% filter(category1 == "Disabled under the Equality Act: Day-to-day activities limited a lot", area_name == ward_name) %>% select(Percent) %>% pull()`% of the residents were disable with day-to-day activities limited a lot. The equivalent figure for Trafford were `r disability_2_cat %>% filter(category1 == "Disabled under the Equality Act: Day-to-day activities limited a little", area_name == "Trafford") %>% select(Percent) %>% pull()`% and `r disability_2_cat %>% filter(category1 == "Disabled under the Equality Act: Day-to-day activities limited a lot", area_name == "Trafford") %>% select(Percent) %>% pull()`%.</li>
+  <li>The census included numbers on households deprived in four dimension: education, employment, health and disability, and housing. In `r ward_name`, `r dep_dim_w %>% filter(category == "Household is not deprived in any dimension", area_name == ward_name) %>% select(Percent) %>% pull()`% of the households were not deprived in any dimension, `r dep_dim_w %>% filter(category == "Household is deprived in one dimension", area_name == ward_name) %>% select(Percent) %>% pull()`% of the households were deprived in one dimension, `r dep_dim_w %>% filter(category == "Household is deprived in two dimensions", area_name == ward_name) %>% select(Percent) %>% pull()`% of the households were deprived in two dimensions and `r dep_dim_w %>% filter(category == "Household is deprived in three or four dimensions", area_name == ward_name) %>% select(Percent) %>% pull()`% of the households were deprived in three or four dimensions. The equivalent figure for Trafford were `r dep_dim_w %>% filter(category == "Household is not deprived in any dimension", area_name == "Trafford") %>% select(Percent) %>% pull()`%, `r dep_dim_w %>% filter(category == "Household is deprived in one dimension", area_name == "Trafford") %>% select(Percent) %>% pull()`%, `r dep_dim_w %>% filter(category == "Household is deprived in two dimensions", area_name == ward_name) %>% select(Percent) %>% pull()`% and `r dep_dim_w %>% filter(category == "Household is deprived in three or four dimensions", area_name == "Trafford") %>% select(Percent) %>% pull()`%.</li>
+  </ul>
+
+<h2>`r ward_name` Population</h2>
+
+
+```{r popHhData}
+
+oa_pop <- get_census_api_2021(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2021_1.data.csv?date=latest&geography=", URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))),
+                                     "&c2021_restype_3=0&measures=20100"))
+
+ward_pop <- oa_pop %>%
+  select(value) %>%
+  summarise(value = sum(value)) %>%
+  mutate(area_name = ward_name, indicator = "Residents") 
+
+oa_hh <- get_census_api_2021(paste0("https://www.nomisweb.co.uk/api/v01/dataset/NM_2023_1.data.csv?date=latest&geography=", URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))),
+                                     "&c2021_hhcomp_15=0&measures=20100"))
+
+ward_hh <- oa_hh %>%
+  select(value) %>%
+  summarise(value = sum(value)) %>%
+  mutate(area_name = ward_name, indicator = "Households") 
+
+```
+
+<div class = "row">
+<div class = "col-md-6">
+<div class="textBox">
+<span class="fa-solid fa-people-group"></span>
+<span>
+<p class = "boxTitle">`r format(ward_pop %>% select(value) %>% pull(), big.mark=",")`</p>
+<p class = "boxStat">residents in `r ward_name`</p>
+</span>
+</div>
+<div class = "col-md-12">
+```{r pyramidData, results="hide"}
+
+#ward_name <- "Old Trafford"
+
+mid2022 <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1853882369,1807745054,2092957699&date=latest&gender=1,2&c_age=200,1,3...18,186...191&measures=20100") %>%
+  select(area_name = GEOGRAPHY_NAME, year = DATE_NAME, gender = GENDER_NAME, ageband = C_AGE_NAME, value = OBS_VALUE)
+
+mid2022Trafford <- mid2022 %>%
+  filter(area_name== "Trafford", ageband != "All Ages") %>%
+  mutate(ageband = ifelse(ageband %in% c("Age 85", "Age 86", "Age 87", "Age 88", "Age 89"), "Aged 85-89", ageband)) %>%
+  group_by(area_name,year,gender, ageband) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(ageband = str_remove(ageband, "Age |Aged ")) %>%
+  mutate(ageband = str_replace(ageband, " - ", "-")) %>%
+  mutate(ageband = factor(ageband, levels = c("0-4","5-9", "10-14", "15-19", "20-24", "25-29", "30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80-84","85-89","90+"))) %>%
+  mutate(sex = paste0(gender,"s")) %>%
+  select(area_name, sex, ageband, value) %>%
+  group_by(area_name) %>%
+  mutate(percentT = round(value/sum(value)*100,1)) %>%
+  ungroup()
+
+
+
+tmp <- tempfile(fileext = ".xlsx")
+
+GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/wardlevelmidyearpopulationestimatesexperimental/mid2021andmid2022/sapewardstablefinal.xlsx",
+    write_disk(tmp))
+
+
+df1 <- read_xlsx(tmp, sheet = 8, skip = 3) %>%
+  filter(`LAD 2023 Code` == "E08000009", `Ward 2023 Name` == ward_name) %>%
+  rename(area_code = `Ward 2023 Code`, area_name = `Ward 2023 Name`) %>%
+  pivot_longer(Total:M90, names_to = "age", values_to = "value") %>%
+  mutate(period = as.Date("2022-06-30")) %>%
+  filter(age != "Total") %>%
+  separate(age, into = c("sex", "age"), sep = 1) %>%
+  mutate(sex = case_match(sex,"F"~"Females","M"~"Males")) %>%
+  pivot_wider(names_from = "sex", values_from = value) %>%
+  mutate(Persons = Females + Males) %>%
+  pivot_longer(Females:Persons, names_to = "sex", values_to = "value") %>%
+  select(area_name, sex, age, value)
+
+by_5year <- df1 %>%
+  filter(sex != "Persons") %>%
+  mutate(age = as.integer(age),
+         ageband = cut(
+           age,
+           breaks = c(
+             0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,120
+           ),
+           labels = c(
+             "0-4","5-9","10-14","15-19","20-24","25-29","30-34",
+             "35-39","40-44","45-49","50-54","55-59","60-64","65-69",
+             "70-74","75-79","80-84","85-89","90+"
+           ),
+           right = FALSE
+         )
+  ) %>%
+  group_by(area_name, sex, ageband) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  group_by(area_name) %>%
+  mutate(percent = round(value/sum(value)*100,1)) %>%
+  ungroup() %>%
+  group_by(area_name, ageband) %>%
+  mutate(percentFM = round(value/sum(value)*100,1)) %>%
+  ungroup() %>%
+  left_join(mid2022Trafford %>% select(sex, ageband, percentT), by = c("sex", "ageband")) %>%
+  mutate(percentP = ifelse(sex == "Males", -percent,percent)) %>%
+  mutate(percentP_T = ifelse(sex == "Males", -percentT,percentT)) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br/>",
+                                percent, "% of <strong>", area_name,"</strong> (Trafford: ", percentT, "%)<br/>",
+      "<strong>", sex,"</strong> ", percentFM, "%<br/>"))
+
+
+urlT <- "https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=resident_age_8a,sex"
+
+agec_sex_Trafford <- ons_api_2var(urlT) %>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(Percent = round(value *100/sum(value),1))
+
+```
+
+
+
+```{r pyramidPlot}
+
+gg <- ggplot(by_5year) +
+  geom_col_interactive(aes(percentP, ageband, fill = sex, tooltip = tooltip), alpha = 0.8) +
+  geom_errorbar(aes(x=percentP_T, xmax=percentP_T, xmin=percentP_T, y = ageband), color = "grey", size = 0.8) +
+  scale_x_continuous(labels = function (x, ...) {
+  paste0(format(abs(x), ..., big.mark = ",", scientific = FALSE, trim = TRUE), "%")
+}) +
+    scale_fill_manual(values = c("#1d85a5", "#194a81"),
+                      guide = guide_legend(reverse = TRUE,
+                                           keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(3, units = "mm"))) +
+    labs(x = "% of residents", y = NULL, title = "Population pyramid", subtitle = ward_name, caption = "Trafford(line), best-fit OA to ward(bar)\nSource: Census 2021, ONS |  @traffordDataLab",
+         colour = NULL, fill = NULL) +
+  theme_lab() +
+    theme(plot.title = element_text(size=17),
+        plot.subtitle = element_text(size=15, margin=margin(10,0,40,0)),
+        plot.caption = element_text(size=13, hjust = 1),
+        plot.title.position = "plot",
+        axis.text.y = element_text(hjust = 1, size=14),
+        axis.text.x = element_text(size=14),
+        axis.title.x = element_text(size=14, margin=margin(10,0,30,0)),
+        legend.position = "top",
+        legend.text = element_text(size=14),
+        panel.grid.major.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+girafe(ggobj = gg, height_svg = 8,
+      options = girafe_options)
+
+```
+
+
+
+</div>
+</div>
+
+<div class = "col-md-6">
+```{r houseCompData}
+
+urlb <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=hh_family_composition_15a")
+
+hh_comp_wardb <- ons_api_1var(urlb)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = ward_name) %>%
+  filter(category1 %in% c("Other household types: Other, including all full-time students and all aged 66 years and over",
+                          "Other household types: With dependent children",
+                          "Single family household: Lone parent family: All children non-dependent",
+                          "Single family household: Lone parent family: With dependent children",
+                          "Single family household: All aged 66 years and over",
+                          "Single family household: Other single family household: Other family composition")) 
+
+hh_comp_wardt <- bind_rows(hh_comp_ward, hh_comp_wardb) %>% #from data for comm
+  filter(!category1 %in% c("Other household types", "Does not apply", "Single family household: Lone parent household")) %>%
+  mutate(Percent = round(value *100 /sum(value),1))
+
+#Trafford
+
+
+
+urlbt <- "https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=ltla,E08000009&dimensions=hh_family_composition_15a"
+
+hh_comp_tb <- ons_api_1var(urlbt)  %>%
+   mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = "Trafford") %>%
+  filter(category1 %in% c("Other household types: Other, including all full-time students and all aged 66 years and over",
+                          "Other household types: With dependent children",
+                          "Single family household: Lone parent family: All children non-dependent",
+                          "Single family household: Lone parent family: With dependent children",
+                          "Single family household: All aged 66 years and over",
+                          "Single family household: Other single family household: Other family composition"))
+
+hh_comp_tt <- bind_rows(hh_comp_t, hh_comp_tb) %>% #from data for comments
+  filter(!category1 %in% c("Other household types", "Does not apply", "Single family household: Lone parent household")) %>%
+  mutate(Percent = round(value *100 /sum(value),1)) 
+
+hh_comp_plot <- hh_comp_wardt %>%
+  left_join(hh_comp_tt %>% select(category1,Traf_P = Percent), by = "category1") %>%
+  mutate(subcategory11 = sub(": .*", "", category1)) %>%
+  mutate(subcategory12 = sub(".*?: ", "", category1)) %>%
+  mutate(subcategory12 = sub(": ", "\n", subcategory12)) %>%
+  mutate(subcategory12 = sub("students ", "students\n", subcategory12))%>%
+  mutate(subcategory12 = ifelse(subcategory12 == "Other", "Aged 65 and under",subcategory12)) %>%
+    mutate(subcategory11 = factor(subcategory11, levels = c("One-person household", "Single family household", "Other household types"))) %>%
+  mutate(tooltip = paste0("<strong>",area_name,"</strong><br><strong>",subcategory11,":</strong><br/>",
+                          "<strong>", subcategory12, "</strong><br>", Percent, "%<br> Trafford: ", Traf_P,"%"))
+
+```
+<div class="textBox">
+<span class="fa-solid fa-house"></span>
+<span>
+<p class = "boxTitle">`r format(ward_hh %>% select(value) %>% pull(), big.mark=",")`</p>
+<p class = "boxStat">households in `r ward_name`</p>
+</span>
+</div>
+<div class = "col-md-12">
+```{r houseCompPlot}
+
+gg<- ggplot(hh_comp_plot, aes(Percent, subcategory12)) +
+  geom_col_interactive(aes(tooltip = tooltip), fill = "#1C355E") +
+  geom_errorbar(aes(x=Traf_P, xmax=Traf_P, xmin=Traf_P, y = subcategory12), color = "grey", size = 0.8) +
+  scale_x_continuous(labels = function(x) paste0(x, "%")) +
+  scale_y_discrete(limits=rev) +
+facet_grid(subcategory11~., space = "free_y", scales = "free_y", switch = "y") +
+    theme_lab() +
+  labs(title = "Household composition",
+       subtitle = ward_name,
+       caption = "Trafford(line), best-fit OA to ward(bar)\nSource: Census 2021, ONS |  @traffordDataLab",
+       x = "% of households",
+       y = "") +
+    theme(plot.title = element_text(size=16),
+        plot.subtitle = element_text(size=14, margin=margin(0,0,10,0)),
+        plot.caption = element_text(size=12, hjust = 1),
+        plot.title.position = "plot",
+        axis.text.y = element_text(hjust = 1, size=12),
+        axis.text.x = element_text(size=12),
+        axis.title.x = element_text(size=12),
+        legend.position = "none",
+        panel.grid.major.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.placement = "outside",
+        strip.text.y.left = element_text(size =13, face = "bold", vjust = 1, hjust = 0, angle = 0),
+        strip.switch.pad.grid =  unit('-3.4', "cm")
+        )
+
+girafe(ggobj = gg, height_svg = 8.5,
+       options = girafe_options)
+
+
+
+```
+</div>
+</div>
+</div>
+
+<h2>`r ward_name` ethnic diversity compared to Trafford and other wards</h2>
+
+
+```{r ethnicityBar}
+
+gg <- ggplot(ethnicity_w %>% filter(area_name == ward_name)) + #from comments
+  geom_col_interactive(mapping = aes(Percent,area_name, fill= reorder(categoryb, desc(categoryb)), tooltip = tooltip)) +
+    scale_fill_manual(values = c("#AFC8E2", "#42779D", "#244671", "#80ACCD","#182F53")) +
+  guides(fill = guide_legend(reverse=TRUE)) +
+    theme_lab() +
+    theme(
+      legend.text = element_text(size = 8),
+       legend.position=c(0.375, 0),
+      legend.direction = "horizontal",
+      legend.title = element_blank(),
+      legend.key.size = unit(3, units = "mm"),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.title = element_blank(),
+      panel.grid.major.y = element_blank())
+
+girafe(ggobj = gg, height_svg = 1,
+       options = girafe_options)
+
+
+```
+
+<div class = "row">
+<div class = "col-md-12">
+
+```{r ethnicityBubble}
+
+pointSize <- 3
+textSize <- 7
+
+colors <- c("gray", "#0099B4FF", "black")
+
+  data1 <- ethnicity_w %>% #from comments
+  filter(type == "ward")
+data2 <- ethnicity_w %>% #from comments
+  filter(type == "LA")
+data3 <- ethnicity_w %>% #from comments
+  filter(type == "rep_ward")
+
+  gg <- ggplot() +
+      geom_point_interactive(data1,mapping=aes(x = Percent, y = "",  tooltip = tooltip, fill = "Other wards"),position=position_jitter(h=0.2, w=0), alpha = 0.6, color = "#898989",
+             shape = 21, size = pointSize) +
+      geom_point_interactive(data2,mapping=aes(x = Percent, y = "",  tooltip = tooltip, fill = "Trafford"),position=position_jitter(h=0.1, w=0), alpha = 1,color = "#898989",
+             shape = 21, size = pointSize) +
+          geom_point_interactive(data3,mapping=aes(x = Percent, y = "",  tooltip = tooltip, fill = "rep_ward"), alpha = 1,color = "#898989",
+             shape = 21, size = pointSize) +
+    scale_x_continuous(labels = function(x) paste0(x, "%")) +
+    scale_fill_manual(values = colors, labels = c("Other wards", ward_name, "Trafford")) +
+      labs(title = NULL, subtitle = NULL, caption = "Figures aggregated from OA best-fit to 2023 Wards\nSource: Census 2021, ONS |  @traffordDataLab",
+         colour = NULL, fill = NULL) +
+    facet_wrap(~categoryc, ncol = 2, scales = "free_x") +
+    theme_lab() +
+    theme(
+        plot.caption = element_text(size=6, hjust = 1),
+       legend.text = element_text(size = 7),
+       legend.position = c(0.2, 1.11),
+       legend.direction = "horizontal",
+       axis.text.x = element_text(size=textSize, margin=margin(0,0,0,0)),
+      axis.text.y = element_blank(),
+      axis.title = element_blank(),
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(colour = "gray",linetype = 2, linewidth = 0.3),
+      panel.spacing.x = unit(3, "lines"),
+      strip.text = element_text(size = 7),
+      )
+
+  girafe(ggobj = gg, height_svg = 2.6,
+       options = girafe_options)
+```
+</div>
+</div>
+
+<h2>`r ward_name` Languages and Country of birth</h2>
+
+```{r langData}
+
+url <- paste0("https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=main_language_detailed_26a")
+
+language_ward <- ons_api_1var(url)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = ward_name)
+
+Non_eng_P <- language_ward %>%
+  mutate(type = ifelse(category1 %in% c("English (English or Welsh if in Wales)","Does not apply"), "English","Non-English")) %>%
+  group_by(type) %>%
+  summarise(count = sum(c=value)) %>%
+  ungroup() %>%
+  mutate(Percent = round(count *100 /sum(count),1))
+
+top_5 <- language_ward %>%
+  mutate(category = gsub(".*\\: ", "", category1)) %>%
+  mutate(category  = gsub("\\s*\\([^\\)]+\\)","", category)) %>%
+  mutate(category = gsub("\\/", " or ", category)) %>%
+  mutate(category = ifelse(category == "Mandarin, Cantonese and other Chinese languages", "Mandarin, Cantonese",category)) %>%
+  filter(!grepl("Any other", category)) %>%
+  filter(!grepl("languages", category)) %>%
+  filter(!category %in% c("English","Does not apply")) %>%
+  top_n(5, value) %>%
+  mutate(category = fct_reorder(str_wrap(category,width = 15),value))
+
+urlT <- "https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=main_language_detailed_26a"
+
+language_T <- ons_api_1var(urlT)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = "Trafford")
+
+Non_eng_PT <- language_T %>%
+  mutate(type = ifelse(category1 %in% c("English (English or Welsh if in Wales)","Does not apply"), "English","Non-English")) %>%
+  group_by(type) %>%
+  summarise(count = sum(c=value)) %>%
+  ungroup() %>%
+  mutate(Percent = round(count *100 /sum(count),1))
+
+```
+
+<div class = "row">
+<div class = "col-md-6">
+
+<div class="textBox">
+<span class="fa-solid fa-language"></span>
+<span>
+<p class = "boxTitle">`r Non_eng_P %>% filter(type == "Non-English") %>% select(Percent)`%</p>
+<p class = "boxStat">Main language is not English </p>
+<p class = "boxStatSmall">`r Non_eng_PT %>% filter(type == "Non-English") %>% select(Percent)`% in Trafford</p>
+</span>
+</div>
+
+<div class = "col-md-12">
+
+```{r langPlot2, fig.height=6}
+
+ggplot(data = top_5, aes(value, category)) +
+  geom_segment(aes(x = 0, y = category, xend = value, yend = category), color = "#f0f0f0") +
+  geom_point(size = 8, fill = "#194a81",color = "#898989", shape = 21) +
+  geom_text(aes(label = value),colour = "#212121", size = 6, fontface = "bold", hjust = 0, vjust = 0.5, nudge_x = round((max(top_5$value) - min(top_5$value))/25,1)) +
+  scale_x_continuous(limits = c(0,NA), expand = expansion(mult = c(0, 0.1))) +
+    labs(x = "Residents", y = NULL, title = "Top 5 main languages (Non-English)", subtitle = ward_name, caption = "Figures aggregated from OA best-fit to 2023 Wards\nSource: Census 2021, ONS |  @traffordDataLab") +
+  theme_lab() +
+  theme(plot.title = element_text(size=18),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=16),
+        plot.caption = element_text(size=14, hjust = 1),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=16),
+        axis.title.x = element_text(size=14),
+        axis.text.x = element_text(size=14)) +
+  coord_cartesian(clip = "off")
+  
+
+```
+
+</div>
+</div>
+
+<div class = "col-md-6">
+```{r cobData}
+
+url <- paste0("https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=country_of_birth_22a")
+
+cob_ward <- ons_api_1var(url)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = ward_name)
+
+Non_UK_P <- cob_ward %>%
+  mutate(type = ifelse(grepl("United", category1), "UK","Non-UK")) %>%
+  group_by(type) %>%
+  summarise(count = sum(c=value)) %>%
+  ungroup() %>%
+  mutate(Percent = round(count *100 /sum(count),1))
+
+Non_UK_ward <- cob_ward %>%
+  filter(!grepl("United", category1)) %>%
+  mutate(continent = sub(":.*", "", category1)) %>%
+  mutate(category = gsub(".*\\: ", "", category1)) %>%
+  mutate(category  = gsub("\\s*\\([^\\)]+\\)","", category)) %>%
+  mutate(Percent = round(value *100 /sum(value),1)) %>%
+  filter(value != 0) 
+
+urlT <- "https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=country_of_birth_22a"
+
+cob_T <- ons_api_1var(urlT)  %>%
+  mutate(value = as.numeric(value))
+
+Non_UK_PT <- cob_T %>%
+  mutate(type = ifelse(grepl("United", category1), "UK","Non-UK")) %>%
+  group_by(type) %>%
+  summarise(count = sum(c=value)) %>%
+  ungroup() %>%
+  mutate(Percent = round(count *100 /sum(count),1))
+
+Non_UK_T <- cob_T %>%
+  filter(!grepl("United", category1)) %>%
+  mutate(category = gsub(".*\\: ", "", category1)) %>%
+   mutate(category  = gsub("\\s*\\([^\\)]+\\)","", category)) %>%
+  mutate(Percent = round(value *100 /sum(value),1)) %>%
+  filter(value != 0)
+
+Non_UK <- Non_UK_ward %>%
+   left_join(Non_UK_T %>% select(category1,Percent_T = Percent), by = "category1") %>%
+    mutate(tooltip = paste0("<strong>", area_name,"</strong><br><strong>", category,"</strong><br/>",
+                                Percent, "% of Non-UK born<br>Trafford: ", Percent_T, "%"))
+
+
+```
+<div class="textBox">
+<span class="fa-solid fa-globe"></span>
+<span>
+<p class = "boxTitle">`r Non_UK_P %>% filter(type == "Non-UK") %>% select(Percent)`%</p>
+<p class = "boxStat">Non-UK born </p>
+<p class = "boxStatSmall">`r Non_UK_PT %>% filter(type == "Non-UK") %>% select(Percent)`% in Trafford</p>
+</span>
+</div>
+
+<div class = "col-md-12">
+```{r cobPlot}
+
+cob_bar <- Non_UK %>%
+  mutate(category = fct_rev(factor(category, levels= Non_UK_ward$category)))
+
+gg <- ggplot(cob_bar) +
+  geom_col_interactive(mapping = aes(Percent,category,fill = continent, tooltip = tooltip)) +
+  geom_text(aes(Percent,category,label = paste0(Percent, "%")),colour = "#212121", size = 4, fontface = "bold", hjust = 0, vjust = 0.5) +
+  scale_fill_manual(values = c("#244671", "#80ACCD", "#AFC8E2","#42779D", "#182F53")) +
+  scale_x_continuous(limits = c(0,NA), expand = expansion(mult = c(0, 0.1))) +
+  guides(fill = guide_legend(reverse=TRUE)) +
+  labs(title = "Non-UK born by world region", subtitle = ward_name, caption = "Figures aggregated from OA best-fit to 2023 Wards\nSource: Census 2021",
+       x = "% of residents Non-UK born",
+       colour = NULL, fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=18),
+    plot.subtitle = element_text(size=16, margin=margin(0,0,10,0)),
+    plot.caption = element_text(size=14, hjust = 1),
+    plot.title.position = "plot",
+    legend.position = "none",
+    axis.title.x = element_text(size=14,hjust = 1),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(hjust = 1, size = 14),
+    axis.title = element_blank(),
+    panel.grid.major.y = element_blank()) +
+    coord_cartesian(clip = "off")
+
+girafe(ggobj = gg, height_svg = 6.5,
+       options = girafe_options)
+
+```
+</div>
+</div>
+</div>
+
+<h2>`r ward_name` Qualifications and Socio-economic category</h2>
+
+<div class = "row">
+<div class = "col-md-6">
+  
+```{r educationBarP}
+
+education_bar <- education_w %>%
+  mutate(categoryb = factor(categoryb, levels = c("None", "Other", "Apprenticeship", "Level 1", "Level 2", "Level 3", "Level 4")))
+
+gg <- ggplot(education_bar %>% filter(area_name == ward_name)) +
+  geom_col_interactive(mapping = aes(Percent,categoryb, tooltip = tooltip), fill = "#80ACCD") +
+  geom_text(aes(-7,categoryb,label = paste0(Percent, "%")),colour = "#212121", size = 4, fontface = "bold", hjust = 0, vjust = 0.5) +
+  geom_errorbar(data = education_bar %>% filter(area_name == "Trafford"), aes(x=Percent, xmax=Percent, xmin=Percent, y = categoryb), color = "grey", size = 0.8) +
+  guides(fill = guide_legend(reverse=TRUE)) +
+  labs(title = "Highest level of qualification", subtitle = ward_name, caption = "Trafford(line), best-fit OA to ward(bar)\nSource: Census 2021, ONS |  @traffordDataLab",
+       x = "% of residents aged 16+",
+       colour = NULL, fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=18),
+    plot.subtitle = element_text(size=16, margin=margin(0,0,10,0)),
+    plot.caption = element_text(size=14, hjust = 1),
+    plot.title.position = "plot",
+    legend.position = "none",
+    axis.title.x = element_text(size=14,hjust = 1),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(hjust = 1, size = 14),
+    axis.title = element_blank(),
+    panel.grid.major.y = element_blank())
+
+
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
+
+```
+
+</div>
+
+```{r secData}
+
+oa_sec <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2079_1.data.csv?date=latest&geography=629174437...629175131,629304895...629304912,629315184...629315186,629315192...629315198,629315220,629315233,629315244,629315249,629315255,629315263,629315265,629315274,629315275,629315278,629315281,629315290,629315295,629315317,629315327,645922849&c2021_nssec_10=1...9&measures=20100")
+
+sec_T <- oa_sec %>%
+  filter(area_name == "Trafford") %>%
+  mutate(Percent = round(value *100/sum(value),1))
+
+sec_w <- oa_sec %>%
+  filter(area_name != "Trafford") %>%
+  left_join(lookup_ons, by = c("area_name" = "OA21CD")) %>%
+  select(area_name = WD23NM, category, value) %>%
+  group_by(area_name, category) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  group_by(area_name) %>%
+  mutate(Percent = round(value *100/sum(value),1)) %>%
+  bind_rows(sec_T) %>%
+  left_join(sec_T %>% select(category,Traf_P = Percent), by = "category") %>%
+  select(-date, -measure) %>%
+  mutate(categoryb = sub(".*[0-9] ", "", category)) %>%
+  mutate(categoryb = str_wrap(categoryb,width = 35)) %>%
+  mutate(category = factor(category, levels = sec_T%>% select(category)%>% pull())) %>%
+  arrange(category) %>%
+  mutate(tooltip = paste0("<strong>",area_name,"</strong><br>",categoryb, "<br>", Percent, "%<br> Trafford: ", Traf_P,"%")) %>%
+  ungroup()
+
+```
+
+<div class = "col-md-6">
+  
+```{r secBarP}
+
+ sec_bar <- sec_w %>%
+  mutate(categoryb = fct_rev(factor(categoryb, levels = c(sec_w %>% select(categoryb) %>% unique() %>% pull()))))
+
+
+gg <- ggplot(sec_bar %>% filter(area_name == ward_name)) +
+  geom_col_interactive(mapping = aes(Percent,categoryb, tooltip = tooltip), fill = "#AFC8E2") +
+  geom_text(aes(-6,categoryb,label = paste0(Percent, "%")),colour = "#212121", size = 4, fontface = "bold", hjust = 0, vjust = 0.5) +
+  geom_errorbar(data = sec_bar %>% filter(area_name == "Trafford"), aes(x=Percent, xmax=Percent, xmin=Percent, y = categoryb), color = "darkgrey", size = 0.8) +
+  guides(fill = guide_legend(reverse=TRUE)) +
+  labs(title = "NS Socio-economic Classification (NS-SEC)", subtitle = ward_name, caption = "Trafford(line), best-fit OA to ward(bar)\nData collected during the COVID-19 pandemic and associated measures.\nSource: Census 2021, ONS | @traffordDataLab",
+       x = "% of residents aged 16+",
+       colour = NULL, fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=18),
+    plot.subtitle = element_text(size=16, margin=margin(0,0,10,0)),
+    plot.caption = element_text(size=14, hjust = 1),
+    plot.title.position = "plot",
+    legend.position = "none",
+    axis.title.x = element_text(size=14,hjust = 1),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(hjust = 1, size = 13),
+    axis.title = element_blank(),
+    panel.grid.major.y = element_blank())
+
+
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
+
+```
+
+</div>
+
+</div>
+
+<h2>`r ward_name` Tenure and Accommodation Type</h2>
+
+<div class = "row">
+<div class = "col-md-6">
+  
+```{r TenureBarP}
+
+tenure_bar <- tenure %>%
+  mutate(category = fct_rev(factor(category, levels= tenure_wardT$category)))
+
+gg <- ggplot(tenure_bar %>% filter(area_name == ward_name)) +
+  geom_col_interactive(mapping = aes(Percent,category, tooltip = tooltip), fill = "#42779D") +
+  geom_text(aes(-8,category,label = paste0(Percent, "%")),colour = "#212121", size = 5, fontface = "bold", hjust = 0, vjust = 0.5) +
+  geom_errorbar(data = tenure_TT, aes(x=Percent, xmax=Percent, xmin=Percent, y = category), color = "grey", size = 0.8) +
+  guides(fill = guide_legend(reverse=TRUE)) +
+  labs(title = "Tenure", subtitle = ward_name, caption = "*Owns with a mortgage or loan or shared ownership. **Private rented or lives rent free.\nTrafford(line), best-fit OA to ward(bar)\nSource: Census 2021, ONS |  @traffordDataLab",
+       x = "% of households",
+       colour = NULL, fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=18),
+    plot.subtitle = element_text(size=16, margin=margin(0,0,10,0)),
+    plot.caption = element_text(size=12, hjust = 1),
+    plot.title.position = "plot",
+    legend.position = "none",
+    axis.title.x = element_text(size=14,hjust = 1),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(hjust = 1, size = 14),
+    axis.title = element_blank(),
+    panel.grid.major.y = element_blank())
+
+
+girafe(ggobj = gg, height_svg = 4.3,
+       options = girafe_options)
+
+```
+
+</div>
+
+<div class = "col-md-6">
+  
+```{r AccTypeBarP}
+
+AccType_bar <- AccType %>%
+  mutate(category = fct_rev(factor(category, levels= AccType_wardT$category)))
+
+gg <- ggplot(AccType_bar %>% filter(area_name == ward_name)) +
+  geom_col_interactive(mapping = aes(Percent,category, tooltip = tooltip), fill = "#244671") +
+  geom_text(aes(-10,category,label = paste0(Percent, "%")),colour = "#212121", size = 5, fontface = "bold", hjust = 0, vjust = 0.5) +
+  geom_errorbar(data = AccType_TT, aes(x=Percent, xmax=Percent, xmin=Percent, y = category), color = "grey", size = 0.8) +
+  guides(fill = guide_legend(reverse=TRUE)) +
+  labs(title = "Accommodation Type", subtitle = ward_name, caption = "*Flat, maisonette, apartment or caravan.\nTrafford(line), best-fit OA to ward(bar)\nSource: Census 2021, ONS |  @traffordDataLab",
+       x = "% of households",
+       colour = NULL, fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=18),
+    plot.subtitle = element_text(size=16, margin=margin(0,0,14,0)),
+    plot.caption = element_text(size=12, hjust = 1),
+    plot.title.position = "plot",
+    legend.position = "none",
+    axis.title.x = element_text(size=14,hjust = 1),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(hjust = 1, size = 14),
+    axis.title = element_blank(),
+    panel.grid.major.y = element_blank())
+
+
+girafe(ggobj = gg, height_svg = 4.3,
+       options = girafe_options)
+
+```
+
+</div>
+</div>
+
+<h2>`r ward_name` Health and Disability</h2>
+```{r healthData}
+
+oa_health <- get_census_api_2021("https://www.nomisweb.co.uk/api/v01/dataset/NM_2055_1.data.csv?date=latest&geography=629174437...629175131,629304895...629304912,629315184...629315186,629315192...629315198,629315220,629315233,629315244,629315249,629315255,629315263,629315265,629315274,629315275,629315278,629315281,629315290,629315295,629315317,629315327,645922849&c2021_health_6=1...5&measures=20100")
+
+health_T <- oa_health %>%
+  filter(area_name == "Trafford") %>%
+  mutate(Percent = round(value *100/sum(value),1))
+
+health_w <- oa_health %>%
+  filter(area_name != "Trafford") %>%
+  left_join(lookup_ons, by = c("area_name" = "OA21CD")) %>%
+  select(area_name = WD23NM, category, value) %>%
+  group_by(area_name, category) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  group_by(area_name) %>%
+  mutate(Percent = round(value *100/sum(value),1)) %>%
+  bind_rows(health_T,.) %>%
+  select(-date, -measure) %>%
+  mutate(tooltip = paste0("<strong>",area_name,"</strong><br><strong>",category, "</strong><br>", Percent, "%")) %>%
+  ungroup()
+
+```
+<div class = "row">
+<div class = "col-md-6">
+
+<div class="textBox">
+<span class="fa-solid fa-heart-pulse"></span>
+<span>
+<p class = "boxTitle">`r health_w %>% filter(area_name == ward_name, category == "Bad health") %>% select(Percent) + health_w %>% filter(area_name == ward_name, category == "Very bad health") %>% select(Percent)`%</p>
+<p class = "boxStat">has Very bad or Bad health</p>
+<p class = "boxStatSmall">`r health_w %>% filter(area_name == "Trafford", category == "Bad health") %>% select(Percent) + health_w %>% filter(area_name == "Trafford", category == "Very bad health") %>% select(Percent)`% in Trafford</p>
+</span>
+</div>
+
+<div class = "col-md-12">
+  
+```{r healthBar}
+
+health_bar <- health_w %>%
+  filter(area_name %in% c(ward_name, "Trafford")) %>%
+  mutate(category = factor(category, levels = c("Very bad health", "Bad health", "Fair health","Good health", "Very good health")))%>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", ward_name)))
+
+double_bar_onec <- function (data,plotTitle, plotSubtitle,capt, xlab,  titleSize,subtitleSize, elemSize){
+
+gg <- ggplot(data) +
+  geom_col_interactive(aes(Percent, category, fill = area_name, tooltip = tooltip), stat="identity", position = position_dodge(width = 0.5)) +
+    scale_fill_manual(values = c("#AFC8E2", "#182F53")) +
+  scale_x_continuous(labels = function(x) paste0(x, "%")) +
+    labs(x = xlab, y = NULL, title = plotTitle, subtitle = plotSubtitle, caption = capt, colour = NULL, fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=titleSize),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=subtitleSize),
+        plot.caption = element_text(size=elemSize, hjust = 1),
+        legend.title = element_text(size=elemSize),
+        legend.text = element_text(size=elemSize),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 1, size=elemSize),
+        axis.title.x = element_text(size=elemSize),
+        axis.text.x = element_text(size=elemSize))
+
+}
+
+gg <- double_bar_onec(health_bar,"General health", ward_name, "Figures aggregated from OA best-fit to 2023 Wards\nSource: Census 2021","% of residents",18,16,14 )
+
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
+
+```
+
+</div>
+</div>
+
+<div class = "col-md-6">
+
+```{r disaAge data}
+
+url <- paste0("https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=oa,",  URLencode(paste0(paste(lookup_ward %>% pull(OA21CD), collapse = ","))), "&dimensions=resident_age_5d,disability_3a")
+
+dis_age_W <- ons_api_2var(url)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1, category2) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = ward_name) %>%
+  group_by(category1) %>%
+  mutate(Percent1 = round(value *100 /sum(value),1)) %>%
+  ungroup() %>%
+  mutate(Percent = round(value *100 /sum(value),1)) 
+
+disable_ward <- dis_age_W %>%
+  filter(category2 == "Disabled under the Equality Act") %>%
+  mutate(category1 = gsub("Aged ", "", category1)) %>%
+  mutate(category1 = gsub(" years", "", category1)) %>%
+  mutate(tooltip = paste0("<strong>",area_name,"</strong><br>",category1, "<br>", Percent1, "%"))
+
+
+urlT <- paste0("https://api.beta.ons.gov.uk/v1/population-types/UR/census-observations?area-type=ltla,E08000009&dimensions=resident_age_5d,disability_3a")
+
+dis_age_T <- ons_api_2var(urlT)  %>%
+  mutate(value = as.numeric(value)) %>%
+  group_by(category1, category2) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(area_name = "Trafford") %>%
+  group_by(category1) %>%
+  mutate(Percent1 = round(value *100 /sum(value),1)) %>%
+  ungroup() %>%
+  mutate(PercentT = round(value *100 /sum(value),1)) 
+
+disable_Traf <- dis_age_T %>%
+  filter(category2 == "Disabled under the Equality Act") %>%
+  mutate(category1 = gsub("Aged ", "", category1)) %>%
+  mutate(category1 = gsub(" years", "", category1)) %>%
+  mutate(tooltip = paste0("<strong>",area_name,"</strong><br>",category1, "<br>", Percent1, "%")) 
+
+disable <- disable_Traf %>%
+  bind_rows(disable_ward)
+```
+<div class="textBox">
+<i class="fa-solid fa-wheelchair"></i>
+<span>
+<p class = "boxTitle">`r disable_ward %>% select(Percent) %>% sum()`%</p>
+<p class = "boxStat">disabled under the Equality Act</p>
+<p class = "boxStatSmall">`r disable_Traf %>% select(PercentT) %>% sum()`% in Trafford</p>
+</span>
+</div>
+
+<div class = "col-md-12">
+  
+```{r disableBar}
+
+disable_bar <- disable %>%
+  mutate(category1 = factor(category1, levels= disable_ward$category1)) %>%
+  mutate(area_name = factor(area_name, levels = c("Trafford", ward_name))) %>%
+  select(category = category1, Percent = Percent1, area_name,tooltip)
+
+gg <- double_bar_onec(disable_bar,"Proportion of people who reported a disability",paste0(ward_name, ", by age group"), "Figures aggregated from OA best-fit to 2023 Wards\nSource: Census 2021","% of age group",18,16,14 )
+
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
+
+```
+
+</div>
+</div>
+
+</div>
+
+<h2>`r ward_name` Deprivation compared to Trafford and other wards</h2>
+
+```{r deprData}
+
+percent_oa_ward <- function(data){
+data %>%
+  mutate(value = as.numeric(value)) %>%
+  left_join(lookup_ons, by = c("area_name" = "OA21CD")) %>%
+  select(area_name = WD23NM, category1, value) %>%
+  group_by(area_name, category1) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(Percent = round(value *100/sum(value),1)) 
+}
+
+deprivation_ward <- data.frame()
+
+for(i in 1:21) {
+  
+  ward_oas <- lookup_ons %>%
+    filter(WD23NM == unique(lookup_ons$WD23NM)[i])
+
+urle <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=oa,",  URLencode(paste0(paste(ward_oas %>% pull(OA21CD), collapse = ","))), "&dimensions=hh_deprivation_education")
+
+dep_ed_W <- ons_api_1var(urle) 
+
+urlemp <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=oa,",  URLencode(paste0(paste(ward_oas %>% pull(OA21CD), collapse = ","))), "&dimensions=hh_deprivation_employment")
+
+dep_emp_W <- ons_api_1var(urlemp) 
+
+urlhealth <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=oa,",  URLencode(paste0(paste(ward_oas %>% pull(OA21CD), collapse = ","))), "&dimensions=hh_deprivation_health")
+
+dep_health_W <- ons_api_1var(urlhealth)
+
+urlhous <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=oa,",  URLencode(paste0(paste(ward_oas %>% pull(OA21CD), collapse = ","))), "&dimensions=hh_deprivation_housing")
+
+dep_hous_W <- ons_api_1var(urlhous)
+
+deprivation_ward <-  deprivation_ward %>%
+  bind_rows(dep_ed_W %>% percent_oa_ward(), dep_emp_W  %>% percent_oa_ward(), dep_health_W %>% percent_oa_ward(), dep_hous_W %>% percent_oa_ward())
+
+}
+
+#Trafford
+
+urleT <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=ltla,E08000009&dimensions=hh_deprivation_education")
+
+dep_ed_WT <- ons_api_1var(urleT)%>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(Percent = round(value *100/sum(value),1))  
+
+urlempT <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=ltla,E08000009&dimensions=hh_deprivation_employment")
+
+dep_emp_WT <- ons_api_1var(urlempT)%>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(Percent = round(value *100/sum(value),1)) 
+
+urlhealthT <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=ltla,E08000009&dimensions=hh_deprivation_health")
+
+dep_health_WT <- ons_api_1var(urlhealthT)%>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(Percent = round(value *100/sum(value),1))
+
+urlhousT <- paste0("https://api.beta.ons.gov.uk/v1/population-types/HH/census-observations?area-type=ltla,E08000009&dimensions=hh_deprivation_housing")
+
+dep_hous_WT <- ons_api_1var(urlhousT)%>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(Percent = round(value *100/sum(value),1))
+
+deprivation <- bind_rows(deprivation_ward,dep_ed_WT,dep_emp_WT,dep_health_WT,dep_hous_WT)%>%
+  filter(!grepl("not", category1, ignore.case=TRUE)) %>%
+  mutate(categoryb = word(category1, 3, 6)) %>%
+  mutate(categoryb = gsub(" the","",categoryb)) %>%
+  mutate(type = case_when(area_name == ward_name ~ "rep_ward",
+                          area_name == "Trafford" ~ "LA",
+                          TRUE ~ "ward")) %>%
+  mutate(tooltip = paste0("<strong>", area_name,"</strong><br>",category1, "<br>", Percent, "%")) %>%
+  mutate(categoryb = factor(categoryb, levels = c("deprived in housing", "deprived in health", "deprived in employment","deprived in education")))
+
+```
+<div class = "row">
+<div class = "col-md-3">
+</div>
+<div class = "col-md-6">
+```{r deprPointPlot}
+
+deprivationP <- deprivation %>% filter(area_name == ward_name)
+
+gg <- ggplot(data = deprivationP, aes(Percent, categoryb)) +
+  geom_segment(aes(x = 0, y = categoryb, xend = Percent, yend = categoryb), color = "#42779D", linewidth = 1) + #"#f0f0f0"
+  geom_point_interactive(aes(tooltip = tooltip),size = 8, fill = "#42779D",color = "#898989", shape = 21) +
+  geom_text(aes(label = paste0(Percent, "%")),colour = "#212121", size = 4, fontface = "bold", hjust = 0, vjust = 0.5, nudge_x = round((max(deprivationP$Percent) - min(deprivationP$Percent))/25,1)) +
+  scale_x_continuous(limits = c(0,NA), expand = expansion(mult = c(0, 0.1))) +
+    labs(x = "% of households", y = NULL, title = "Percent of households deprived by dimension", subtitle = ward_name, caption = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=18),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        plot.subtitle = element_text(size=16),
+        plot.caption = element_text(size=14, hjust = 1),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_text(hjust = 0, size=12),
+        axis.title.x = element_text(size=14),
+        axis.text.x = element_blank()) +
+  coord_cartesian(clip = "off")
+
+girafe(ggobj = gg, height_svg = 4,
+       options = girafe_options)
+
+
+```
+</div>
+<div class = "col-md-3">
+</div>
+</div>
+<div class = "row">
+<div class = "col-md-12">
+```{r bubbleDepr}
+
+pointSize <- 3
+textSize <- 7
+
+colors <- c("gray", "#42779D", "black")
+
+  data1 <- deprivation %>%
+  filter(type == "ward")
+data2 <- deprivation %>%
+  filter(type == "LA")
+data3 <- deprivation %>%
+  filter(type == "rep_ward")
+
+  gg <- ggplot() +
+      geom_point_interactive(data1,mapping=aes(x = Percent, y = "",  tooltip = tooltip, fill = "Other wards"),position=position_jitter(h=0.2, w=0), alpha = 0.6, color = "#898989",
+             shape = 21, size = pointSize) +
+      geom_point_interactive(data2,mapping=aes(x = Percent, y = "",  tooltip = tooltip, fill = "Trafford"),position=position_jitter(h=0.1, w=0), alpha = 1,color = "#898989",
+             shape = 21, size = pointSize) +
+          geom_point_interactive(data3,mapping=aes(x = Percent, y = "",  tooltip = tooltip, fill = "rep_ward"), alpha = 1,color = "#898989",
+             shape = 21, size = pointSize) +
+    scale_x_continuous(labels = function(x) paste0(x, "%")) +
+    scale_fill_manual(values = colors, labels = c("Other wards", ward_name, "Trafford")) +
+      labs(title = NULL, subtitle = NULL, caption = "Figures aggregated from OA best-fit to 2023 Wards\nSource: Census 2021, ONS | @traffordDataLab",
+         colour = NULL, fill = NULL) +
+    facet_wrap(~category1, ncol = 2, scales = "free_x") +
+    theme_lab() +
+    theme(
+        plot.caption = element_text(size=6, hjust = 1),
+       legend.text = element_text(size = 7),
+       legend.position = c(0.2, 1.11),
+       legend.direction = "horizontal",
+       axis.text.x = element_text(size=textSize, margin=margin(0,0,0,0)),
+      axis.text.y = element_blank(),
+      axis.title = element_blank(),
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(colour = "gray",linetype = 2, linewidth = 0.3),
+      panel.spacing.x = unit(3, "lines"),
+      strip.text = element_text(size = 7),
+      )
+
+  girafe(ggobj = gg, height_svg = 2.5,
+       options = girafe_options)
+
+```
+
+
+
+</div>
+</div>
+
+</main>
+
+
+```{css}
+
+.textBox {
+    font-size: 0.8em;
+    border: 1px solid #ccc;
+    border-left: 3px solid #7e478b;
+    border-radius: 3px;
+    background-color: #fff;
+    color: #757575;
+    padding: 3px 5px 3px 5px;
+    margin: 0 10px 7px 0;
+    border-radius: 3px;
+    display: block;
+}
+.boxTitle {
+  font-size: 2em;
+}
+.boxStat {
+  font-size: 1.5em;
+  margin:0;
+}
+.boxStatSmall {
+  font-size: 1.1em;
+  margin:0;
+}
+
+.fa-solid {
+  float: right;
+  font-size: 6em;
+  color: #ccc;
+}
+
+.padZ
+{
+padding: 0;
+}
+
+```
+
