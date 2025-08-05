@@ -148,25 +148,25 @@ lookup <- read_csv("https://houseofcommonslibrary.github.io/msoanames/MSOA-Names
 # URL: https://www.nomisweb.co.uk/datasets/pestsyoaoa
 # Licence: Open Government Licence 3.0
 
-# msoa_pop <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=1245709510...1245709537&date=latest&gender=0&c_age=203&measures=20100") %>%
-#     select(area_code = GEOGRAPHY_CODE,
-#          pop16_64 = OBS_VALUE)
+msoa_pop <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2010_1.data.csv?geography=1245709510...1245709537&date=latest&gender=0&c_age=203&measures=20100") %>%
+    select(area_code = GEOGRAPHY_CODE,
+         pop16_64 = OBS_VALUE)
 
 
 # Mid-2022 population estimates
 # URL: https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/middlesuperoutputareamidyearpopulationestimatesnationalstatistics
 
-tmp <- tempfile(fileext = ".xlsx")
+#tmp <- tempfile(fileext = ".xlsx")
 
 
-GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/middlesuperoutputareamidyearpopulationestimates/mid2021andmid2022/sapemsoasyoatablefinal.xlsx",
-    write_disk(tmp))
+#GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/middlesuperoutputareamidyearpopulationestimates/mid2021andmid2022/sapemsoasyoatablefinal.xlsx",
+#    write_disk(tmp))
 
-msoa_pop <- read_xlsx(tmp, sheet = 6, skip = 3) %>%
-  filter(`LAD 2021 Code` == "E08000009") %>%
-  mutate(F16to64 = rowSums(pick(F16:F64), na.rm = TRUE), M16to64 = rowSums(pick(M16:M64), na.rm = TRUE)) %>%
-  mutate(Count = F16to64+M16to64) %>%
-  select(area_code = `MSOA 2021 Code`, pop16_64 = Count) 
+#msoa_pop <- read_xlsx(tmp, sheet = 6, skip = 3) %>%
+#  filter(`LAD 2021 Code` == "E08000009") %>%
+#  mutate(F16to64 = rowSums(pick(F16:F64), na.rm = TRUE), M16to64 = rowSums(pick(M16:M64), na.rm = TRUE)) %>%
+#  mutate(Count = F16to64+M16to64) %>%
+#  select(area_code = `MSOA 2021 Code`, pop16_64 = Count) 
 
 # claimant_ward <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1660945005...1660945019,1660945021,1660945020,1660945022...1660945025&date=latestMINUS12,latest&gender=0&age=0&measure=1,2&measures=20100")
 #https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv?geography=1245709510...1245709537&date=latest&gender=0&age=0&measure=1&measures=20100
@@ -549,7 +549,7 @@ plotdf <- quinary %>%
 
 #pop_trafford_age_raw <- read_csv("http://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1811939363&date=latest&gender=0&c_age=101...191&measures=20100&select=date_name,geography_name,geography_code,gender_name,c_age_name,measures_name,obs_value,obs_status_name")
 
-pop_trafford_age_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1778385132&date=latestMINUS3-latest&gender=0&c_age=101...191&measures=20100")
+pop_trafford_age_raw <- read_csv("https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv?geography=1778385132&date=latestMINUS4-latest&gender=0&c_age=101...191&measures=20100")
 
 
 pop_trafford_age <- pop_trafford_age_raw %>%
