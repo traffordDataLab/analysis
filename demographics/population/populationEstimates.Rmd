@@ -26,6 +26,8 @@ library(readxl) ;
 library(scales) ;
 library(ggpol) ;
 library(ggiraph)
+library(ggrepel)
+library(ggsci)
 
 ```
 
@@ -53,19 +55,22 @@ girafe_options <- list(opts_tooltip(use_fill = FALSE, opacity = 1, css = "backgr
 
 tmp <- tempfile(fileext = ".xlsx") 
  
-GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales/mid2011tomid2023detailedtimeserieseditionofthisdataset/myebtablesenglandwales20112023.xlsx",
+#GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales/mid2011tomid2023detailedtimeserieseditionofthisdataset/myebtablesenglandwales20112023.xlsx",
+GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales/mid2011tomid2024detailedtimeseries/myebtablesenglandwales20112024.xlsx",
     write_disk(tmp))
 
 tmp2 <- tempfile(fileext = ".xlsx")
 
-GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/analysisofpopulationestimatestoolforuk/2023/theanalysisofpopulationestimatestool2023ew.xlsx",     
+#GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/analysisofpopulationestimatestoolforuk/2023/theanalysisofpopulationestimatestool2023ew.xlsx",  
+GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/analysisofpopulationestimatestoolforuk/2024englandandwales/theanalysisofpopulationestimatestool2024ew.xlsx",  
     write_disk(tmp2))
 
-engRaw <- read_xlsx(tmp2, sheet = 12)
+engRaw <- read_xlsx(tmp2, sheet = 14)
 
 tmp3 <- tempfile(fileext = ".xlsx")
 
-GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales/mid20232023localauthorityboundarieseditionofthisdataset/mye23tablesew.xlsx",     
+#GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales/mid20232023localauthorityboundarieseditionofthisdataset/mye23tablesew.xlsx", 
+GET(url = "https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales/mid20242023localauthorityboundaries/mye24tablesew.xlsx", 
     write_disk(tmp3))
 
 cipfa <- read_csv("cipfalga0724.csv")
@@ -74,8 +79,8 @@ autRaw <- read_xlsx(tmp3, sheet = 10, skip = 7)
 
 simAut22_23 <- autRaw %>%
   filter(Code %in% cipfa$area_code) %>%
-      mutate(Difference = `Estimated Population mid-2023` - `Estimated Population mid-2022`) %>%
-  mutate(`% Change` = round(Difference*100/`Estimated Population mid-2022`,2)) %>%
+      mutate(Difference = `Estimated Population mid-2024` - `Estimated Population mid-2023`) %>%
+  mutate(`% Change` = round(Difference*100/`Estimated Population mid-2023`,2)) %>%
   summarise(`% Change` = round(mean(`% Change`),1)) %>%
   mutate(area_name = "Similar Authorities")
   
@@ -83,23 +88,20 @@ simAut22_23 <- autRaw %>%
 
 gm22_23 <- autRaw %>%
      filter(Code %in% c("E92000001", "E11000001", "E08000009") | Name %in% c("Bolton","Bury","Manchester","Oldham","Rochdale","Salford","Stockport","Tameside","Trafford","Wigan")) %>%
-    mutate(Difference = `Estimated Population mid-2023` - `Estimated Population mid-2022`) %>%
-  mutate(`% Change` = round(Difference*100/`Estimated Population mid-2022`,1))
+    mutate(Difference = `Estimated Population mid-2024` - `Estimated Population mid-2023`) %>%
+  mutate(`% Change` = round(Difference*100/`Estimated Population mid-2023`,1))
 
 gm_mage <- read_xlsx(tmp3, sheet = 13, skip = 7) %>%
        filter(Code %in% c("E92000001", "E11000001", "E08000009") | Name %in% c("Bolton","Bury","Manchester","Oldham","Rochdale","Salford","Stockport","Tameside","Trafford","Wigan"))
 
 
-
-  
-
-mid2022_23 <- read_xlsx(tmp, sheet = 5, skip = 1) %>%
+mid2023_24 <- read_xlsx(tmp, sheet = 5, skip = 1) %>%
   filter(laname23 == "Trafford") %>%
-  select(sex, age, population_2022, population_2023) %>%
-  pivot_longer(population_2022:population_2023, names_to = "year", values_to = "value", names_prefix = "population_") %>%
-  mutate(sex = ifelse(sex == "F","Female","Male")) 
+  select(sex, age, population_2021, population_2023, population_2024) %>%
+  pivot_longer(population_2021:population_2024, names_to = "year", values_to = "value", names_prefix = "population_") %>%
+  mutate(sex = ifelse(sex == "f","Female","Male")) 
 
-mid2022_23_5y <- mid2022_23 %>%
+mid2023_24_5y <- mid2023_24 %>%
     mutate(age = cut(age,
                        breaks = c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,120),
                        labels = c("0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39",
@@ -112,22 +114,72 @@ mid2022_23_5y <- mid2022_23 %>%
   ungroup() %>%
   mutate(age = factor(age, levels = c("0-4","5-9", "10-14", "15-19", "20-24", "25-29", "30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80-84","85-89","90+"))) 
 
+eng_tot_2021_2024 <- read_xlsx(tmp, sheet = 7, skip = 1) %>%
+  filter(country == "E") %>%
+  #select(population_2021, population_2022, population_2023, population_2024) %>%
+  select(contains("population_")) %>%
+  summarise_all(sum) %>%
+  mutate(area_code = "E92000001", area_name = "England")
+
+gm_tot_2021_2024 <- read_xlsx(tmp, sheet = 7, skip = 1) %>%
+  filter(laname23 %in% c("Bolton","Bury","Manchester","Oldham","Rochdale","Salford","Stockport","Tameside","Wigan", "Trafford")) %>%
+  #select(population_2021, population_2022, population_2023, population_2024) %>%
+  select(contains("population_")) %>%
+  summarise_all(sum) %>%
+  mutate(area_code = "", area_name = "GM")
+
+
+mid2021_24_tot<- read_xlsx(tmp, sheet = 7, skip = 1) %>%
+  filter(laname23 %in% c("Trafford",cipfa$area_name,"Bolton","Bury","Manchester","Oldham","Rochdale","Salford","Stockport","Tameside","Wigan")) %>%
+  #select(area_code = ladcode23, area_name = laname23, population_2021, population_2022, population_2023, population_2024) %>%
+  select(area_code = ladcode23, area_name = laname23, contains("population_"))%>%
+  bind_rows(eng_tot_2021_2024) %>%
+  bind_rows(gm_tot_2021_2024) %>%
+  pivot_longer(population_2011:population_2024, names_to = "year", values_to = "value", names_prefix = "population_")  %>%
+  group_by(area_code, area_name) %>%
+  mutate(growFrom2021 = (value-value[1])/value[1]*100
+         ,yearGrow = (value-lag(value))/value[1]*100
+         ) %>%
+  ungroup() %>%
+  bind_rows(
+            filter(.,area_code %in% cipfa$area_code) %>%
+              select(year,value,growFrom2021) %>%
+              group_by(year) %>%
+              summarise(value= sum(value), growFrom2021 = mean(growFrom2021)) %>%
+              ungroup() %>%
+              mutate(area_code = "", area_name = "Similar Authorities")) %>%
+  filter(!area_code %in% cipfa$area_code) %>%
+  mutate(year = as.numeric(year))
+
+
+
+
 ```
 
 
-## Mid-year 2023
+## Mid-year 2024
 
-### Trafford's population growth was the lowest in GM
+### Trafford's population growth was the lowest in GM {.tabset}
 
 </b>
 
-<p>ONS has published the Mid-year 2023 population estimates and revised estimates for 2022 for England and Wales, including local authority levels.</p>
+<p>ONS has published the Mid-year 2024 population estimates and revised estimates for 2023 for England and Wales, including local authority levels.</p>
 
-<p>In Mid-year 2023, the Trafford population was 237,480, which is 829 more than the population in Mid-year 2022.</p>
+<p>In Mid-year 2024, the Trafford population was 241,025, which is 2,049 more than the population in Mid-year 2023.</p>
 
-<p>From Mid-year 2022 to Mid-year 2023, the population has grown by 0.4%, this is 0.9% less than Greater Manchester (GM) at 1.3% growth and 0.6% less than England at 1%. Trafford has the lowest growth compared to the rest of GM authorities and the second lowest growth of the average of 15 similar local authorities (Similar Authorities).</p>
+<p>From Mid-year 2023 to Mid-year 2024, the population has grown by 0.9%, this is 0.6% less than Greater Manchester (GM) at 1.5% growth and 0.3% less than England at 1.2% growth. Trafford has the lowest growth compared to the rest of GM authorities and the third lowest growth of 15 similar local authorities (Similar Authorities).</p>
 
-<p>The median age in Trafford was 40.9 years, 0.1 years less than the median age in Mid-year 2022. Trafford had the third highest median age among GM authorities. GM's median age is 37.2 years, and England’s median age is 40.4 years.</p>
+<p>The median age in Trafford was 40.7 years, 0.2 years less than the median age in Mid-year 2023. Trafford had the second highest median age among GM authorities. GM's median age is 36.9 years, and England’s median age is 40.2 years.</p>
+
+<p>Considering the trend in population growth from 2011, between mid 2014 and mid 2015, the year on year growth of Trafford's population became the second lowest among the GM authorities and from 2017 to 2018, Trafford became the lowest growing authority. </p>
+
+<p>For two consecutive years, in 2021 and 2022, Trafford decreased in population whilst GM and England increased in population.</p>
+
+<p>From 2022 Trafford's population has been increasing at a lower rate than England and GM authorities.</p>
+
+Select the tabs below for:
+
+#### 2023 to 2024
 
 <div class = "row">
 <div class = "col-md-3">
@@ -146,10 +198,11 @@ ggplot(gmCompP, aes(x = `% Change`, y = area_name)) +
     geom_col(width = 0.9, fill = "#194a81")+
   geom_text(aes(label = paste0(`% Change`, "%")), face = "bold", size = 5, hjust = 1.1, vjust = 0.5, colour = "white") +
   theme_minimal() +
-  labs(title = "Population change from 2022 to 2023", x= NULL, y = NULL,
+  labs(title = "Population change from 2023 to 2024", x= NULL, y = NULL,
        caption = "Source: Mid-year population estimates, ONS | @traffordDataLab") +
   theme_labP() +
   theme(plot.title = element_text(size=18, face = "bold", hjust = 0, margin =  margin(b = 15) ),
+        plot.caption = element_text(size=14),
         axis.text.x = element_blank(),
         panel.grid.major.y = element_blank(),
         axis.text.y = element_text(hjust = 1, size=14))
@@ -161,41 +214,121 @@ ggplot(gmCompP, aes(x = `% Change`, y = area_name)) +
 </div>
 </div>
 
-### Females 15 to 19 and Males 75 to 79 age bands had the largest increase in growth
-
-<p>Comparing the change from Mid-2022 to Mid-2023, females 15 to 19 age band had the largest increase in growth and number of residents at 5.7% and 372, respectively. Males 75 to 79 age band had the largest increase in growth at 5.2%; however, the largest increase in number of residents for Males was age band 15 to 19 at 199.</p>
-
-<p>Three age bands had the largest decrease, 20 to 24 years with -3.2% (170 fewer females),  70 to 74 years with -3% (162 fewer females), and under 5 years with -2.9% (184 fewer females). Males aged 70 to 74 had the largest decrease in growth and number of residents with -4.3% and -211, respectively.</p>
-
-<p>Female population grew 0.27% while male population grew 0.44%</p>
+#### 2011 to 2024
 
 <div class = "row">
 <div class = "col-md-2">
 </div>
 <div class = "col-md-8">
+
+```{r}
+plot <- mid2021_24_tot %>%
+mutate(label = if_else(year == max(year), paste0(area_name, " ", round(growFrom2021,1), "%") , NA)) %>%
+  mutate(colour = if_else(area_name %in% c("England", "Trafford","Similar Authorities","GM"),area_name,"GM Authorities")) %>%
+  mutate(size = if_else(area_name %in% c("England", "Trafford","Similar Authorities","GM"),"thick","thin")) %>%
+  mutate(area_name = factor(area_name, levels = c("Bolton","Bury","Manchester","Oldham","Rochdale","Salford","Stockport","Tameside","Wigan", "Similar Authorities","GM", "England", "Trafford"))) %>%
+  mutate(colour = factor(colour, levels = c("GM Authorities", "Similar Authorities","GM", "England", "Trafford")))
+  
+
+ggplot(plot, aes(year,growFrom2021, colour= colour, linewidth = size, group = area_name)) +
+  geom_line(show.legend = FALSE) +
+  geom_text_repel(aes(x = max(year) + 0, label = label), fontface = "bold", size = 2.5, hjust = 0.5, vjust = 1,nudge_x = 1.6, direction = "y", show.legend = FALSE, segment.linetype = 2) +
+  scale_colour_manual(values = c("grey", "#159275", "#EB6F4A", "#2E79A9","#2E4174")) +
+  scale_linewidth_manual(values = c(1.1,0.7)) +
+  scale_x_continuous(breaks = seq(min(plot$year),max(plot$year), by = 1)) +
+    #theme_minimal() +
+  labs(title = "Population change from 2011 to 2024", x= NULL, y = NULL,
+       caption = "Source: Mid-year population estimates, ONS | @traffordDataLab") +
+  theme_labP() +
+  theme(plot.title = element_text(size=14, face = "bold", hjust = 0, margin =  margin(b = 15) ),
+        plot.subtitle = element_text(size=10),
+        panel.grid.major.y = element_blank(),
+        axis.text.y = element_blank())
+
+```
+
+</div>
+<div class = "col-md-2">
+</div>
+</div>
+
+### {-}
+
+# <!-- ``` -->
+
+### Females and Males 25 to 29 years old had the largest increase in growth {.tabset}
+
+<p>Comparing the change from Mid-2023 to Mid-2024, 25 to 29 years olds had the largest increase in growth and number with females increasing by 5% and 324 more residents, and males increasing by 5.5% and 356 more residents.</p>
+
+<p> The age group 0 to 4 had the largest decrease for both female and male, with females showing a 4.3% decline and 267 fewer females and males with a 2.4% decline and 156 fewer males.</p>
+
+<p>Overall, the female population grew 0.68% whilst the male population grew 1.04%</p>
+
+<p>From 2021, the under 5 years old, the 50 to 59 group and the 70 to 74 group had reduced in population. Children over 5 and the young adult population have increased as well as older adults aged over 75.<p/>
+
+
+Select the tabs below for:
+  
 ```{r}
 
-temp <- mid2022_23_5y %>%
+temp <- mid2023_24_5y %>%
   mutate(value = case_when(sex == "Female" ~ value * -1, TRUE ~ value)) %>%
   mutate(sex = factor(sex, levels = c("Female", "Male"))) %>%
   pivot_wider(names_from = year,values_from = value) %>%
-    mutate(tooltip = paste0("<strong>", sex, " ", age, "</strong><br/>",
-                          "<strong>2022: </strong> ", format(abs(`2022`),big.mark = ","), "<br/>",
-                          "<strong>2023: </strong> ", format(abs(`2023`),big.mark = ","))) 
- 
+    mutate(tooltip23 = paste0("<strong>", sex, " ", age, "</strong><br/>",
+                          "<strong>2023: </strong> ", format(abs(`2023`),big.mark = ","), "<br/>",
+                          "<strong>2024: </strong> ", format(abs(`2024`),big.mark = ","))) %>%
+    mutate(tooltip21 = paste0("<strong>", sex, " ", age, "</strong><br/>",
+                          "<strong>2021: </strong> ", format(abs(`2021`),big.mark = ","), "<br/>",
+                          "<strong>2024: </strong> ", format(abs(`2024`),big.mark = ","))) 
 
+change <- mid2023_24_5y %>%
+  pivot_wider(names_from = year, values_from = value) %>%
+    mutate(Difference23 = `2024` - `2023`,
+           Difference21 = `2024` - `2021`,) %>%
+  mutate(`% Change23` = round(Difference23*100/`2023`,1),
+         `% Change21` = round(Difference21*100/`2021`,1)) %>%
+  mutate(sex = factor(sex, levels = c("Female", "Male"))) %>%
+      mutate(tooltip23 = paste0("<strong>", sex, " ", age, "</strong><br/>",
+                          "<strong>% Change: </strong> ", `% Change23`, "%<br/>",
+                          "<strong>Difference: </strong> ", Difference23),
+             tooltip21 = paste0("<strong>", sex, " ", age, "</strong><br/>",
+                          "<strong>% Change: </strong> ", `% Change21`, "%<br/>",
+                          "<strong>Difference: </strong> ", Difference21)) 
+
+
+stats <- change %>%
+  group_by(sex) %>%
+  summarise(`2024` = sum(`2024`), `2023` = sum(`2023`), `2021` = sum(`2021`)) %>%
+      mutate(Difference23 = `2024` - `2023`, Difference21 = `2024` - `2021`) %>%
+  mutate(`% Change23` = round(Difference23*100/`2023`,2),
+         `% Change21` = round(Difference21*100/`2021`,2))
+
+stats2 <- stats %>%
+  mutate(fm_ratio2021 = `2021`/sum(`2021`), fm_ratio2023 = `2023`/sum(`2023`), fm_ratio2024 = `2024`/sum(`2024`))
+
+```
+
+#### 2023 to 2024
+
+<div class = "row">
+<div class = "col-md-2">
+</div>
+<div class = "col-md-8">
+
+```{r}
 gg <- ggplot(temp) +
   geom_col_interactive(
-           aes(x = age, y = `2023`, fill = sex, tooltip = tooltip), alpha = 0.8, width = 0.9)+ 
+           aes(x = age, y = `2024`, fill = sex, tooltip = tooltip23), alpha = 0.8, width = 0.9)+ 
   geom_step( 
-            aes(x = age, y = `2022`, group = sex, colour = sex), stat = "identity", size = 1, direction = "mid") +
+            aes(x = age, y = `2023`, group = sex, colour = sex), stat = "identity", size = 1, direction = "mid") +
   scale_fill_manual(values = c("#1d85a5", "#194a81")) +
   scale_colour_manual(values = c("#1d85a5", "#194a81")) +
   facet_share(~sex, dir = "h", scales = "free",reverse_num = TRUE) +
   coord_flip() +
   labs(x = NULL, y = NULL, 
-       title = "Trafford population pyramid, Mid-year 2022 to Mid-year 2023",
-       caption = "Mid-year 2022 (line), Mid-year 2023 (bar)\nSource: ONS | @traffordDataLab") +
+       title = "Trafford population pyramid, Mid-year 2023 to Mid-year 2024",
+       caption = "Mid-year 2023 (line), Mid-year 2024 (bar)\nSource: ONS | @traffordDataLab") +
   theme(
     plot.title = element_text(size=16, face = "bold", hjust = 0, colour = "#757575"),
     plot.subtitle = element_text(size=14, hjust = 0),
@@ -218,7 +351,7 @@ gg <- ggplot(temp) +
   girafe(ggobj = gg, height_svg = 5,
        options = girafe_options)
 
-#ggsave("pop_pyramid_2022.png", dpi = 300, scale = 1)
+#ggsave("pop_pyramid_2023.png", dpi = 300, scale = 1)
 
 ```
 </div>
@@ -226,28 +359,69 @@ gg <- ggplot(temp) +
 </div>
 </div>
 
+
+#### 2021 to 2024
+
+<div class = "row">
+<div class = "col-md-2">
+</div>
+<div class = "col-md-8">
+  
+  
 ```{r}
-change <- mid2022_23_5y %>%
-  pivot_wider(names_from = year, values_from = value) %>%
-    mutate(Difference = `2023` - `2022`) %>%
-  mutate(`% Change` = round(Difference*100/`2022`,1)) %>%
-  mutate(sex = factor(sex, levels = c("Female", "Male"))) %>%
-      mutate(tooltip = paste0("<strong>", sex, " ", age, "</strong><br/>",
-                          "<strong>% Change: </strong> ", `% Change`, "%<br/>",
-                          "<strong>Difference: </strong> ", Difference)) 
 
 
-stats <- change %>%
-  group_by(sex) %>%
-  summarise(`2023` = sum(`2023`), `2022` = sum(`2022`)) %>%
-      mutate(Difference = `2023` - `2022`) %>%
-  mutate(`% Change` = round(Difference*100/`2022`,2))
+gg <- ggplot(temp) +
+  geom_col_interactive(
+           aes(x = age, y = `2024`, fill = sex, tooltip = tooltip21), alpha = 0.8, width = 0.9)+ 
+  geom_step( 
+            aes(x = age, y = `2021`, group = sex, colour = sex), stat = "identity", size = 1, direction = "mid") +
+  scale_fill_manual(values = c("#1d85a5", "#194a81")) +
+  scale_colour_manual(values = c("#1d85a5", "#194a81")) +
+  facet_share(~sex, dir = "h", scales = "free",reverse_num = TRUE) +
+  coord_flip() +
+  labs(x = NULL, y = NULL, 
+       title = "Trafford population pyramid, Mid-year 2021 to Mid-year 2024",
+       caption = "Mid-year 2021 (line), Mid-year 2024 (bar)\nSource: ONS | @traffordDataLab") +
+  theme(
+    plot.title = element_text(size=16, face = "bold", hjust = 0, colour = "#757575"),
+    plot.subtitle = element_text(size=14, hjust = 0),
+    plot.caption = element_text(size = 8, hjust = 1, margin = margin(t = 15)),
+    plot.title.position = "plot",
+    axis.text.y = element_text(hjust = 1, size=8),
+    axis.text.x = element_text(size=8),
+    axis.line.y = element_line(colour = "#000000"),
+    panel.background = element_blank(),
+    plot.background = element_rect(fill = 'white'),
+    panel.border = element_blank(),
+    panel.grid.major.x = element_line(size = 0.3, color = "#cbcbcb"),
+    legend.position = "none",
+    axis.ticks.x=element_line(size=0.1, color = "transparent"),
+    axis.ticks.y=element_line(size=0.1, color = "transparent"),
+    axis.line = element_blank(),
+    strip.background = element_rect(fill = "transparent", colour = NA),
+    strip.text = element_text(size = 9, face = "bold", hjust = .5))
 
-stats2 <- stats %>%
-  mutate(fm_ratio2022 = `2022`/sum(`2022`), fm_ratio2023 = `2023`/sum(`2023`))
+  girafe(ggobj = gg, height_svg = 5,
+       options = girafe_options)
 
+#ggsave("pop_pyramid_2023.png", dpi = 300, scale = 1)
 
 ```
+</div>
+<div class = "col-md-2">
+</div>
+</div>
+
+
+
+### {-}
+
+###   {.tabset}
+
+Select the tabs below for:
+
+#### 2023 to 2024
 
 <div class = "row">
 <div class = "col-md-1">
@@ -258,18 +432,18 @@ stats2 <- stats %>%
 gg <- 
   ggplot(change) +
   geom_hline(yintercept = 0, size = 1, colour = "black") +
-  geom_col_interactive(aes(age,`% Change`, fill = sex, tooltip = tooltip), position = "dodge", width = 0.7) +
+  geom_col_interactive(aes(age,`% Change23`, fill = sex, tooltip = tooltip23), position = "dodge", width = 0.7) +
   scale_fill_manual(values = c("#1d85a5", "#194a81"),
                     guide = guide_legend(keyheight = unit(3, units = "mm"),
                                              keywidth=unit(3, units = "mm"))) +
   #scale_x_continuous(limits = c(-6,6), labels = function (x, ...) {paste0(x, "%")}) +
-  labs(y = "Percentage change", x = NULL, title = "Population percentage change by sex and age", subtitle = "Trafford, 2022 to 2023", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", fill = NULL) +
+  labs(y = "Percentage change", x = NULL, title = "Population percentage change by sex and age", subtitle = "Trafford, 2023 to 2024", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", fill = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=14),
         
         plot.subtitle = element_text(size=10),
         plot.caption = element_text(size=8),
-        axis.text.x = element_text(hjust = 0.5, vjust = 0.5, size=8),
+        axis.text.x = element_text(hjust = 0.5, vjust = 0.5, size=7),
         axis.title.y = element_text(hjust = 0.5, size=8),
         panel.grid.major.y = element_blank(),
        #panel.grid.major.y = element_line(size = 0.5, color = "#cbcbcb"), 
@@ -287,22 +461,66 @@ gg <-
 </div>
 </div>
 
-### Population under 5 is decreasing in Trafford but increasing in GM
-
-<p>In Trafford, from Mid-2022 to Mid-2023, the population under 5 decreased 2.2%, while in Greater Manchester (GM) it increased 0.4%, England remained unchanged at 0% change, and in Similar Authorities decreased 0.3%. Trafford's decrease of 1.4% for the age band 20 to 24 showed the largest difference with GM's 3% increase. 35 to 39 year olds decreased 0.7% for Trafford  while England (2.4%), GM (2.8%), and Similar Authorities (2.8%) all increased. Similarly, 85 to 89 year olds decreased 0.1% for Trafford, while England (2.3%), GM (2.9%), and Similar Authorities (2.6%) all increased.</p>
-
-<p>Trafford's population increased for all broad age bands but at different rates than England, GM, and Similar Authorities. The 18 to 64 year olds slightly increased for Trafford at 0.1% while in GM the increase was 1.5%. The 65+ year olds increased 0.6% while in England and Similar Authorities increased 1.4% and 1.5%, respectively.</p>
+#### 2021 to 2024
 
 <div class = "row">
+<div class = "col-md-1">
+</div>
+<div class = "col-md-10">
 
-<div class = "col-md-8">
+```{r fig.height=6}
+gg <- 
+  ggplot(change) +
+  geom_hline(yintercept = 0, size = 1, colour = "black") +
+  geom_col_interactive(aes(age,`% Change21`, fill = sex, tooltip = tooltip21), position = "dodge", width = 0.7) +
+  scale_fill_manual(values = c("#1d85a5", "#194a81"),
+                    guide = guide_legend(keyheight = unit(3, units = "mm"),
+                                             keywidth=unit(3, units = "mm"))) +
+  #scale_x_continuous(limits = c(-6,6), labels = function (x, ...) {paste0(x, "%")}) +
+  labs(y = "Percentage change", x = NULL, title = "Population percentage change by sex and age", subtitle = "Trafford, 2021 to 2024", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", fill = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=14),
+        
+        plot.subtitle = element_text(size=10),
+        plot.caption = element_text(size=8),
+        axis.text.x = element_text(hjust = 0.5, vjust = 0.5, size=7),
+        axis.title.y = element_text(hjust = 0.5, size=8),
+        panel.grid.major.y = element_blank(),
+       #panel.grid.major.y = element_line(size = 0.5, color = "#cbcbcb"), 
+       panel.grid.minor.x  = element_blank(),
+       axis.text.y = element_text(size = 8, hjust = 0),
+      legend.position = "top",
+       legend.text = element_text(size = 8))
+
+  girafe(ggobj = gg, height_svg = 5,
+       options = girafe_options)
+
+```
+</div>
+<div class = "col-md-1">
+</div>
+</div>
+
+### {-}
+
+### Population under 5 is decreasing in Trafford but increasing in GM {.tabset}
+
+<p>Compared to 2024, Trafford's under 5 population have decreased 3.3% from 2023 and 6.6% from 2021 while GM's under 5 population have increased 0.2% from 2023 and 1.7% from 2021. England decreased 0.2% from 2023 and increased 0.4% from 2021.
+
+<p>Another notable difference in age group growth that is consistent both from 2023 and from 2021 is a decrease in 30 to 39 years olds whilst in GM, England and Similar authorities this age group is increasing</p>
+
+<p>From 2023 to 2024 all three broad age groups grew at a similar rate of 0.8% for 0 to 17 and 65 and over, and 0.9% for 18 to 64 years groups. England's 65 and over age group grew at a higher rate of 1.8%. GM under 64 years group grew at a higher rate compared to Trafford.<p/>
+
+<p>From 2021 to 2024 the 0 to 17 years population of Trafford grew at a similar rate to England, both at 3.6%, however England grew at a higher rate for other ages. Across all age groups, Greater Manchester (GM) experienced faster population growth than Trafford, especially in the 18–64 age group, which grew by 5.4%.
+
+
 ```{r}
 
 persPCG <- engRaw %>% 
    filter(code %in% c("E92000001", "E11000001", "E08000009") | code %in% cipfa$area_code) %>%
-  select(code,age,population_2022,population_2023) %>%
+  select(code,age,population_2021, population_2023,population_2024) %>%
   group_by(code, age) %>%
-  summarise(population_2022 = sum(population_2022), population_2023 = sum(population_2023)) %>%
+  summarise(population_2021 = sum(population_2021), population_2023 = sum(population_2023), population_2024 = sum(population_2024)) %>%
   ungroup() %>%
       mutate(age = cut(age,
                        breaks = c(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,120),
@@ -316,9 +534,10 @@ persPCG <- engRaw %>%
         #                           "40-49","50-59","60-69","70-79","80-89","90+"),
         #                right = FALSE)) %>%
     group_by(code, age) %>%
-  summarise(population_2022 = sum(population_2022), population_2023 = sum(population_2023)) %>%
+  summarise(population_2021 = sum(population_2021), population_2023 = sum(population_2023), population_2024 = sum(population_2024)) %>%
   ungroup() %>%
-  mutate(`% Change` = round((population_2023-population_2022)*100/population_2022,1)) %>%
+  mutate(`% Changef21` = round((population_2024-population_2021)*100/population_2021,1),
+         `% Changef23` = round((population_2024-population_2023)*100/population_2023,1)) %>%
   mutate(area_name = case_when(code == "E92000001" ~ "England",
                                code == "E11000001" ~ "Greater Manchester",
                                code == "E08000009" ~ "Trafford",
@@ -326,28 +545,47 @@ persPCG <- engRaw %>%
   group_by(age, area_name) %>%
   summarise(across(where(is.numeric),.fns = mean)) %>%
   ungroup() %>%
-  mutate(`% Change` = round(`% Change`,1)) %>%
+  mutate(`% Changef21` = round(`% Changef21`,1)) %>%
+  mutate(`% Changef23` = round(`% Changef23`,1)) %>%
+  mutate(population_2021 = ifelse(area_name == "Similar Authorities", NA,population_2021)) %>%
+  mutate(population_2024 = ifelse(area_name == "Similar Authorities", NA,population_2024)) %>%
   mutate(population_2023 = ifelse(area_name == "Similar Authorities", NA,population_2023)) %>%
-  mutate(population_2022 = ifelse(area_name == "Similar Authorities", NA,population_2022)) %>%
   group_by(age) %>%
-  mutate(diffToTrafford = `% Change`[4]-`% Change`)
+  mutate(diffToTrafford21 = `% Changef21`[4]-`% Changef21`,
+         diffToTrafford23 = `% Changef23`[4]-`% Changef23`) %>%
+      mutate(tooltip23 = paste0("<strong>", age, "</strong><br/>",
+                          "<strong>Trafford: </strong> ", `% Changef23`[4], "%<br/>",
+                          "<strong>GM: </strong> ", `% Changef23`[2], "%<br/>",
+                          "<strong>England: </strong> ", `% Changef23`[1], "%<br/>",
+                          "<strong>Similar authorities: </strong> ", `% Changef23`[3], "%<br/>")) %>%
+    mutate(tooltip21 = paste0("<strong>", age, "</strong><br/>",
+                          "<strong>Trafford: </strong> ", `% Changef21`[4], "%<br/>",
+                          "<strong>GM: </strong> ", `% Changef21`[2], "%<br/>",
+                          "<strong>England: </strong> ", `% Changef21`[1], "%<br/>",
+                          "<strong>Similar authorities: </strong> ", `% Changef21`[3], "%<br/>")) 
+
+
+  #mutate(diffToTrafford = `% Change`[4]-`% Change`)
+
+
 
 
 
 persPCG2 <- engRaw %>% 
    filter(code %in% c("E92000001", "E11000001", "E08000009") | code %in% cipfa$area_code) %>%
-  select(code,age,population_2022,population_2023) %>%
+  select(code,age,population_2021, population_2023,population_2024) %>%
   group_by(code, age) %>%
-  summarise(population_2022 = sum(population_2022), population_2023 = sum(population_2023)) %>%
+  summarise(population_2021 = sum(population_2021), population_2023 = sum(population_2023), population_2024 = sum(population_2024)) %>%
   ungroup() %>%
           mutate(age = cut(age,
                        breaks = c(0,18,65,120),
                        labels = c("0-17","18-64","65+"),
                        right = FALSE)) %>%
     group_by(code, age) %>%
-  summarise(population_2022 = sum(population_2022), population_2023 = sum(population_2023)) %>%
+  summarise(population_2021 = sum(population_2021), population_2023 = sum(population_2023), population_2024 = sum(population_2024)) %>%
   ungroup() %>%
-  mutate(`% Change` = round((population_2023-population_2022)*100/population_2022,1)) %>%
+  mutate(`% Changef21` = round((population_2024-population_2021)*100/population_2021,1),
+         `% Changef23` = round((population_2024-population_2023)*100/population_2023,1)) %>%
   mutate(area_name = case_when(code == "E92000001" ~ "England",
                                code == "E11000001" ~ "Greater Manchester",
                                code == "E08000009" ~ "Trafford",
@@ -355,28 +593,49 @@ persPCG2 <- engRaw %>%
   group_by(age, area_name) %>%
   summarise(across(where(is.numeric),.fns = mean)) %>%
   ungroup() %>%
-  mutate(`% Change` = round(`% Change`,1)) %>%
+  mutate(`% Changef21` = round(`% Changef21`,1)) %>%
+  mutate(`% Changef23` = round(`% Changef23`,1)) %>%
+  mutate(population_2021 = ifelse(area_name == "Similar Authorities", NA,population_2021)) %>%
+  mutate(population_2024 = ifelse(area_name == "Similar Authorities", NA,population_2024)) %>%
   mutate(population_2023 = ifelse(area_name == "Similar Authorities", NA,population_2023)) %>%
-  mutate(population_2022 = ifelse(area_name == "Similar Authorities", NA,population_2022)) %>%
   group_by(age) %>%
-  mutate(diffToTrafford = `% Change`[4]-`% Change`)
+  mutate(diffToTrafford21 = `% Changef21`[4]-`% Changef21`,
+         diffToTrafford23 = `% Changef23`[4]-`% Changef23`)  %>%     
+  mutate(tooltip23 = paste0("<strong>", age, "</strong><br/>",
+                          "<strong>Trafford: </strong> ", `% Changef23`[4], "%<br/>",
+                          "<strong>GM: </strong> ", `% Changef23`[2], "%<br/>",
+                          "<strong>England: </strong> ", `% Changef23`[1], "%<br/>",
+                          "<strong>Similar authorities: </strong> ", `% Changef23`[3], "%<br/>")) %>%
+    mutate(tooltip21 = paste0("<strong>", age, "</strong><br/>",
+                          "<strong>Trafford: </strong> ", `% Changef21`[4], "%<br/>",
+                          "<strong>GM: </strong> ", `% Changef21`[2], "%<br/>",
+                          "<strong>England: </strong> ", `% Changef21`[1], "%<br/>",
+                          "<strong>Similar authorities: </strong> ", `% Changef21`[3], "%<br/>")) 
 
 ```
 
-```{r fig.height=6}
+Select the tabs below for:
+
+#### 2023 to 2024
+
+<div class = "row">
+
+<div class = "col-md-8">
+
+```{r }
+gg <-
   ggplot(persPCG %>% filter(area_name == "Trafford")) +
   geom_hline(yintercept = 0, size = 1, colour = "black") +
-  geom_col(aes(age,`% Change`), width = 0.7, fill = "#194a81") +
+  geom_col_interactive(aes(age,`% Changef23`, tooltip = tooltip23), width = 0.7, fill = "#194a81") +
     #geom_errorbar(data = persPCG %>% filter(area_name != "Trafford"),  aes(y=`% Change`, ymax=`% Change`, ymin=`% Change`, x = age, color = area_name), size = .7) +
-  geom_point(data = persPCG %>% filter(area_name != "Trafford"),  aes(y=`% Change`, x = age, shape = area_name), size = 2) +
+  geom_point(data = persPCG %>% filter(area_name != "Trafford"),  aes(y=`% Changef23`, x = age, shape = area_name), size = 2) +
     #scale_color_manual(values = c("black", "grey", "blue")) +
   scale_shape_manual(values = c(15,16,17)) +
 
   #scale_x_continuous(limits = c(-6,6), labels = function (x, ...) {paste0(x, "%")}) +
-  labs(x = NULL, y = "Percentage change", title = "Population percentage change by age", subtitle = "Trafford, 2022 to 2023", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", shape = NULL) +
+  labs(x = NULL, y = "Percentage change", title = "Population percentage change by age", subtitle = "Trafford, 2023 to 2024", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", shape = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=14),
-        
         plot.subtitle = element_text(size=10),
         plot.caption = element_text(size=8),
         axis.text.x = element_text(hjust = 0.5, vjust = 0.5, size=8),
@@ -387,19 +646,23 @@ persPCG2 <- engRaw %>%
        axis.text.y = element_text(size = 8, hjust = 0),
       legend.position = "top",
        legend.text = element_text(size = 8))
+
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
 ```
 
 </div>
-<div class = "col-md-4"">
+<div class = "col-md-4">
 ```{r fig.height=9}
-  ggplot(persPCG2 %>% filter(area_name == "Trafford")) +
+gg <-   
+ggplot(persPCG2 %>% filter(area_name == "Trafford")) +
   geom_hline(yintercept = 0, size = 1, colour = "black") +
-  geom_col(aes(age,`% Change`), width = 0.7, fill = "#194a81") +
-  geom_point(data = persPCG2 %>% filter(area_name != "Trafford"),  aes(y=`% Change`, x = age, shape = area_name, colour  = area_name), size = 4) +
-  geom_line(data = persPCG2 %>% filter(area_name != "Trafford"),  aes(y=`% Change`, x = age, colour  = area_name, group = area_name), linewidth = 2, show.legend = FALSE) +
+  geom_col_interactive(aes(age,`% Changef23`, tooltip = tooltip23), width = 0.7, fill = "#194a81") +
+  geom_point(data = persPCG2 %>% filter(area_name != "Trafford"),  aes(y=`% Changef23`, x = age, shape = area_name, colour  = area_name), size = 4) +
+  geom_line(data = persPCG2 %>% filter(area_name != "Trafford"),  aes(y=`% Changef23`, x = age, colour  = area_name, group = area_name), linewidth = 2, show.legend = FALSE) +
     scale_color_manual(values = c("black", "#1d85a5", "grey")) +
   scale_shape_manual(values = c(15,16,17)) +
-  labs(x = NULL, y = "Percentage change", title = "% change by broad age", subtitle = "Trafford, 2022 to 2023", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", colour = NULL, shape = NULL) +
+  labs(x = NULL, y = "Percentage change", title = "% change by broad age", subtitle = "Trafford, 2023 to 2024", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", colour = NULL, shape = NULL) +
   theme_lab() +
   theme(plot.title = element_text(size=28, margin = margin(t=200)),
         
@@ -413,22 +676,92 @@ persPCG2 <- engRaw %>%
        axis.text.y = element_text(size = 16, hjust = 0),
       legend.position = "top",
        legend.text = element_text(size = 16))
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
 ```
 </div>
 </div>
 
-### The number of deaths has exceeded the number of births.
+#### 2021 to 2024
 
-<p>From Mid-year 2022 to Mid-year 2023, there was an estimate of 2,203 births and 2,267 deaths, with a surplus of births over deaths of -64 bringing natural change to negative numbers after declining over the years.</p>
+<div class = "row">
 
-<p>The Internal Migration inflow was 13,617 and the Internal Migration outflow was 14,844, with a net Internal Migration of -1,227. The trend has changed over the years from adding over 1,000 residents in 2013 to deducting residents starting from 2019.</p>
+<div class = "col-md-8">
 
-The International Migration inflow was 3,292 and the International Migration outflow was 1,196, with a net international migration of 2,096. Net International migration is the largest component of population growth for the second year for Trafford and all GM authorities, and England. Other changes account for 24.</p>
+```{r}
+gg <-  ggplot(persPCG %>% filter(area_name == "Trafford")) +
+  geom_hline(yintercept = 0, size = 1, colour = "black") +
+  geom_col_interactive(aes(age,`% Changef21`, tooltip = tooltip21), width = 0.7, fill = "#194a81") +
+    #geom_errorbar(data = persPCG %>% filter(area_name != "Trafford"),  aes(y=`% Change`, ymax=`% Change`, ymin=`% Change`, x = age, color = area_name), size = .7) +
+  geom_point(data = persPCG %>% filter(area_name != "Trafford"),  aes(y=`% Changef21`, x = age, shape = area_name), size = 2) +
+    #scale_color_manual(values = c("black", "grey", "blue")) +
+  scale_shape_manual(values = c(15,16,17)) +
+
+  #scale_x_continuous(limits = c(-6,6), labels = function (x, ...) {paste0(x, "%")}) +
+  labs(x = NULL, y = "Percentage change", title = "Population percentage change by age", subtitle = "Trafford, 2021 to 2024", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", shape = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=14),
+        plot.subtitle = element_text(size=10),
+        plot.caption = element_text(size=8),
+        axis.text.x = element_text(hjust = 0.5, vjust = 0.5, size=8),
+        axis.title.y = element_text(hjust = 0.5, size=8),
+        panel.grid.major.y = element_blank(),
+       #panel.grid.major.y = element_line(size = 0.5, color = "#cbcbcb"), 
+       panel.grid.minor.x  = element_blank(),
+       axis.text.y = element_text(size = 8, hjust = 0),
+      legend.position = "top",
+       legend.text = element_text(size = 8))
+
+girafe(ggobj = gg, height_svg = 6,
+       options = girafe_options)
+```
+
+</div>
+<div class = "col-md-4">
+```{r}
+gg <-  ggplot(persPCG2 %>% filter(area_name == "Trafford")) +
+  geom_hline(yintercept = 0, size = 1, colour = "black") +
+  geom_col_interactive(aes(age,`% Changef21`, tooltip = tooltip21), width = 0.7, fill = "#194a81") +
+  geom_point(data = persPCG2 %>% filter(area_name != "Trafford"),  aes(y=`% Changef21`, x = age, shape = area_name, colour  = area_name), size = 4) +
+  geom_line(data = persPCG2 %>% filter(area_name != "Trafford"),  aes(y=`% Changef21`, x = age, colour  = area_name, group = area_name), linewidth = 2, show.legend = FALSE) +
+    scale_color_manual(values = c("black", "#1d85a5", "grey")) +
+  scale_shape_manual(values = c(15,16,17)) +
+  labs(x = NULL, y = "Percentage change", title = "% change by broad age", subtitle = "Trafford, 2021 to 2024", caption = "Source: Mid-year population estimates, ONS  |  @traffordDataLab", colour = NULL, shape = NULL) +
+  theme_lab() +
+  theme(plot.title = element_text(size=28, margin = margin(t=200)),
+
+        plot.subtitle = element_text(size=20),
+        plot.caption = element_text(size=16),
+        axis.text.x = element_text(hjust = 0.5, vjust = 0.5, size=16),
+        axis.title.y = element_text(hjust = 0.5, size=16),
+        panel.grid.major.y = element_blank(),
+       #panel.grid.major.y = element_line(size = 0.5, color = "#cbcbcb"),
+       panel.grid.minor.x  = element_blank(),
+       axis.text.y = element_text(size = 16, hjust = 0),
+      legend.position = "top",
+       legend.text = element_text(size = 16))
+
+girafe(ggobj = gg, height_svg = 9,
+       options = girafe_options)
+```
+</div>
+</div>
+
+### {-}
+
+### The number of births and deaths is nearly equal.
+
+<p>From Mid-year 2023 to Mid-year 2024, there was an estimate of 2,153 births and 2,098 deaths, with a surplus of births over deaths of 55 bringing natural change to positive numbers after becoming negative in 2023.</p>
+
+<p>The Internal Migration inflow was 14,879 and the Internal Migration outflow was 14,823, with a positive net Internal Migration of 56 after several years of negative numbers starting from 2019.</p>
+
+<p>The International Migration inflow was 3,045 and the International Migration outflow was 1,115, with a net international migration of 1,930. Net International migration is the largest component of population growth for the third year for Trafford, all GM authorities, and England, although it reduced from last year. Other changes account for 8 additional residents.</p>
 
 
 ```{r}
 
-mid2022d <- read_xlsx(tmp, sheet = 7, skip = 1) %>%
+mid2024d <- read_xlsx(tmp, sheet = 7, skip = 1) %>%
   filter(ladcode23 %in% c("E08000009"))%>%
   select(area_code = ladcode23, area_name = laname23, everything(), -country) %>%
   pivot_longer(-c(area_code,area_name),names_to = c("indicator","year"), names_sep = -4) 
@@ -440,14 +773,14 @@ mid2022d <- read_xlsx(tmp, sheet = 7, skip = 1) %>%
 <div class = "col-md-8">
 ```{r}
 
-comp3line <- mid2022d %>%
+comp3line <- mid2024d %>%
   mutate(label = if_else(year == max(year), format(value, big.mark = ","), NA))
 
 ggplot(comp3line %>% filter(indicator %in% c("natchange_", "internal_net_", "international_net_"))) +
   geom_hline(yintercept = 0, size = 1, colour = "grey50") +
   geom_line(aes(x =year, y= value, color = indicator, group = indicator),size = 1) +
   geom_point(aes(x =year, y= value, fill = indicator, group = indicator), shape = 21, color = "transparent", size = 2) +
-  geom_text(aes(x = year, y= value , label = label, colour = indicator), nudge_x = 0.1, fontface = "bold", hjust = 0,vjust = 0.5, show.legend = FALSE) +
+  geom_text_repel(aes(x = year, y= value , label = label, colour = indicator), nudge_x = 0.1, fontface = "bold", hjust = 0,direction = "y",vjust = 0.5, show.legend = FALSE) +
   scale_y_continuous(label=comma) +
   scale_x_discrete(expand = c(0.1,0.1)) +
   scale_colour_manual(values = c("natchange_" = "#A577A7",
@@ -471,7 +804,6 @@ ggplot(comp3line %>% filter(indicator %in% c("natchange_", "internal_net_", "int
   theme(plot.title = element_text(size = 16, face = "bold", hjust = 0, colour = "#757575"),
         plot.subtitle = element_text(size = 14, hjust = 0, colour = "#757575"),
         axis.text.x = element_text(angle = 90, margin = margin(r = 0)),
-        axis.text.y = element_blank(),
         legend.position = "top",
         panel.grid.major.x = element_blank(),
         panel.grid.major.y = element_line(size = 0.5, color = "#cbcbcb"), 
@@ -508,7 +840,7 @@ complineper1kE <- engRaw %>%
   mutate(per1000 = round((value/value[1])*1000,2)) %>%
   filter(year != 2011)
 
-complineper1k <- mid2022d %>%
+complineper1k <- mid2024d %>%
   group_by(year) %>%
   mutate(per1000 = round((value/value[11])*1000,2)) %>%
   filter(indicator != "population_") %>%
