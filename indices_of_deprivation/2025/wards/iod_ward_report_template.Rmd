@@ -1,0 +1,504 @@
+---
+title: "Relative Deprivation in `r params$ward_name`"
+always_allow_html: true
+output:
+  html_document:
+    df_print: paged
+    includes:
+      in_header: rmd_report_includes.html
+    mathjax: null
+    self_contained: yes
+    theme: flatly
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  word_document:
+    toc: no
+date: "Last updated: `r format(Sys.time(), '%d %B %Y')`"
+params:
+  ward_name: NA
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, eval = TRUE)
+
+# Load the required libraries
+library(tidyverse) ; library(ggplot2) ; library(ggspatial) ; library(ggthemes) ; library(ggrepel) ; library(sf) ; library(kableExtra) ; library(janitor) ; library(scales) ; library(leaflet) ; library(leaflet.providers) ; library(leaflet.extras) ; library(htmlwidgets) ;
+
+
+# Load in the ggplot2 Lab theme
+source("https://www.trafforddatalab.io/assets/theme/ggplot2/theme_lab.R")
+
+
+# Set up the chart highlight colour
+chart_highlight <- "#046dc3"
+
+# Function to draw barcode plots
+barcode_plot <- function (domain) {
+  ggplot() +
+  annotate("rect", xmin = 0, xmax = 33755, ymin = 0, ymax = 1, 
+           alpha = 0.5, fill = "#f5f9ff") +
+  geom_segment(data = filter(df_iod_trafford, !lsoa21cd %in% lsoas_ward, index_domain == domain), 
+               aes(x = rank, xend = rank, y = 0, yend = 1), 
+               colour = "#cccccc", size = 0.5, alpha = 1) +
+  geom_segment(data = filter(df_iod_trafford, lsoa21cd %in% lsoas_ward, index_domain == domain), 
+               aes(x = rank, xend = rank, y = 0, yend = 1), 
+               colour = chart_highlight, size = 0.5, alpha = 1) +
+  scale_x_continuous(limits = c(0, 33755), expand = c(0.005, 0.005), 
+                     breaks = c(3376, 6751, 10127, 13502, 16878, 20253, 23629, 27004, 30380, 33755),
+                     labels = c(1:10)) +
+  scale_y_continuous(expand = c(0.005, 0.005)) +
+  labs(x = "Lower-layer Super Output Areas (LSOAs) by most (1) to least (10) deprived decile",
+       y = NULL,
+       title = paste0(params$ward_name, if_else(str_ends(params$ward_name, "s"), "'", "'s"), " best-fit LSOAs relative to Trafford"),
+       subtitle = case_when(domain == "Index of Multiple Deprivation" ~ domain,
+                            str_detect(domain, "Income Deprivation Affecting") ~ paste0(domain, " Index"),
+                            .default = paste0(domain, " Deprivation Domain")),
+       alt = paste0("Barcode plot showing ", params$ward_name, if_else(str_ends(params$ward_name, "s"), "'", "'s"), " best-fit Lower-layer Super Output Areas relative to Trafford for the English Indices of Deprivation 2025: ", domain, " by most (1) to least (10) deprived decile."),
+       caption = "Source: English Indices of Deprivation 2025, MHCLG | @traffordDataLab") +
+  theme_lab() +
+  theme(panel.grid.major.y = element_blank(),
+        axis.text.x = element_text(size = 8, face = "bold"),
+        axis.text.y = element_blank(),
+        axis.title.x = element_text(size = 10, colour = "#333", hjust = 0.03),
+        plot.title = element_text(size = 17, colour = "#212121", family = "roboto", face = "plain", hjust = 0.5, margin = margin(10, 0, 10, 0)),
+        plot.subtitle = element_text(size = 15, colour = "#333", family = "roboto", face = "plain", hjust = 0.5, vjust = 5),
+        plot.caption = element_text(size = 9, colour = "#505050", hjust = 1, margin = margin(t = 23)),
+        legend.position = "none")
+}
+
+
+# Function to create a table for a chosen domain
+domain_table <- function (domain) {
+  # we want to include the score if it reflects the % of population affected
+  if (domain %in% c("Income","Employment","Income Deprivation Affecting Children","Income Deprivation Affecting Older People")) {
+    df_for_table <- df_iod_trafford %>%
+      filter(index_domain == domain, lsoa21cd %in% lsoas_ward) %>%
+        select(LSOA = lsoa21nm, Decile = decile, Rank = rank, Score = score) %>%
+        arrange(Rank) %>%
+        mutate(Rank = comma(Rank),
+               Score = percent(Score, accuracy = 0.1))  
+  }
+  else {
+    df_for_table <- df_iod_trafford %>%
+      filter(index_domain == domain, lsoa21cd %in% lsoas_ward) %>%
+        select(LSOA = lsoa21nm, Decile = decile, Rank = rank) %>%
+        arrange(Rank) %>%
+        mutate(Rank = comma(Rank))
+  }
+  
+  df_for_table %>%
+    kable() %>%
+    kable_styling(font_size = 12, bootstrap_options = c("striped", "condensed"), full_width = F) %>%
+    row_spec(0, bold = T, color = "#707070")
+}
+
+
+# Get the Trafford LSOA codes and names in a tibble
+df_trafford_lsoa_codes_and_names <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/2025/statistical_lookup.csv") %>%
+  filter(lad22nm == "Trafford") %>%
+  select(lsoa21cd, lsoa21nm) %>%
+  distinct(lsoa21cd, .keep_all = TRUE)
+
+
+# Get the LSOAs which are best-fit within our chosen ward as a vector
+lsoas_ward <- read_csv("https://www.trafforddatalab.io/spatial_data/lookups/2025/lsoa_to_ward_best-fit_lookup.csv") %>%
+  filter( lad25nm == 'Trafford',
+          wd25nm == params$ward_name) %>%
+  .$lsoa21cd
+
+
+# Get the spatial data for the LSOAs within our chosen ward
+sf_lsoas_ward <- st_read("https://www.trafforddatalab.io/spatial_data/lsoa/2021/trafford_lsoa_full_resolution.geojson") %>%
+  filter(area_code %in% lsoas_ward) %>%
+  left_join(df_trafford_lsoa_codes_and_names, by = c("area_code" = "lsoa21cd")) %>%
+  # Create new variables for the lon & lat coordinates of the centroids of the LSOAs
+  mutate(lon = map_dbl(geometry, ~st_centroid(.x)[[1]]),
+         lat = map_dbl(geometry, ~st_centroid(.x)[[2]]))
+
+
+# Get the spatial data for the boundary of our chosen ward (using 2023 definitions as this was the latest change to our ward boundaries)
+sf_ward <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2023/trafford_ward_full_resolution.geojson") %>%
+  filter(area_name == params$ward_name)
+
+
+# English Indices of Deprivation 2025 for Trafford #
+# Source: Ministry of Housing, Communities and Local Government
+# Publisher URL: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025
+# Licence: Open Government Licence 3.0
+df_iod_trafford <- read_csv("https://assets.publishing.service.gov.uk/media/691ded56d140bbbaa59a2a7d/File_7_IoD2025_All_Ranks_Scores_Deciles_Population_Denominators.csv") %>% 
+  clean_names() %>% 
+  filter(local_authority_district_name_2024 == "Trafford") %>% 
+  select(lsoa21cd = 1, lad24nm = 4, 5:34) %>% 
+  gather(variable, value, -lsoa21cd, -lad24nm) %>% 
+  mutate(measure = case_when(str_detect(variable, "score") ~ "score", 
+                             str_detect(variable, "decile") ~ "decile", 
+                             str_detect(variable, "rank") ~ "rank"),
+         index_domain = case_when(str_detect(variable, "index_of_multiple_deprivation") ~ "Index of Multiple Deprivation", 
+                                  str_detect(variable, "employment") ~ "Employment",
+                                  str_detect(variable, "education") ~ "Education",
+                                  str_detect(variable, "health") ~ "Health",
+                                  str_detect(variable, "crime") ~ "Crime",
+                                  str_detect(variable, "barriers") ~ "Barriers to Housing and Services",
+                                  str_detect(variable, "living") ~ "Living Environment",
+                                  str_detect(variable, "idaci") ~ "Income Deprivation Affecting Children",
+                                  str_detect(variable, "idaopi") ~ "Income Deprivation Affecting Older People",
+                                  TRUE ~ "Income"),
+         index_domain = fct_relevel(factor(index_domain), 
+                                    "Index of Multiple Deprivation", 
+                                    "Income", "Employment", "Education", "Health", "Crime",
+                                    "Barriers to Housing and Services", "Living Environment",
+                                    "Income Deprivation Affecting Older People",
+                                    "Income Deprivation Affecting Children")) %>% 
+  select(lsoa21cd, measure, value, index_domain) %>% 
+  spread(measure, value) %>%
+  left_join(df_trafford_lsoa_codes_and_names, by = "lsoa21cd")
+```
+
+This report explores the [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025) for the small areas (Lower-Layer Super Output Areas or LSOAs) within `r params$ward_name`. It compares these small areas relative to Trafford using the rank and score and highlights the indicators and data sources behind these measures.
+
+```{r lsoa_map,  echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.align="center"}
+ggplot() +
+  # Add the LSOA boundaries
+  geom_sf(data = sf_lsoas_ward, fill = NA, alpha = 1, colour = "#212121", size = 0.6) +
+  # Add the ward boundary
+  geom_sf(data = sf_ward, fill = chart_highlight, alpha = 0.5, colour = NA, size = 1.5) +
+  # Add the LSOA names to the centroids
+  geom_label_repel(data = sf_lsoas_ward, aes(x = lon, y = lat, label = area_name), colour = "#000000", fill = "#FFFFFF", alpha = 0.75, size = 3, fontface = "bold") +
+  # Remove all other plot labels
+  labs(x = NULL,
+       y = NULL,
+       title =  paste0(params$ward_name, " ward boundary and best-fit LSOAs"),
+       subtitle = NULL,
+       alt = paste0("Visualisation showing the ", params$ward_name, " ward boundary compared to its best-fit Lower-Layer Super Output Areas"),
+       caption = "Contains Ordnance Survey data © Crown copyright and database right 2023 | @traffordDataLab") +
+  # Set the coordinate reference system
+  coord_sf(crs = st_crs(4326), datum = NA) +
+  # Apply the themes
+  theme_void(base_family = "Open Sans") +
+  theme_map() +
+  theme(legend.position = "none",
+        panel.background = element_blank(),
+        axis.text = element_blank(),
+        plot.title = element_text(size = 14, colour = "#212121", family = "roboto", face = "bold", hjust = 0.5, margin = margin(10, 0, 10, 0)),
+        plot.caption = element_text(size = 9, colour = "#505050", hjust = 0.5, margin = margin(t = 23)),)
+```
+
+## Key findings
+
+TO BE COMPLETED
+
+## Background
+The [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025) (IoD) were published by the [Ministry of Housing, Communities & Local Government](https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government) in October 2025. The Indices measure relative levels of deprivation in 33,755 Lower-layer Super Output Areas (LSOAs) in England. Each LSOA contains approximately 1,500 residents or 650 households. They are ranked from 1 (most deprived) to 33,755 (least deprived) and assigned to a decile ranging from 1 (most deprived 10%) to 10 (least deprived 10%). Local authorities in England are also ranked from 1 to 296 based on a population weighted average rank or score of the LSOA data.
+
+Relative deprivation is measured using 55 indicators which are grouped across seven different domains:
+
+* **Income** - measures the proportion of the population experiencing deprivation relating to low income, including those people-out-of-work, and those who have low earnings    
+* **Employment** - measures the proportion of the working age population in an area involuntarily excluded from the labour market     
+* **Education, Skills and Training** - measures the lack of attainment and skills in the local population   
+* **Health and Disability** - measures the risk of premature death and the impairment of quality of life through poor physical/mental health     
+* **Crime** - measures the risk of personal and material victimisation at a local level  
+* **Barriers to Housing and Services** - measures the physical and financial accessibility of housing and local services     
+* **Living Environment** - measures the quality of both the 'indoor' and 'outdoor' local environment    
+
+Each domain is combined and weighted to create the **Index of Multiple Deprivation** (IMD), an overall measure of relative deprivation. 
+
+A further 2 supplementary indices of income deprivation are also provided:
+
+* **Income Deprivation Affecting Children Index (IDACI)** - measures the proportion of all children aged 0 to 15 living in income deprived families          
+* **Income Deprivation Affecting Older People Index (IDAOPI)** - measures the proportion of all those aged 60 or over who experience income deprivation
+
+### Please note      
+* The Indices of Deprivation measure *relative* deprivation so a change in rank between the 2025 and 2019 releases does not necessarily indicate a change in *absolute* levels of deprivation.
+* The Indices of Deprivation cannot be used to quantify how deprived or affluent an area is, identify deprived people or to measure an absolute change in deprivation over time. However, it can be used to look at changes in relative deprivation between iterations of the data and to identify the most deprived small areas.
+* The 55 indicators are based on data from the most recent time point available. This means that there is not one consistent time point for all the data. Although published in 2025, the latest Indices of Deprivation data are based largely on administrative data from 2022 - 2024. Similarly the 2019 publication is mainly based on data from 2015 - 2016. Therefore there may be recent developments which are not yet reflected in the information published.
+* The score for the Income and Employment domains as well as the two sub-domains for Income (IDACI AND IDAOPI) directly relates to the percentage of the relevant population experiencing that type of deprivation. The English Indices of Deprivation 2025 [Research Report](https://assets.publishing.service.gov.uk/media/68ff547a49d08dd781b48351/ID_2025_Research_Report.pdf) and [Technical Report](https://assets.publishing.service.gov.uk/media/68ff59c80f801e57b5bef907/ID_2025_Technical_Report.pdf) contain further detailed information.
+
+### Further resources
+* [Local Deprivation](https://trafforddatalab.shinyapps.io/local_deprivation) is our web application which interactively visualises the English Indices of Deprivation data released in 2025 as well as 2019 and 2015 for every local authority district in England.
+* Our regional report focuses on the [relative deprivation in Trafford compared to other Local Authorities within Greater Manchester](https://www.trafforddatalab.io/analysis/indices_of_deprivation/2025/report/).
+
+
+
+*******************THIS BIT NEEDS LOOKING AT*********************
+* Ward level summaries of the 2019 Indices of Deprivation for Trafford are available to view interactively in linked charts and maps [here](https://www.trafforddatalab.io/ward_profiler/).
+* A simple interactive visualisation which compares Trafford's rank of average score against its [CIPFA nearest neighbours](https://www.cipfastats.net/resources/nearestneighbours) is available [here](https://www.trafforddatalab.io/analysis/IoD2019/nearest_neighbours).
+*****************************************************************
+
+
+
+### Relationship between LSOAs and electoral wards
+Ward boundaries and LSOA boundaries do not always perfectly align and so it is impossible to aggregate from LSOA to ward exactly. Instead a ['best-fit' methodology](https://geoportal.statistics.gov.uk/datasets/ons::lsoa-2021-to-electoral-ward-2025-to-lad-2025-best-fit-lookup-in-ew-v2/about) is used by the [Office for National Statistics (ONS)](https://www.ons.gov.uk/) to assign LSOAs to the most appropriate ward. This may mean that some parts of the LSOAs discussed within this report fall outside of the ward boundary and some areas within the boundary are not covered as they have been assigned to another ward. Using this method, the ward of `r params$ward_name` encompasses the following `r length(lsoas_ward)` LSOAs:
+
+```{r lsoa_table, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Create a table showing the LSOAs within the ward
+df_trafford_lsoa_codes_and_names %>%
+  filter(lsoa21cd %in% lsoas_ward) %>%
+  distinct(lsoa21cd, .keep_all = TRUE) %>%
+  arrange(lsoa21cd) %>%
+  rename("LSOA code" = lsoa21cd,
+         "LSOA name" = lsoa21nm) %>%
+  kable() %>%
+  kable_styling(font_size = 12, bootstrap_options = c("striped", "condensed"), full_width = F) %>%
+  row_spec(0, bold = T, color = "#707070")
+```
+
+<br />
+
+## Interactive map
+You can use the interactive map below to explore `r params$ward_name` ward and the areas covered by each of the LSOAs.
+
+```{r interactive_map, echo=FALSE, message=FALSE, warning=FALSE}
+leaflet(height = 500, width = "100%", options = leafletOptions(zoomControl = TRUE)) %>% 
+  setView(-3, 54.3, zoom = 6) %>% 
+  addTiles(urlTemplate = "", attribution = '<a href="https://www.ons.gov.uk/methodology/geography/licences">Contains OS data © Crown copyright and database right (2023)</a> | <a href="https://www.trafforddatalab.io">@traffordDataLab</a>') %>%
+  # Base map tiles
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  # Ward boundary
+  addPolygons(data = sf_ward, fillOpacity = 0.2, opacity = 0, weight = 5, fillColor = chart_highlight) %>%
+  # LSOA boundaries
+  addPolygons(data = sf_lsoas_ward, fillOpacity = 0, opacity = 1, weight = 2, color = "#212121",
+              label = ~sf_lsoas_ward$lsoa21nm,
+              labelOptions = labelOptions(textsize = "10px", direction = "auto", opacity = 0.6)) %>%
+  addResetMapButton() %>%
+  clearBounds() %>%
+  onRender(paste0("function(el, x) {$('head').append(","\'<meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0\">\'",");}"))
+```
+
+<br />
+
+## Index of Multiple Deprivation
+As mentioned above, the 7 domains are combined and weighted to create the Index of Multiple Deprivation (IMD) which is an overall measure of relative deprivation. The plot below shows where the `r length(lsoas_ward)` LSOAs within `r params$ward_name` lie relative to all the LSOAs in Trafford, and in which decile.
+<br /><br />
+```{r barcode_imd, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Index of Multiple Deprivation")
+```
+<br />  
+```{r table_imd, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Index of Multiple Deprivation")
+```
+
+<br />
+
+## Income
+The definition of income deprivation includes people who are dependent upon the state for some form of means-tested benefit, and includes both people that are out-of-work, and those that are in work but who have low earnings and are claiming a means tested benefit. The indicators used are:
+
+* Adults and children in Income Support benfit units
+* Adults and children in income-based Jobseeker's Allowance benefit units
+* Adults and children in income-based Employment and Support Allowance benefit units
+* Adults and children in Pension Credit (Guarantee) benefit units
+* Adults and children in Working Tax Credit and Child Tax Credit families not already counted
+* Adults and children in Universal Credit benefit units 'out of work' conditionality categories:
+    * No work requirements
+    * Planning for work
+    * Preparing for work
+    * Searching for work
+* Adults and children in Universal Credit 'in-work' conditionality groups with monthly equivalised income below 70% of the national median (after housing costs):
+    * Working with requirements
+    * Working - no requirements
+* Adults and children in Housing Benefit claimant benefit units with monthly equivalised income below 70% of the national median (after housing costs).
+* Adults and Children in Tax Credit benefit units with monthly equivalised income below 70% of the national median (after housing costs).
+* Asylum seeker adults and children in dispersed accommodation in receipt of support
+
+This domain has a weighting of 22.5% when combined with the others to form the Index of Multiple Deprivation 2025.
+<br /><br />
+```{r barcode_income, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Income")
+```
+<br />  
+```{r table_income, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Income")
+```
+
+***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
+
+<br />
+
+## Employment
+This domain measures the proportion of the working age population in an area involuntarily excluded from the labour market. This includes those who may want to work but are unable to do so due to unemployment, sickness or disability, or caring responsibilities. The indicators used are:
+
+* Claimants of Jobseeker's Allowance (both contribution-based and income-based).
+* Claimants of New Style Jobseeker's Allowance.
+* Claimants of Employment and Support Allowance (both contribution-based and income-based).
+* Claimants of New Style Employment and Support Allowance.
+* Claimants of Incapacity Benefit.
+* Claimants of Severe Disablement Allowance.
+* Claimants of Carer's Allowance.
+* Claimants of Income Support.
+* Claimants of Universal Credit in No work requirements conditionality group.
+* Claimants of Universal Credit in Searching for work conditionality group.
+* Claimants of Universal Credit in Planning for work conditionality group.
+* Claimants of Universal Credit in Preparing for work conditionality group.
+
+This domain has a weighting of 22.5% when combined with the others to form the Index of Multiple Deprivation 2025.
+<br /><br />
+```{r barcode_employment, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Employment")
+```
+<br />  
+```{r table_employment, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Employment")
+```
+
+***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
+
+<br />
+
+## Education, Skills and Training
+The Education, Skills and Training Domain measures the lack of attainment and skills in the local population. The indicators fall into two sub-domains: one relating to children and young people, and one relating to adult skills. These two sub-domains are designed to reflect the 'flow' and 'stock' of educational disadvantage within an area respectively. That is, the 'children and young people' sub-domain measures the attainment of qualifications and associated measures ('flow'), while the 'skills' sub-domain measures the lack of qualifications in the resident working-age adult population ('stock'). The indicators used are:
+
+### Children and Young People sub-domain
+
+* Key Stage 2 attainment: The scaled score of pupils taking Mathematics, English reading and English grammar, punctuation and spelling Key Stage 2 exams
+* Key Stage 4 attainment: The average capped points score of pupils taking Key Stage 4 (GCSE or equivalent) exams
+* Entry to higher education: A measure of young people aged under 21 not entering higher education
+* Pupil absence: The proportion of authorised and unauthorised absences for pupils attending maintained Primary, Secondary and Special Schools
+* Persistent pupil absence: The proportion of pupils missing 10% or more of possible school sessions
+
+### Adult Skills sub-domain
+
+* Adult skills: The proportion of working-age adults with no or low qualifications, or who cannot speak English or cannot speak English well, aged 25 to 66
+
+This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2025.
+<br /><br />
+```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Education")
+```
+<br />  
+```{r table_education, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Education")
+```
+
+<br />
+
+## Health and Disability
+This domain measures the risk of premature death and the impairment of quality of life through poor physical or mental health. The domain measures morbidity, disability and premature mortality. The domain is comprised of four separate indicators measuring: illness and disability; premature mortality; acute morbidity; and mental health. The indicators used are:
+
+* Comparative Illness and Disability Ratio: an age and sex standardised ratio of people receiving Disability Living Allowance (DLA), Employment and Support Allowance (ESA), Attendance Allowance (AA), Industrial Injuries Disablement Benefit/Reduced Earnings Allowance/ Retirement Allowance, Incapacity Benefit (IB), Severe Disablement Allowance (SDA), Personal Independence Payment (PIP) and Universal Credit (UC) Health Caseload
+* Years of Potential Life Lost: an age and sex standardised rate of 'premature death', defined as death before the age of 75 from any cause
+* Acute Morbidity: an age and sex standardised rate of hospital spells starting with an admission in an emergency and lasting more than one calendar day
+* Mental health sub-component 1: Suicide: a rate of deaths coded as intentional
+* Mental health sub-component 2: Hospital admissions: a rate of hospital admissions related to mental health
+* Mental health sub-component 3: Prescribing data: a rate of patients prescribed pharmaceuticals for mental ill-health
+* Mental health sub-component 4: Health benefits: the number of residents claiming Personal Independence Payments (PIP) and Disability Living Allowance (DLA) in disease groupings associated with mental health or behavioural disorders as a proportion of the total population aged 0-66.
+
+This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2025.
+<br /><br />
+```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Health")
+```
+<br />  
+```{r table_health, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Health")
+```
+
+<br />
+
+## Crime
+Crime is an important feature of deprivation that has major effects on individuals and communities. The Crime Domain measures the risk of personal and material victimisation at local level. The indicators used are all based on the rate per 1,000 at risk population except burglary which is based on the rate per 1,000 at risk properties:
+
+* Violence with injury: based on all sub-categories of 'violence with injury' and all categories of 'homicide' from 2018/19 to 2023/24.
+* Violence without injury: based on all sub-categories of 'violence without injury' from 2018/19 to 2023/24.
+* Stalking and harassment: based on all sub-categories of 'stalking and harassment' from 2018/19 to 2023/24.
+* Burglary: based on all sub-categories of 'burglary' from 2018/19 to 2023/24.
+* Theft: based on all sub-categories of 'theft' and 'robbery', except 'shoplifting' which is excluded, from 2018/19 to 2023/24.
+* Criminal damage: based on all sub-categories of 'criminal damage' and 'arson' from 2018/19 to 2023/24.
+* Public order and possession of weapons: based on all sub-categories of 'public order' and 'possession of weapon offences' from 2018/19 to 2023/24.
+* Antisocial behaviour: based on all sub-categories of 'personal', 'environmental' and 'nuisance' incidents for two statistical years, 2022/23 and 2023/24.
+
+This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2025.
+<br /><br />
+```{r barcode_crime, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Crime")
+```
+<br />  
+```{r table_crime, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Crime")
+```
+
+<br />
+
+## Barriers to Housing and Services
+The Barriers to Housing and Services Domain measures the physical and financial accessibility of housing and local services. The indicators fall into two sub-domains: 'geographical barriers', which relates to the geographical (in)accessibility of key local services and amenities; and ‘wider barriers’ which relates to broader issues of accessibility, such to access to affordable housing and other important services. The indicators used are:
+
+### Geographical Barriers sub-domain:
+
+* Connectivity Score: Travel time to retail, education, health, employment and leisure/entertainment destinations by walking, cycling and public transport.
+
+### Wider Barriers sub-domains:
+
+* Housing affordability: Difficulty of access to owner-occupation or the private rental market, expressed as the inability to afford to enter owner-occupation or the private rental market.
+* Household overcrowding: The proportion of households judged to have insufficient space to meet the household’s needs.
+* Statutory Homelessness: A Local Authority District level indicator expressed as the rate of acceptances for housing assistance under the homelessness provisions of housing legislation.
+* Core Homelessness: A Local Authority District level indicator capturing households experiencing the most extreme and immediate forms of homelessness.
+* Broadband speed: Average broadband upload and download line speed (Mbit/s).
+* Patient-to-GP ratio: Patient to GP ratio by GP surgery, allocated to LSOA level based on patient residence distributions.
+
+This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2025.
+<br /><br />
+```{r barcode_barriers, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Barriers to Housing and Services")
+```
+<br />  
+```{r table_barriers, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Barriers to Housing and Services")
+```
+
+<br />
+
+## Living Environment
+The Living Environment Deprivation Domain measures the quality of the local environment. The indicators fall into two sub-domains. The 'indoors' sub-domain contains measures relating to the quality of the home environment, while the 'outdoors' sub-domain contains measures relating to the local neighbourhood environment.
+
+### Indoors sub-domain:
+
+* Housing in poor condition: The proportion of social and private homes that fail to meet three components of the Decent Homes standard.
+* Housing Energy Performance Score: A measure reflecting housing quality derived from the Energy Performance Certificate (EPC) data collated by MHCLG.
+* Housing lacking private outdoor space: A derived from Ordnance Survey (OS) and Office for National Statistics (ONS) data on residential properties and associated private outdoor space.
+
+### Outdoors sub-domain:
+
+* Air quality: A measure of air quality based on emissions rates for four pollutants.
+* Road traffic accidents involving injury to pedestrians and cyclists: A measure reflecting the rate of pedestrians and cyclist casualties from road traffic collisions.
+* Noise pollution: The percentage of the population of each LSOA exposed to noise pollution greater than or equal to 55dB L<sub>den</sub> (European standard day–evening–night noise level).
+
+This domain has a weighting of 9.3% when combined with the others to form the Index of Multiple Deprivation 2025.
+<br /><br />
+```{r barcode_living, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Living Environment")
+```
+<br />  
+```{r table_living, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Living Environment")
+```
+
+<br />
+
+## Income Deprivation Affecting Children
+The Income Deprivation Affecting Children Index (IDACI), a supplementary index and subset of the Income Deprivation domain, is the proportion of all children aged 0 to 15 living who are counted in the Income Deprivation Domain numerator.
+<br /><br />
+```{r barcode_idaci, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Income Deprivation Affecting Children")
+```
+<br />  
+```{r table_idaci, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Income Deprivation Affecting Children")
+```
+
+***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
+
+<br />
+
+## Income Deprivation Affecting Older People
+The Income Deprivation Affecting Older People Index (IDAOPI), a supplementary index and subset of the Income Deprivation domain, is the proportion of all those aged 60 or over who are counted in the
+Income Deprivation Domain numerator.
+<br /><br />
+```{r barcode_idaopi, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
+barcode_plot(domain = "Income Deprivation Affecting Older People")
+```
+<br />  
+```{r table_idaopi, echo=FALSE, message=FALSE, warning=FALSE}
+domain_table(domain = "Income Deprivation Affecting Older People")
+```
+
+***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
