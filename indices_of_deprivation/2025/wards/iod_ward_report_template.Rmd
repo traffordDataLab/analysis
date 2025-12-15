@@ -5,7 +5,8 @@ output:
   html_document:
     df_print: paged
     includes:
-      in_header: rmd_report_includes.html
+      in_header: rmd_report_includes_head.html
+      before_body: rmd_report_includes_body.html
     mathjax: null
     self_contained: yes
     theme: flatly
@@ -189,7 +190,7 @@ ggplot() +
 TO BE COMPLETED
 
 ## Background
-The [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025) (IoD) were published by the [Ministry of Housing, Communities & Local Government](https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government) in October 2025. The Indices measure relative levels of deprivation in 33,755 Lower-layer Super Output Areas (LSOAs) in England. Each LSOA contains approximately 1,500 residents or 650 households. They are ranked from 1 (most deprived) to 33,755 (least deprived) and assigned to a decile ranging from 1 (most deprived 10%) to 10 (least deprived 10%). Local authorities in England are also ranked from 1 to 296 based on a population weighted average rank or score of the LSOA data.
+The [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025) (IoD) were published by the [Ministry of Housing, Communities & Local Government](https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government) (MHCLG) in October 2025. The Indices measure relative levels of deprivation in 33,755 Lower-layer Super Output Areas (LSOAs) in England. Each LSOA contains approximately 1,500 residents or 650 households. They are ranked from 1 (most deprived) to 33,755 (least deprived) and assigned to a decile ranging from 1 (most deprived 10%) to 10 (least deprived 10%). Local authorities in England are also ranked from 1 to 296 based on a population weighted average rank or score of the LSOA data.
 
 Relative deprivation is measured using 55 indicators which are grouped across seven different domains:
 
@@ -212,20 +213,12 @@ A further 2 supplementary indices of income deprivation are also provided:
 * The Indices of Deprivation measure *relative* deprivation so a change in rank between the 2025 and 2019 releases does not necessarily indicate a change in *absolute* levels of deprivation.
 * The Indices of Deprivation cannot be used to quantify how deprived or affluent an area is, identify deprived people or to measure an absolute change in deprivation over time. However, it can be used to look at changes in relative deprivation between iterations of the data and to identify the most deprived small areas.
 * The 55 indicators are based on data from the most recent time point available. This means that there is not one consistent time point for all the data. Although published in 2025, the latest Indices of Deprivation data are based largely on administrative data from 2022 - 2024. Similarly the 2019 publication is mainly based on data from 2015 - 2016. Therefore there may be recent developments which are not yet reflected in the information published.
-* The score for the Income and Employment domains as well as the two sub-domains for Income (IDACI AND IDAOPI) directly relates to the percentage of the relevant population experiencing that type of deprivation. The English Indices of Deprivation 2025 [Research Report](https://assets.publishing.service.gov.uk/media/68ff547a49d08dd781b48351/ID_2025_Research_Report.pdf) and [Technical Report](https://assets.publishing.service.gov.uk/media/68ff59c80f801e57b5bef907/ID_2025_Technical_Report.pdf) contain further detailed information.
+* The score for the Income and Employment domains as well as the two sub-domains for Income (IDACI and IDAOPI) directly relates to the percentage of the relevant population experiencing that type of deprivation. The English Indices of Deprivation 2025 [Research Report](https://assets.publishing.service.gov.uk/media/68ff547a49d08dd781b48351/ID_2025_Research_Report.pdf) and [Technical Report](https://assets.publishing.service.gov.uk/media/68ff59c80f801e57b5bef907/ID_2025_Technical_Report.pdf) contain further detailed information.
 
 ### Further resources
 * [Local Deprivation](https://trafforddatalab.shinyapps.io/local_deprivation) is our web application which interactively visualises the English Indices of Deprivation data released in 2025 as well as 2019 and 2015 for every local authority district in England.
-* Our regional report focuses on the [relative deprivation in Trafford compared to other Local Authorities within Greater Manchester](https://www.trafforddatalab.io/analysis/indices_of_deprivation/2025/report/).
-
-
-
-*******************THIS BIT NEEDS LOOKING AT*********************
-* Ward level summaries of the 2019 Indices of Deprivation for Trafford are available to view interactively in linked charts and maps [here](https://www.trafforddatalab.io/ward_profiler/).
-* A simple interactive visualisation which compares Trafford's rank of average score against its [CIPFA nearest neighbours](https://www.cipfastats.net/resources/nearestneighbours) is available [here](https://www.trafforddatalab.io/analysis/IoD2019/nearest_neighbours).
-*****************************************************************
-
-
+* Our [local authority report](https://www.trafforddatalab.io/analysis/indices_of_deprivation/2025/report/) focuses on the relative deprivation in Trafford compared to other local authorities, including our regional neighbours in Greater Manchester, as well as those statistically similar authorities based on particular criteria and indicators.
+* Our [Trafford Wards collection](https://www.trafforddatalab.io/trafford_wards.html) includes further information about the electoral wards in Trafford, including profile reports and interactively linked charts and maps.
 
 ### Relationship between LSOAs and electoral wards
 Ward boundaries and LSOA boundaries do not always perfectly align and so it is impossible to aggregate from LSOA to ward exactly. Instead a ['best-fit' methodology](https://geoportal.statistics.gov.uk/datasets/ons::lsoa-2021-to-electoral-ward-2025-to-lad-2025-best-fit-lookup-in-ew-v2/about) is used by the [Office for National Statistics (ONS)](https://www.ons.gov.uk/) to assign LSOAs to the most appropriate ward. This may mean that some parts of the LSOAs discussed within this report fall outside of the ward boundary and some areas within the boundary are not covered as they have been assigned to another ward. Using this method, the ward of `r params$ward_name` encompasses the following `r length(lsoas_ward)` LSOAs:
@@ -247,20 +240,22 @@ df_trafford_lsoa_codes_and_names %>%
 <br />
 
 ## Interactive map
-You can use the interactive map below to explore `r params$ward_name` ward and the areas covered by each of the LSOAs.
+You can use the interactive map below to explore `r params$ward_name` ward (in blue) and the areas covered by each of the `r length(lsoas_ward)` LSOAs (dark outlines).
 
 ```{r interactive_map, echo=FALSE, message=FALSE, warning=FALSE}
-leaflet(height = 500, width = "100%", options = leafletOptions(zoomControl = TRUE)) %>% 
+leaflet(height = 500, width = "100%", options = leafletOptions(zoomControl = TRUE)) %>%
   setView(-3, 54.3, zoom = 6) %>% 
   addTiles(urlTemplate = "", attribution = '<a href="https://www.ons.gov.uk/methodology/geography/licences">Contains OS data © Crown copyright and database right (2023)</a> | <a href="https://www.trafforddatalab.io">@traffordDataLab</a>') %>%
   # Base map tiles
   addProviderTiles(providers$CartoDB.Positron) %>%
   # Ward boundary
-  addPolygons(data = sf_ward, fillOpacity = 0.2, opacity = 0, weight = 5, fillColor = chart_highlight) %>%
+  addPolygons(data = sf_ward, fillOpacity = 0.2, opacity = 0, weight = 5, fillColor = chart_highlight,
+              label = "Ward boundary",
+              labelOptions = labelOptions(textsize = "10px", direction = "auto", opacity = 0.9)) %>%
   # LSOA boundaries
   addPolygons(data = sf_lsoas_ward, fillOpacity = 0, opacity = 1, weight = 2, color = "#212121",
               label = ~sf_lsoas_ward$lsoa21nm,
-              labelOptions = labelOptions(textsize = "10px", direction = "auto", opacity = 0.6)) %>%
+              labelOptions = labelOptions(textsize = "10px", direction = "auto", opacity = 0.9)) %>%
   addResetMapButton() %>%
   clearBounds() %>%
   onRender(paste0("function(el, x) {$('head').append(","\'<meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0\">\'",");}"))
