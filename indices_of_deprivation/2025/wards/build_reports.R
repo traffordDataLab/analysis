@@ -9,7 +9,7 @@ wards <- st_read("https://www.trafforddatalab.io/spatial_data/ward/2023/trafford
 
 # Create a tibble of the ward names and the parameters to pass the markdown document
 reports <- tibble(
-  filename = str_c(str_to_lower(str_replace_all(wards, " ", "_")), ".html"),
+  filename = str_c(str_to_lower(str_replace_all(wards, c(" " = "_", "&" = "and"))), ".html"), # replace any spaces with an underscore and ampersands with the word "and" in the filename
   params = map(wards, ~list(ward_name = .))
 )
 
