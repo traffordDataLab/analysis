@@ -69,7 +69,7 @@ barcode_plot <- function (domain) {
 }
 
 
-# Function to create a table for a chosen domain
+# Function to create a table for a chosen domain/index
 domain_table <- function (domain) {
   # we want to include the score if it reflects the % of population affected
   if (domain %in% c("Income","Employment","Income Deprivation Affecting Children","Income Deprivation Affecting Older People")) {
@@ -93,6 +93,16 @@ domain_table <- function (domain) {
     kable_styling(font_size = 12, bootstrap_options = c("striped", "condensed"), full_width = F) %>%
     row_spec(0, bold = T, color = "#707070")
 }
+
+
+# Function to return scores and ranks for the best-fit ward aggregations for a chosen domain/index
+ward_score_rank <- function (domain) {
+    df_ward_average_scores_ranks %>%
+        filter(index_domain == domain) %>%
+        select(score, rank, rank_ordinal, message)
+}
+
+
 
 
 # Get the Trafford LSOA codes and names in a tibble
@@ -137,8 +147,8 @@ df_iod_trafford <- read_csv("https://assets.publishing.service.gov.uk/media/691d
                              str_detect(variable, "rank") ~ "rank"),
          index_domain = case_when(str_detect(variable, "index_of_multiple_deprivation") ~ "Index of Multiple Deprivation", 
                                   str_detect(variable, "employment") ~ "Employment",
-                                  str_detect(variable, "education") ~ "Education",
-                                  str_detect(variable, "health") ~ "Health",
+                                  str_detect(variable, "education") ~ "Education, Skills and Training",
+                                  str_detect(variable, "health") ~ "Health and Disability",
                                   str_detect(variable, "crime") ~ "Crime",
                                   str_detect(variable, "barriers") ~ "Barriers to Housing and Services",
                                   str_detect(variable, "living") ~ "Living Environment",
@@ -147,13 +157,34 @@ df_iod_trafford <- read_csv("https://assets.publishing.service.gov.uk/media/691d
                                   TRUE ~ "Income"),
          index_domain = fct_relevel(factor(index_domain), 
                                     "Index of Multiple Deprivation", 
-                                    "Income", "Employment", "Education", "Health", "Crime",
+                                    "Income", "Employment", "Education, Skills and Training",
+                                    "Health and Disability", "Crime",
                                     "Barriers to Housing and Services", "Living Environment",
                                     "Income Deprivation Affecting Older People",
                                     "Income Deprivation Affecting Children")) %>% 
   select(lsoa21cd, measure, value, index_domain) %>% 
   spread(measure, value) %>%
   left_join(df_trafford_lsoa_codes_and_names, by = "lsoa21cd")
+
+
+# Best-fit ward aggregated data
+df_ward_average_scores_ranks <- read_csv("trafford_wards_iod2025_average_scores_ranks.csv") %>%
+    filter(ward_name == params$ward_name) %>%
+    rename(score = ward_average_score,
+           rank = ward_average_score_rank) %>%
+    mutate(# create the appropriate suffix ([1]st, [2]nd, [3]rd, [4]th etc.) based on the rank
+           rank_ordinal = case_when(rank %in% c(1, 21) ~ "st",
+                                    rank == 2 ~ "nd",
+                                    rank == 3 ~ "rd",
+                                    .default = "th"),
+           # create a string if the rank is either 1 - 3 inclusive or 19 to 21 inclusive to emphasise how more/less deprived the particular rank is within Trafford
+           message = case_when(rank == 1 ~ "most deprived",
+                               rank == 2 ~ "2nd most deprived",
+                               rank == 3 ~ "3rd most deprived",
+                               rank == 19 ~ "3rd least deprived",
+                               rank == 20 ~ "2nd least deprived",
+                               rank == 21 ~ "least deprived",
+                               .default = NA_character_))
 ```
 
 This report explores the [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025) for the small areas (Lower-Layer Super Output Areas or LSOAs) within `r params$ward_name`. It compares these small areas relative to Trafford using the rank and score and highlights the indicators and data sources behind these measures.
@@ -186,11 +217,15 @@ ggplot() +
 ```
 
 ## Key findings
-
-TO BE COMPLETED
+* `r params$ward_name` is ranked `r paste0(ward_score_rank("Index of Multiple Deprivation")$rank, ward_score_rank("Index of Multiple Deprivation")$rank_ordinal)` out of the 21 wards in Trafford *(where 1 is the most deprived and 21 is the least deprived)*`r if_else(!is.na(ward_score_rank("Index of Multiple Deprivation")$message), paste0(", making it the ", ward_score_rank("Index of Multiple Deprivation")$message, " in Trafford"), "")` according to the Index of Multiple Deprivation (IMD) 2025
+* `r percent(ward_score_rank("Income")$score, accuracy = 0.1)` of the population in `r params$ward_name` experience deprivation relating to low income, affecting `r percent(ward_score_rank("Income Deprivation Affecting Children")$score, accuracy = 0.1)` of children and `r percent(ward_score_rank("Income Deprivation Affecting Older People")$score, accuracy = 0.1)` of older people
+* This ranks `r paste0(params$ward_name, " ", ward_score_rank("Income")$rank, ward_score_rank("Income")$rank_ordinal)` out of 21 for the Income domain`r if_else(!is.na(ward_score_rank("Income")$message), paste0(", the ", ward_score_rank("Income")$message, " ward in the borough according to this measure"), "")`
+* Employment deprivation affects `r percent(ward_score_rank("Employment")$score, accuracy = 0.1)` of the working age population in `r params$ward_name`, giving the ward a ranking of `r paste0(ward_score_rank("Employment")$rank, ward_score_rank("Employment")$rank_ordinal)` out of 21`r if_else(!is.na(ward_score_rank("Employment")$message), paste0(", the ", ward_score_rank("Employment")$message, " in Trafford"), "")` for this measure
 
 ## Background
-The [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025) (IoD) were published by the [Ministry of Housing, Communities & Local Government](https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government) (MHCLG) in October 2025. The Indices measure relative levels of deprivation in 33,755 Lower-layer Super Output Areas (LSOAs) in England. Each LSOA contains approximately 1,500 residents or 650 households. They are ranked from 1 (most deprived) to 33,755 (least deprived) and assigned to a decile ranging from 1 (most deprived 10%) to 10 (least deprived 10%). Local authorities in England are also ranked from 1 to 296 based on a population weighted average rank or score of the LSOA data.
+The [English Indices of Deprivation 2025](https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025) (IoD) were published by the [Ministry of Housing, Communities & Local Government](https://www.gov.uk/government/organisations/ministry-of-housing-communities-and-local-government) (MHCLG) in October 2025. The Indices measure relative levels of deprivation in 33,755 Lower-layer Super Output Areas (LSOAs) in England. Each LSOA contains approximately 1,500 residents or 650 households. They are ranked from 1 (most deprived) to 33,755 (least deprived) and assigned to a decile ranging from 1 (most deprived 10%) to 10 (least deprived 10%).
+
+Local authorities in England are also ranked from 1 to 296 based on a population weighted average rank or score of the LSOA data. The Trafford ward rankings are also based on the population weighted average scores of the best-fit LSOAs assigned to them. This is explained further in the [Relationship between LSOAs and electoral wards](#best-fit) section below.
 
 Relative deprivation is measured using 55 indicators which are grouped across seven different domains:
 
@@ -220,7 +255,7 @@ A further 2 supplementary indices of income deprivation are also provided:
 * Our [local authority report](https://www.trafforddatalab.io/analysis/indices_of_deprivation/2025/report/) focuses on the relative deprivation in Trafford compared to other local authorities, including our regional neighbours in Greater Manchester, as well as those statistically similar authorities based on particular criteria and indicators.
 * Our [Trafford Wards collection](https://www.trafforddatalab.io/trafford_wards.html) includes further information about the electoral wards in Trafford, including profile reports and interactively linked charts and maps.
 
-### Relationship between LSOAs and electoral wards
+### <span id="best-fit">Relationship between LSOAs and electoral wards</span>
 Ward boundaries and LSOA boundaries do not always perfectly align and so it is impossible to aggregate from LSOA to ward exactly. Instead a ['best-fit' methodology](https://geoportal.statistics.gov.uk/datasets/ons::lsoa-2021-to-electoral-ward-2025-to-lad-2025-best-fit-lookup-in-ew-v2/about) is used by the [Office for National Statistics (ONS)](https://www.ons.gov.uk/) to assign LSOAs to the most appropriate ward. This may mean that some parts of the LSOAs discussed within this report fall outside of the ward boundary and some areas within the boundary are not covered as they have been assigned to another ward. Using this method, the ward of `r params$ward_name` encompasses the following `r length(lsoas_ward)` LSOAs:
 
 ```{r lsoa_table, echo=FALSE, message=FALSE, warning=FALSE}
@@ -274,7 +309,8 @@ barcode_plot(domain = "Index of Multiple Deprivation")
 domain_table(domain = "Index of Multiple Deprivation")
 ```
 
-<br />
+The population weighted average score of the best-fit LSOAs gives `r params$ward_name` a rank of `r paste0(ward_score_rank("Index of Multiple Deprivation")$rank, ward_score_rank("Index of Multiple Deprivation")$rank_ordinal)` out of Trafford's 21 wards for the overall Index of Multiple Deprivation 2025`r if_else(!is.na(ward_score_rank("Index of Multiple Deprivation")$message), paste0(", making it the ", ward_score_rank("Index of Multiple Deprivation")$message, " ward in the borough"), "")`.
+<br /><br />
 
 ## Income
 The definition of income deprivation includes people who are dependent upon the state for some form of means-tested benefit, and includes both people that are out-of-work, and those that are in work but who have low earnings and are claiming a means tested benefit. The indicators used are:
@@ -308,7 +344,8 @@ domain_table(domain = "Income")
 
 ***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
 
-<br />
+The population weighted average score of the best-fit LSOAs indicates that `r percent(ward_score_rank("Income")$score, accuracy = 0.1)` of the population in `r params$ward_name` experience income related deprivation. This gives the ward a rank of `r paste0(ward_score_rank("Income")$rank, ward_score_rank("Income")$rank_ordinal)` out of 21 in Trafford for the Income domain`r if_else(!is.na(ward_score_rank("Income")$message), paste0(", making it the ", ward_score_rank("Income")$message, " ward in Trafford for this measure"), "")`.
+<br /><br />
 
 ## Employment
 This domain measures the proportion of the working age population in an area involuntarily excluded from the labour market. This includes those who may want to work but are unable to do so due to unemployment, sickness or disability, or caring responsibilities. The indicators used are:
@@ -338,7 +375,8 @@ domain_table(domain = "Employment")
 
 ***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
 
-<br />
+The population weighted average score of the best-fit LSOAs indicates that employment related deprivation affects `r percent(ward_score_rank("Employment")$score, accuracy = 0.1)` of the working age population in `r params$ward_name`. This gives the ward a rank of `r paste0(ward_score_rank("Employment")$rank, ward_score_rank("Employment")$rank_ordinal)` out of 21 in Trafford for the Employment domain`r if_else(!is.na(ward_score_rank("Employment")$message), paste0(", making it the ", ward_score_rank("Employment")$message, " ward in Trafford for this measure"), "")`.
+<br /><br />
 
 ## Education, Skills and Training
 The Education, Skills and Training Domain measures the lack of attainment and skills in the local population. The indicators fall into two sub-domains: one relating to children and young people, and one relating to adult skills. These two sub-domains are designed to reflect the 'flow' and 'stock' of educational disadvantage within an area respectively. That is, the 'children and young people' sub-domain measures the attainment of qualifications and associated measures ('flow'), while the 'skills' sub-domain measures the lack of qualifications in the resident working-age adult population ('stock'). The indicators used are:
@@ -358,14 +396,15 @@ The Education, Skills and Training Domain measures the lack of attainment and sk
 This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2025.
 <br /><br />
 ```{r barcode_education, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
-barcode_plot(domain = "Education")
+barcode_plot(domain = "Education, Skills and Training")
 ```
 <br />  
 ```{r table_education, echo=FALSE, message=FALSE, warning=FALSE}
-domain_table(domain = "Education")
+domain_table(domain = "Education, Skills and Training")
 ```
 
-<br />
+The population weighted average score of the best-fit LSOAs gives `r params$ward_name` a rank of `r paste0(ward_score_rank("Education, Skills and Training")$rank, ward_score_rank("Education, Skills and Training")$rank_ordinal)` out of Trafford's 21 wards`r if_else(!is.na(ward_score_rank("Education, Skills and Training")$message), paste0(", making it the ", ward_score_rank("Education, Skills and Training")$message, " ward in the borough"), "")` for the Education, Skills and Training domain.
+<br /><br />
 
 ## Health and Disability
 This domain measures the risk of premature death and the impairment of quality of life through poor physical or mental health. The domain measures morbidity, disability and premature mortality. The domain is comprised of four separate indicators measuring: illness and disability; premature mortality; acute morbidity; and mental health. The indicators used are:
@@ -381,14 +420,15 @@ This domain measures the risk of premature death and the impairment of quality o
 This domain has a weighting of 13.5% when combined with the others to form the Index of Multiple Deprivation 2025.
 <br /><br />
 ```{r barcode_health, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
-barcode_plot(domain = "Health")
+barcode_plot(domain = "Health and Disability")
 ```
 <br />  
 ```{r table_health, echo=FALSE, message=FALSE, warning=FALSE}
-domain_table(domain = "Health")
+domain_table(domain = "Health and Disability")
 ```
 
-<br />
+The population weighted average score of the best-fit LSOAs gives `r params$ward_name` a rank of `r paste0(ward_score_rank("Health and Disability")$rank, ward_score_rank("Health and Disability")$rank_ordinal)` out of Trafford's 21 wards`r if_else(!is.na(ward_score_rank("Health and Disability")$message), paste0(", making it the ", ward_score_rank("Health and Disability")$message, " ward in the borough"), "")` for the Health and Disability domain.
+<br /><br />
 
 ## Crime
 Crime is an important feature of deprivation that has major effects on individuals and communities. The Crime Domain measures the risk of personal and material victimisation at local level. The indicators used are all based on the rate per 1,000 at risk population except burglary which is based on the rate per 1,000 at risk properties:
@@ -412,7 +452,8 @@ barcode_plot(domain = "Crime")
 domain_table(domain = "Crime")
 ```
 
-<br />
+The population weighted average score of the best-fit LSOAs gives `r params$ward_name` a rank of `r paste0(ward_score_rank("Crime")$rank, ward_score_rank("Crime")$rank_ordinal)` out of Trafford's 21 wards`r if_else(!is.na(ward_score_rank("Crime")$message), paste0(", making it the ", ward_score_rank("Crime")$message, " ward in the borough"), "")` for the Crime domain.
+<br /><br />
 
 ## Barriers to Housing and Services
 The Barriers to Housing and Services Domain measures the physical and financial accessibility of housing and local services. The indicators fall into two sub-domains: 'geographical barriers', which relates to the geographical (in)accessibility of key local services and amenities; and ‘wider barriers’ which relates to broader issues of accessibility, such to access to affordable housing and other important services. The indicators used are:
@@ -440,7 +481,8 @@ barcode_plot(domain = "Barriers to Housing and Services")
 domain_table(domain = "Barriers to Housing and Services")
 ```
 
-<br />
+The population weighted average score of the best-fit LSOAs gives `r params$ward_name` a rank of `r paste0(ward_score_rank("Barriers to Housing and Services")$rank, ward_score_rank("Barriers to Housing and Services")$rank_ordinal)` out of Trafford's 21 wards`r if_else(!is.na(ward_score_rank("Barriers to Housing and Services")$message), paste0(", making it the ", ward_score_rank("Barriers to Housing and Services")$message, " ward in the borough"), "")` for the Barriers to Housing and Services domain.
+<br /><br />
 
 ## Living Environment
 The Living Environment Deprivation Domain measures the quality of the local environment. The indicators fall into two sub-domains. The 'indoors' sub-domain contains measures relating to the quality of the home environment, while the 'outdoors' sub-domain contains measures relating to the local neighbourhood environment.
@@ -467,10 +509,11 @@ barcode_plot(domain = "Living Environment")
 domain_table(domain = "Living Environment")
 ```
 
-<br />
+The population weighted average score of the best-fit LSOAs gives `r params$ward_name` a rank of `r paste0(ward_score_rank("Living Environment")$rank, ward_score_rank("Living Environment")$rank_ordinal)` out of Trafford's 21 wards`r if_else(!is.na(ward_score_rank("Living Environment")$message), paste0(", making it the ", ward_score_rank("Living Environment")$message, " ward in the borough"), "")` for the Living Environment domain.
+<br /><br />
 
 ## Income Deprivation Affecting Children
-The Income Deprivation Affecting Children Index (IDACI), a supplementary index and subset of the Income Deprivation domain, is the proportion of all children aged 0 to 15 living who are counted in the Income Deprivation Domain numerator.
+The Income Deprivation Affecting Children Index (IDACI), a supplementary index and subset of the Income Deprivation domain, is the proportion of all children aged 0 to 15 living in income deprived families who are counted in the Income Deprivation Domain numerator.
 <br /><br />
 ```{r barcode_idaci, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
 barcode_plot(domain = "Income Deprivation Affecting Children")
@@ -482,11 +525,11 @@ domain_table(domain = "Income Deprivation Affecting Children")
 
 ***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
 
-<br />
+The population weighted average score of the best-fit LSOAs indicates that `r percent(ward_score_rank("Income Deprivation Affecting Children")$score, accuracy = 0.1)` of the children aged 0 to 15 in `r params$ward_name` live in income deprived families. This gives the ward a rank of `r paste0(ward_score_rank("Income Deprivation Affecting Children")$rank, ward_score_rank("Income Deprivation Affecting Children")$rank_ordinal)` out of 21 in Trafford for the Income domain`r if_else(!is.na(ward_score_rank("Income Deprivation Affecting Children")$message), paste0(", making it the ", ward_score_rank("Income Deprivation Affecting Children")$message, " ward in Trafford for this measure"), "")`.
+<br /><br />
 
 ## Income Deprivation Affecting Older People
-The Income Deprivation Affecting Older People Index (IDAOPI), a supplementary index and subset of the Income Deprivation domain, is the proportion of all those aged 60 or over who are counted in the
-Income Deprivation Domain numerator.
+The Income Deprivation Affecting Older People Index (IDAOPI), a supplementary index and subset of the Income Deprivation domain, is the proportion of all those aged 60 or over who are counted in the Income Deprivation Domain numerator.
 <br /><br />
 ```{r barcode_idaopi, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3.5, fig.align='center'}
 barcode_plot(domain = "Income Deprivation Affecting Older People")
@@ -497,3 +540,5 @@ domain_table(domain = "Income Deprivation Affecting Older People")
 ```
 
 ***NOTE**: the score indicates the percentage of the relevant population experiencing this type of deprivation.*
+
+The population weighted average score of the best-fit LSOAs indicates that `r percent(ward_score_rank("Income Deprivation Affecting Older People")$score, accuracy = 0.1)` of those aged 60+ in `r params$ward_name` experience income deprivation. This gives the ward a rank of `r paste0(ward_score_rank("Income Deprivation Affecting Older People")$rank, ward_score_rank("Income Deprivation Affecting Older People")$rank_ordinal)` out of 21 in Trafford for the Income domain`r if_else(!is.na(ward_score_rank("Income Deprivation Affecting Older People")$message), paste0(", making it the ", ward_score_rank("Income Deprivation Affecting Older People")$message, " ward in Trafford for this measure"), "")`.
