@@ -1,5 +1,5 @@
 ---
-title: "Relative Deprivation in `r params$ward_name`"
+title: "Relative deprivation in `r params$ward_name`"
 always_allow_html: true
 output:
   html_document:
