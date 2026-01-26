@@ -315,7 +315,7 @@ The population weighted average score of the best-fit LSOAs gives `r params$ward
 ## Income
 The definition of income deprivation includes people who are dependent upon the state for some form of means-tested benefit, and includes both people that are out-of-work, and those that are in work but who have low earnings and are claiming a means tested benefit. The indicators used are:
 
-* Adults and children in Income Support benfit units
+* Adults and children in Income Support benefit units
 * Adults and children in income-based Jobseeker's Allowance benefit units
 * Adults and children in income-based Employment and Support Allowance benefit units
 * Adults and children in Pension Credit (Guarantee) benefit units
