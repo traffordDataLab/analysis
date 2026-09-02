@@ -278,11 +278,11 @@ df_trafford_lsoa_codes_and_names %>%
 You can use the interactive map below to explore `r params$ward_name` ward (in blue) and the areas covered by each of the `r length(lsoas_ward)` LSOAs (dark outlines).
 
 ```{r interactive_map, echo=FALSE, message=FALSE, warning=FALSE}
-leaflet(height = 500, width = "100%", options = leafletOptions(zoomControl = TRUE)) %>%
+leaflet(height = 500, width = "100%", options = leafletOptions(zoomControl = TRUE, minZoom = 12, maxZoom = 16)) %>%
   setView(-3, 54.3, zoom = 6) %>% 
   addTiles(urlTemplate = "", attribution = '<a href="https://www.ons.gov.uk/methodology/geography/licences">Contains OS data © Crown copyright and database right (2023)</a> | <a href="https://www.trafforddatalab.io">@traffordDataLab</a>') %>%
   # Base map tiles
-  addProviderTiles(providers$CartoDB.Positron) %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
   # Ward boundary
   addPolygons(data = sf_ward, fillOpacity = 0.2, opacity = 0, weight = 5, fillColor = chart_highlight,
               label = "Ward boundary",
